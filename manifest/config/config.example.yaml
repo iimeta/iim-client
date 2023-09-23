@@ -1,0 +1,162 @@
+server:
+  address:     ":8000"
+  openapiPath: "/api.json"
+  swaggerPath: "/swagger"
+
+# Redis 配置
+redis:
+  default:
+    address: 127.0.0.1:6379
+    db: 1
+    pass: iim666!
+    #    masterName: default  # 哨兵模式必填
+    minIdle: 2
+    maxIdle: 5
+    maxActive: 100
+#  slave:
+#    address: 127.0.0.1:6379
+#    db: 1
+#    pass: iim666!
+#    minIdle: 2
+#    maxIdle: 5
+#    maxActive: 100
+
+mongodb:
+  uri: mongodb://admin:iim666!@127.0.0.1:27017/?authSource=admin
+  database: iim
+
+# 日志配置
+logger:
+  path: "./log/"              # 日志文件路径。默认为空，表示关闭，仅输出到终端
+  file: "{Ymd_H}.log"         # 日志文件格式。默认为"{Y-m-d}.log"
+  prefix: ""                  # 日志内容输出前缀。默认为空
+  level: "debug"              # 日志输出级别, debug, info, errors, all
+  ctxKeys: [ ]                # 自定义Context上下文变量名称，自动打印Context的变量到日志中。默认为空
+  header: true                # 是否打印日志的头信息。默认true
+  stdout: true                # 日志是否同时输出到终端。默认true
+  rotateSize: 0               # 按照日志文件大小对文件进行滚动切分。默认为0，表示关闭滚动切分特性
+  rotateExpire: 0             # 按照日志文件时间间隔对文件滚动切分。默认为0，表示关闭滚动切分特性
+  rotateBackupLimit: 0        # 按照切分的文件数量清理切分文件，当滚动切分特性开启时有效。默认为0，表示不备份，切分则删除
+  rotateBackupExpire: 0       # 按照切分的文件有效期清理切分文件，当滚动切分特性开启时有效。默认为0，表示不备份，切分则删除
+  rotateBackupCompress: 0     # 滚动切分文件的压缩比（0-9）。默认为0，表示不压缩
+  rotateCheckInterval: "1h"   # 滚动切分的时间检测间隔，一般不需要设置。默认为1小时
+  stdoutColorDisabled: false  # 关闭终端的颜色打印。默认开启
+  writerColorEnable: false    # 日志文件是否带上颜色。默认false，表示不带颜色
+
+# 项目配置信息
+app:
+  env: prod  # dev, prod
+  debug: false
+  juhe_key: xxx
+  admin_email:
+    - xxx@xxx.com
+
+# Jwt配置
+jwt:
+  secret: 836c3fea9nba4e045d1bd0fbcc5
+  expires_time: 3600
+  buffer_time: 3600
+
+# 跨域配置
+cors:
+  origin: "*"
+  headers: "Content-Type,Cache-Control,User-Agent,Keep-Alive,DNT,AccessToken,Authorization"
+  methods: "OPTIONS,GET,POST,PUT,DELETE"
+  credentials: false
+  max_age: 600
+
+# 文件系统配置【oss,qiniu 暂不支持】
+filesystem:
+  default: local
+  local:
+    root: "./resource/"
+    domain: http://localhost:8000
+  oss:
+    access_id:
+    access_secret:
+    bucket:
+    endpoint:
+    security_token:
+  qiniu:
+    access_key:
+    secret_key:
+    bucket:
+    domain:
+  cos:
+    secret_id:
+    secret_key:
+    bucket: im-xxx
+    region: ap-shanghai
+
+# 邮件配置
+email:
+  host: smtp.xxx.com
+  port: 465
+  username: xxx@xxx.com
+  password: xxx
+  fromname: "智元 IM"
+
+http:
+  proxy_open: false
+  proxy_url: http://localhost:7890
+
+sdk:
+  openai:
+    models:
+      gpt-3.5-turbo-16k:
+#        base_url: https://proxy.xxx.com/v1
+#        proxy_url: http://localhost:7890
+        api_keys:
+          - sk-xxx
+      gpt-4:
+#        base_url: https://proxy.xxx.com/v1
+#        proxy_url: http://localhost:7890
+        api_keys:
+          - sk-xxx
+
+midjourney:
+  cdn_url: https://cdn.xxx.com
+  midjourney_proxy:
+    cdn_proxy_url: https://cdn.xxx.com
+    cdn_original_url: https://cdn.discordapp.com
+    api_secret: iim
+    api_secret_header: mj-api-secret
+    imagine_url: http://127.0.0.1:8080/mj/submit/imagine
+    simple_change_url: http://127.0.0.1:8080/mj/submit/simple-change
+    change_url: http://127.0.0.1:8080/mj/submit/change
+    describe_url: http://127.0.0.1:8080/mj/submit/describe
+    blend_url: http://127.0.0.1:8080/mj/submit/blend
+    fetch_url: http://127.0.0.1:8080/mj/task/${task_id}/fetch
+
+ernie_bot:
+  access_token_url: https://aip.baidubce.com/oauth/2.0/token
+  models:
+    ernie-bot-turbo:
+      url: https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant
+    ernie-bot:
+      url: https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions
+  apps:
+    - 111:
+        api_key: xxx
+        secret_key: xxx
+xfyun:
+  spark:
+    chat_url: https://spark-api.xf-yun.com/v2.1/chat
+    domain: generalv2 # v1传general, v2传generalv2
+    app_id: xxx  # 从开放平台控制台中获取
+    api_key: xxx  # 从开放平台控制台中获取
+    api_secret: xxx  # 从开放平台控制台中获取
+
+aliyun:
+  models:
+    qwen-v1:
+      url: https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation
+      api_keys:
+        - sk-xxx
+    qwen-7b-chat-v1:
+      url: https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation
+      api_keys:
+        - sk-xxx
+
+register:
+  auto_add_uids: [ ]
