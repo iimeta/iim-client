@@ -36,6 +36,6 @@
  <img src="https://raw.githubusercontent.com/iimeta/iim-client/main/resource/images/Author.png" width="320" alt="微信二维码"/>
 
  ## 交流群
- <img src="https://raw.githubusercontent.com/iimeta/iim-client/main/resource/images/WeChatGroup.png" width="320" alt="微信二维码"/>
+ <img src="https://raw.githubusercontent.com/iimeta/iim-client/main/resource/images/WeChatGroup.jpg" width="320" alt="微信二维码"/>
 
 ![Star History Chart](https://api.star-history.com/svg?repos=iimeta/iim-client&type=Date)
