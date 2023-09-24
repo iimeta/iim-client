@@ -45,8 +45,8 @@ logger:
 
 # 项目配置信息
 app:
-  env: prod  # dev, prod
-  debug: false
+  env: dev  # dev, prod
+  debug: true
   juhe_key: xxx
   admin_email:
     - xxx@xxx.com
@@ -96,10 +96,12 @@ email:
   password: xxx
   fromname: "智元 IM"
 
+# http代理
 http:
   proxy_open: false
   proxy_url: http://localhost:7890
 
+# OpenAI
 sdk:
   openai:
     models:
@@ -114,6 +116,7 @@ sdk:
         api_keys:
           - sk-xxx
 
+# Midjourney
 midjourney:
   cdn_url: https://cdn.xxx.com
   midjourney_proxy:
@@ -128,6 +131,7 @@ midjourney:
     blend_url: http://127.0.0.1:8080/mj/submit/blend
     fetch_url: http://127.0.0.1:8080/mj/task/${task_id}/fetch
 
+# 文心一言
 ernie_bot:
   access_token_url: https://aip.baidubce.com/oauth/2.0/token
   models:
@@ -139,6 +143,8 @@ ernie_bot:
     - 111:
         api_key: xxx
         secret_key: xxx
+
+# 讯飞星火
 xfyun:
   spark:
     chat_url: https://spark-api.xf-yun.com/v2.1/chat
@@ -147,6 +153,7 @@ xfyun:
     api_key: xxx  # 从开放平台控制台中获取
     api_secret: xxx  # 从开放平台控制台中获取
 
+# 通义千问
 aliyun:
   models:
     qwen-v1:
@@ -159,4 +166,4 @@ aliyun:
         - sk-xxx
 
 register:
-  auto_add_uids: [ ]
+  auto_add_uids: [ ]  # 注册时需要自动添加的用户ID(user_id)
