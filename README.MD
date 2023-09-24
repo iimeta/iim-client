@@ -30,7 +30,7 @@
 7. 访问: http://ip:8000/, 如: http://localhost:8000/
 
 ## 项目前端
-[前端项目](https://github.com/iimeta/iim-web)
+[前端传送门](https://github.com/iimeta/iim-web)
 
 ## 作者
  <img src="https://raw.githubusercontent.com/iimeta/iim-client/main/resource/images/Author.png" width="320" alt="微信二维码"/>
