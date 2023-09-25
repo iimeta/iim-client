@@ -236,3 +236,15 @@ func (d *TalkSessionDao) FindBySessionId(ctx context.Context, uid int, receiverI
 
 	return talkSession.Id, nil
 }
+
+// 开启/关闭上下文
+func (d *TalkSessionDao) OpenContext(ctx context.Context, openContext *do.TalkSessionOpenContext) error {
+
+	if err := d.UpdateOne(ctx, bson.M{"user_id": openContext.UserId, "receiver_id": openContext.ReceiverId, "talk_type": openContext.TalkType}, bson.M{
+		"is_open_context": openContext.IsOpenContext,
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}

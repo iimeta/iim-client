@@ -18,6 +18,7 @@ type ITalkV1 interface {
 	TalkSessionList(ctx context.Context, req *v1.TalkSessionListReq) (res *v1.TalkSessionListRes, err error)
 	TalkSessionClearUnreadNum(ctx context.Context, req *v1.TalkSessionClearUnreadNumReq) (res *v1.TalkSessionClearUnreadNumRes, err error)
 	TalkClearContext(ctx context.Context, req *v1.TalkClearContextReq) (res *v1.TalkClearContextRes, err error)
+	TalkOpenContext(ctx context.Context, req *v1.TalkOpenContextReq) (res *v1.TalkOpenContextRes, err error)
 	GetRecords(ctx context.Context, req *v1.GetRecordsReq) (res *v1.GetRecordsRes, err error)
 	SearchHistoryRecords(ctx context.Context, req *v1.SearchHistoryRecordsReq) (res *v1.SearchHistoryRecordsRes, err error)
 	GetForwardRecords(ctx context.Context, req *v1.GetForwardRecordsReq) (res *v1.GetForwardRecordsRes, err error)

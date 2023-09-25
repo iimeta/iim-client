@@ -1,17 +1,18 @@
 package entity
 
 type TalkSession struct {
-	Id         string `bson:"_id,omitempty"`         // 聊天列表ID
-	TalkType   int    `bson:"talk_type,omitempty"`   // 聊天类型[1:私信;2:群聊;]
-	UserId     int    `bson:"user_id,omitempty"`     // 用户ID
-	ReceiverId int    `bson:"receiver_id,omitempty"` // 接收者ID(用户ID 或 群ID)
-	IsTop      int    `bson:"is_top,omitempty"`      // 是否置顶[0:否;1:是;]
-	IsDisturb  int    `bson:"is_disturb,omitempty"`  // 消息免打扰[0:否;1:是;]
-	IsDelete   int    `bson:"is_delete,omitempty"`   // 是否删除[0:否;1:是;]
-	IsRobot    int    `bson:"is_robot,omitempty"`    // 是否机器人[0:否;1:是;]
-	CreatedAt  int64  `bson:"created_at,omitempty"`  // 创建时间
-	UpdatedAt  int64  `bson:"updated_at,omitempty"`  // 更新时间
-	IsTalk     int    `bson:"is_talk,omitempty"`     // 是否允许对话[0:否;1:是;]
+	Id            string `bson:"_id,omitempty"`         // 聊天列表ID
+	TalkType      int    `bson:"talk_type,omitempty"`   // 聊天类型[1:私信;2:群聊;]
+	UserId        int    `bson:"user_id,omitempty"`     // 用户ID
+	ReceiverId    int    `bson:"receiver_id,omitempty"` // 接收者ID(用户ID 或 群ID)
+	IsTop         int    `bson:"is_top,omitempty"`      // 是否置顶[0:否;1:是;]
+	IsDisturb     int    `bson:"is_disturb,omitempty"`  // 消息免打扰[0:否;1:是;]
+	IsDelete      int    `bson:"is_delete,omitempty"`   // 是否删除[0:否;1:是;]
+	IsRobot       int    `bson:"is_robot,omitempty"`    // 是否机器人[0:否;1:是;]
+	CreatedAt     int64  `bson:"created_at,omitempty"`  // 创建时间
+	UpdatedAt     int64  `bson:"updated_at,omitempty"`  // 更新时间
+	IsTalk        int    `bson:"is_talk,omitempty"`     // 是否允许对话[0:否;1:是;]
+	IsOpenContext int    `bson:"is_open_context"`       // 是否开启上下文[0:是;1:否;]
 }
 
 type TalkRecords struct {

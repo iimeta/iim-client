@@ -26,20 +26,21 @@ type TalkSessionCreateRes struct {
 
 // 会话列表
 type TalkSessionItem struct {
-	Id         string `json:"id,omitempty"`
-	TalkType   int    `json:"talk_type,omitempty"`
-	ReceiverId int    `json:"receiver_id,omitempty"`
-	IsTop      int    `json:"is_top,omitempty"`
-	IsDisturb  int    `json:"is_disturb,omitempty"`
-	IsOnline   int    `json:"is_online,omitempty"`
-	IsRobot    int    `json:"is_robot,omitempty"`
-	Name       string `json:"name,omitempty"`
-	Avatar     string `json:"avatar,omitempty"`
-	Remark     string `json:"remark,omitempty"`
-	UnreadNum  int    `json:"unread_num,omitempty"`
-	MsgText    string `json:"msg_text,omitempty"`
-	UpdatedAt  string `json:"updated_at,omitempty"`
-	IsTalk     int    `json:"is_talk,omitempty"`
+	Id            string `json:"id,omitempty"`
+	TalkType      int    `json:"talk_type,omitempty"`
+	ReceiverId    int    `json:"receiver_id,omitempty"`
+	IsTop         int    `json:"is_top,omitempty"`
+	IsDisturb     int    `json:"is_disturb,omitempty"`
+	IsOnline      int    `json:"is_online,omitempty"`
+	IsRobot       int    `json:"is_robot,omitempty"`
+	Name          string `json:"name,omitempty"`
+	Avatar        string `json:"avatar,omitempty"`
+	Remark        string `json:"remark,omitempty"`
+	UnreadNum     int    `json:"unread_num,omitempty"`
+	MsgText       string `json:"msg_text,omitempty"`
+	UpdatedAt     string `json:"updated_at,omitempty"`
+	IsTalk        int    `json:"is_talk,omitempty"`
+	IsOpenContext int    `json:"is_open_context"`
 }
 
 // 会话删除接口请求参数

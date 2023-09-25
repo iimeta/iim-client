@@ -26,7 +26,7 @@ func init() {
 	OpenAI = &openAI{}
 }
 
-func (o *openAI) Chat(ctx context.Context, senderId, receiverId, talkType int, text, model string, mentions ...string) {
+func (o *openAI) Chat(ctx context.Context, senderId, receiverId, talkType int, text, model string, isOpenContext int, mentions ...string) {
 
 	if talkType == 2 {
 		content := gstr.Split(text, " ")
@@ -41,46 +41,52 @@ func (o *openAI) Chat(ctx context.Context, senderId, receiverId, talkType int, t
 
 	messages := make([]openai.ChatCompletionMessage, 0)
 
-	reply, err := redis.LRange(ctx, fmt.Sprintf(consts.CHAT_MESSAGES_PREFIX_KEY, receiverId, senderId), 0, -1)
-	if err != nil {
-		logger.Error(ctx, err)
-		return
-	}
+	// 开启上下文
+	if isOpenContext == 0 {
 
-	messagesStr := reply.Strings()
-	if len(messagesStr) == 0 {
-		b, err := gjson.Marshal(sdk.ChatMessageRoleSystem)
+		reply, err := redis.LRange(ctx, fmt.Sprintf(consts.CHAT_MESSAGES_PREFIX_KEY, receiverId, senderId), 0, -1)
 		if err != nil {
 			logger.Error(ctx, err)
-		}
-		_, err = redis.RPush(ctx, fmt.Sprintf(consts.CHAT_MESSAGES_PREFIX_KEY, receiverId, senderId), b)
-		if err != nil {
-			logger.Error(ctx, err)
-		}
-		messages = append(messages, sdk.ChatMessageRoleSystem)
-	}
-
-	for i, str := range messagesStr {
-
-		chatCompletionMessage := openai.ChatCompletionMessage{}
-		if err := gjson.Unmarshal([]byte(str), &chatCompletionMessage); err != nil {
-			logger.Error(ctx, err)
-			continue
+			return
 		}
 
-		if i == 0 && chatCompletionMessage.Role != openai.ChatMessageRoleSystem {
+		messagesStr := reply.Strings()
+		if len(messagesStr) == 0 {
 			b, err := gjson.Marshal(sdk.ChatMessageRoleSystem)
 			if err != nil {
 				logger.Error(ctx, err)
 			}
-			_, err = redis.LPush(ctx, fmt.Sprintf(consts.CHAT_MESSAGES_PREFIX_KEY, receiverId, senderId), b)
+			_, err = redis.RPush(ctx, fmt.Sprintf(consts.CHAT_MESSAGES_PREFIX_KEY, receiverId, senderId), b)
 			if err != nil {
 				logger.Error(ctx, err)
 			}
 			messages = append(messages, sdk.ChatMessageRoleSystem)
 		}
 
-		messages = append(messages, chatCompletionMessage)
+		for i, str := range messagesStr {
+
+			chatCompletionMessage := openai.ChatCompletionMessage{}
+			if err := gjson.Unmarshal([]byte(str), &chatCompletionMessage); err != nil {
+				logger.Error(ctx, err)
+				continue
+			}
+
+			if i == 0 && chatCompletionMessage.Role != openai.ChatMessageRoleSystem {
+				b, err := gjson.Marshal(sdk.ChatMessageRoleSystem)
+				if err != nil {
+					logger.Error(ctx, err)
+				}
+				_, err = redis.LPush(ctx, fmt.Sprintf(consts.CHAT_MESSAGES_PREFIX_KEY, receiverId, senderId), b)
+				if err != nil {
+					logger.Error(ctx, err)
+				}
+				messages = append(messages, sdk.ChatMessageRoleSystem)
+			}
+
+			messages = append(messages, chatCompletionMessage)
+		}
+	} else {
+		messages = append(messages, sdk.ChatMessageRoleSystem)
 	}
 
 	chatCompletionMessage := openai.ChatCompletionMessage{
@@ -109,7 +115,7 @@ func (o *openAI) Chat(ctx context.Context, senderId, receiverId, talkType int, t
 				if err != nil {
 					logger.Error(ctx, err)
 				} else {
-					o.Chat(ctx, senderId, receiverId, talkType, text, model, mentions...)
+					o.Chat(ctx, senderId, receiverId, talkType, text, model, isOpenContext, mentions...)
 					return
 				}
 			}

@@ -18,6 +18,7 @@ import (
 	"github.com/iimeta/iim-client/utility/logger"
 	"github.com/iimeta/iim-client/utility/redis"
 	"github.com/iimeta/iim-client/utility/util"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"strconv"
 )
@@ -239,15 +240,16 @@ func (s *sSession) List(ctx context.Context) (*model.TalkSessionListRes, error) 
 	for _, talkSession := range talkSessionList {
 
 		session := &model.SearchTalkSession{
-			Id:         talkSession.Id,
-			TalkType:   talkSession.TalkType,
-			ReceiverId: talkSession.ReceiverId,
-			IsDelete:   talkSession.IsDelete,
-			IsTop:      talkSession.IsTop,
-			IsRobot:    talkSession.IsRobot,
-			IsDisturb:  talkSession.IsDisturb,
-			UpdatedAt:  talkSession.UpdatedAt,
-			IsTalk:     talkSession.IsTalk,
+			Id:            talkSession.Id,
+			TalkType:      talkSession.TalkType,
+			ReceiverId:    talkSession.ReceiverId,
+			IsDelete:      talkSession.IsDelete,
+			IsTop:         talkSession.IsTop,
+			IsRobot:       talkSession.IsRobot,
+			IsDisturb:     talkSession.IsDisturb,
+			UpdatedAt:     talkSession.UpdatedAt,
+			IsTalk:        talkSession.IsTalk,
+			IsOpenContext: talkSession.IsOpenContext,
 		}
 
 		if session.TalkType == 1 {
@@ -275,16 +277,17 @@ func (s *sSession) List(ctx context.Context) (*model.TalkSessionListRes, error) 
 	for _, item := range data {
 
 		value := &model.TalkSessionItem{
-			Id:         item.Id,
-			TalkType:   item.TalkType,
-			ReceiverId: item.ReceiverId,
-			IsTop:      item.IsTop,
-			IsDisturb:  item.IsDisturb,
-			IsRobot:    item.IsRobot,
-			Avatar:     item.UserAvatar,
-			MsgText:    "...",
-			UpdatedAt:  util.FormatDatetime(item.UpdatedAt),
-			IsTalk:     item.IsTalk,
+			Id:            item.Id,
+			TalkType:      item.TalkType,
+			ReceiverId:    item.ReceiverId,
+			IsTop:         item.IsTop,
+			IsDisturb:     item.IsDisturb,
+			IsRobot:       item.IsRobot,
+			Avatar:        item.UserAvatar,
+			MsgText:       "...",
+			UpdatedAt:     util.FormatDatetime(item.UpdatedAt),
+			IsTalk:        item.IsTalk,
+			IsOpenContext: item.IsOpenContext,
 		}
 
 		if num, ok := unReads[fmt.Sprintf("%d_%d", item.TalkType, item.ReceiverId)]; ok {
@@ -319,4 +322,41 @@ func (s *sSession) ClearUnreadMessage(ctx context.Context, params model.TalkSess
 	s.UnreadStorage.Reset(ctx, params.TalkType, params.ReceiverId, service.Session().GetUid(ctx))
 
 	return nil
+}
+
+// 会话免打扰
+func (s *sSession) OpenContext(ctx context.Context, params model.TalkOpenContextReq) error {
+
+	if err := dao.TalkSession.OpenContext(ctx, &do.TalkSessionOpenContext{
+		UserId:        service.Session().GetUid(ctx),
+		TalkType:      params.TalkType,
+		ReceiverId:    params.ReceiverId,
+		IsOpenContext: params.IsOpenContext,
+	}); err != nil {
+		logger.Error(ctx, err)
+		return err
+	}
+
+	return nil
+}
+
+// 获取会话
+func (s *sSession) FindBySession(ctx context.Context, uid int, receiverId int, talkType int) (*model.TalkSessionItem, error) {
+
+	talkSession, err := dao.TalkSession.FindOne(ctx, bson.M{"user_id": uid, "receiver_id": receiverId, "talk_type": talkType})
+	if err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	return &model.TalkSessionItem{
+		Id:            talkSession.Id,
+		TalkType:      talkSession.TalkType,
+		ReceiverId:    talkSession.ReceiverId,
+		IsTop:         talkSession.IsTop,
+		IsDisturb:     talkSession.IsDisturb,
+		IsRobot:       talkSession.IsRobot,
+		IsTalk:        talkSession.IsTalk,
+		IsOpenContext: talkSession.IsOpenContext,
+	}, nil
 }

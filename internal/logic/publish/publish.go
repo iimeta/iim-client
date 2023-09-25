@@ -86,8 +86,14 @@ func (s *sPublish) onSendText(ctx context.Context) error {
 				}
 				mentions = append(mentions, user.Nickname)
 			}
+
+			session, err := service.Session().FindBySession(ctx, uid, textMessageReq.Receiver.ReceiverId, textMessageReq.Receiver.TalkType)
+			if err != nil {
+				return
+			}
+
 			// 机器人回复
-			robot.RobotReply(ctx, robotInfo, senderId, receiverId, textMessageReq.Receiver.TalkType, textMessageReq.Content, mentions...)
+			robot.RobotReply(ctx, robotInfo, senderId, receiverId, textMessageReq.Receiver.TalkType, textMessageReq.Content, session.IsOpenContext, mentions...)
 		}
 	}, nil)
 

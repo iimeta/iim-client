@@ -31,7 +31,7 @@ func IsNeedRobotReply(ctx context.Context, senderId int, mentionUids []int) (*mo
 	return robotInfo, true
 }
 
-func RobotReply(ctx context.Context, robotInfo *model.Robot, senderId, receiverId, talkType int, text string, mentions ...string) {
+func RobotReply(ctx context.Context, robotInfo *model.Robot, senderId, receiverId, talkType int, text string, isOpenContext int, mentions ...string) {
 
 	logger.Info(ctx, gjson.MustEncodeString(robotInfo))
 
@@ -41,7 +41,7 @@ func RobotReply(ctx context.Context, robotInfo *model.Robot, senderId, receiverI
 	case "OpenAI":
 		switch robotInfo.ModelType {
 		case "chat":
-			OpenAI.Chat(ctx, senderId, receiverId, talkType, text, robotInfo.Model, mentions...)
+			OpenAI.Chat(ctx, senderId, receiverId, talkType, text, robotInfo.Model, isOpenContext, mentions...)
 		case "image":
 			OpenAI.Image(ctx, senderId, receiverId, talkType, text, mentions...)
 		}
