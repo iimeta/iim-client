@@ -57,7 +57,7 @@ type TalkSessionTopReq struct {
 type TalkSessionDisturbReq struct {
 	TalkType   int `json:"talk_type,omitempty" v:"required|in:1,2"`
 	ReceiverId int `json:"receiver_id,omitempty" v:"required"`
-	IsDisturb  int `json:"is_disturb,omitempty" v:"oneof=0 1"`
+	IsDisturb  int `json:"is_disturb,omitempty" v:"required|in:0,1"`
 }
 
 // 会话列表接口响应参数

@@ -69,6 +69,14 @@ func (o *openAI) Chat(ctx context.Context, senderId, receiverId, talkType int, t
 		}
 
 		if i == 0 && chatCompletionMessage.Role != openai.ChatMessageRoleSystem {
+			b, err := gjson.Marshal(sdk.ChatMessageRoleSystem)
+			if err != nil {
+				logger.Error(ctx, err)
+			}
+			_, err = redis.LPush(ctx, fmt.Sprintf(consts.CHAT_MESSAGES_PREFIX_KEY, receiverId, senderId), b)
+			if err != nil {
+				logger.Error(ctx, err)
+			}
 			messages = append(messages, sdk.ChatMessageRoleSystem)
 		}
 
@@ -95,9 +103,9 @@ func (o *openAI) Chat(ctx context.Context, senderId, receiverId, talkType int, t
 		logger.Error(ctx, err)
 
 		if gstr.Contains(err.Error(), "Please reduce the length of the messages") {
-			stop := int64(len(messages)/2 - 1)
-			if stop > 1 {
-				err = redis.LTrim(ctx, fmt.Sprintf(consts.CHAT_MESSAGES_PREFIX_KEY, receiverId, senderId), 0, stop)
+			start := int64(len(messages) / 2)
+			if start > 1 {
+				err = redis.LTrim(ctx, fmt.Sprintf(consts.CHAT_MESSAGES_PREFIX_KEY, receiverId, senderId), start, -1)
 				if err != nil {
 					logger.Error(ctx, err)
 				} else {

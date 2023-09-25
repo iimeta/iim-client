@@ -70,7 +70,7 @@ func (o *spark) Chat(ctx context.Context, senderId, receiverId, talkType int, te
 
 	messages = append(messages, textMessage)
 
-	response, err := sdk.SparkChat(ctx, model, messages)
+	response, err := sdk.SparkChat(ctx, model, fmt.Sprintf("%d", receiverId), messages)
 	if err != nil {
 		logger.Error(ctx, err)
 		if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{

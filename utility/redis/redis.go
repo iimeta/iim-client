@@ -177,6 +177,10 @@ func RPush(ctx context.Context, key string, values ...interface{}) (int64, error
 	return master.RPush(ctx, key, values...)
 }
 
+func LPush(ctx context.Context, key string, values ...interface{}) (int64, error) {
+	return master.LPush(ctx, key, values...)
+}
+
 func LTrim(ctx context.Context, key string, start, stop int64) error {
 	return master.LTrim(ctx, key, start, stop)
 }

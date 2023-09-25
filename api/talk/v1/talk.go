@@ -71,3 +71,14 @@ type TalkSessionClearUnreadNumReq struct {
 type TalkSessionClearUnreadNumRes struct {
 	g.Meta `mime:"application/json" example:"json"`
 }
+
+// 清空上下文接口请求参数
+type TalkClearContextReq struct {
+	g.Meta     `path:"/clear/context" tags:"talk" method:"post" summary:"会话列表接口"`
+	ReceiverId int `json:"receiver_id"`
+}
+
+// 清空上下文接口响应参数
+type TalkClearContextRes struct {
+	g.Meta `mime:"application/json" example:"json"`
+}

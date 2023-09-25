@@ -117,30 +117,30 @@ type ArticleRecoverReq struct {
 
 // 文章移动分类接口请求参数
 type ArticleMoveReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required,gt=0"`
-	ClassId   string `json:"class_id,omitempty" v:"required,gt=0"`
+	ArticleId string `json:"article_id,omitempty" v:"required|gt:0"`
+	ClassId   string `json:"class_id,omitempty" v:"required|gt:0"`
 }
 
 // 标记文章接口请求参数
 type ArticleAsteriskReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required,gt=0"`
-	Type      int    `json:"type,omitempty" v:"required,oneof=1 2"`
+	ArticleId string `json:"article_id,omitempty" v:"required|gt:0"`
+	Type      int    `json:"type,omitempty" v:"required|in:1,2"`
 }
 
 // 文章标签接口请求参数
 type ArticleTagsReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required,gt=0"`
+	ArticleId string `json:"article_id,omitempty" v:"required|gt:0"`
 	Tags      []int  `json:"tags,omitempty"`
 }
 
 // 永久删除文章接口请求参数
 type ArticleForeverDeleteReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required,gt=0"`
+	ArticleId string `json:"article_id,omitempty" v:"required|gt:0"`
 }
 
 // 文章图片上传接口请求参数
 type ArticleUploadImageReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required,gt=0"`
+	ArticleId string `json:"article_id,omitempty" v:"required|gt:0"`
 }
 
 // 文章图片上传接口响应参数

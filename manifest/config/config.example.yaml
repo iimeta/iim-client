@@ -149,6 +149,7 @@ xfyun:
   spark:
     chat_url: https://spark-api.xf-yun.com/v2.1/chat
     domain: generalv2 # v1传general, v2传generalv2
+    max_tokens: 8192 # v1.5取值为[1,4096], v2.0取值为[1,8192]。默认为2048
     app_id: xxx  # 从开放平台控制台中获取
     api_key: xxx  # 从开放平台控制台中获取
     api_secret: xxx  # 从开放平台控制台中获取

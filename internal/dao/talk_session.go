@@ -117,9 +117,8 @@ func (d *TalkSessionDao) Create(ctx context.Context, create *do.TalkSessionCreat
 // 删除会话
 func (d *TalkSessionDao) Delete(ctx context.Context, uid int, id string) error {
 
-	if err := d.UpdateOne(ctx, bson.M{"_id": id, "user_id": uid}, &do.TalkSession{
-		IsDelete:  1,
-		UpdatedAt: gtime.Timestamp(),
+	if err := d.UpdateOne(ctx, bson.M{"_id": id, "user_id": uid}, bson.M{
+		"is_delete": 1,
 	}); err != nil {
 		return err
 	}
@@ -130,9 +129,8 @@ func (d *TalkSessionDao) Delete(ctx context.Context, uid int, id string) error {
 // 会话置顶
 func (d *TalkSessionDao) Top(ctx context.Context, top *do.TalkSessionTop) error {
 
-	if err := d.UpdateOne(ctx, bson.M{"_id": top.Id, "user_id": top.UserId}, &do.TalkSession{
-		IsTop:     util.BoolToInt(top.Type == 1),
-		UpdatedAt: gtime.Timestamp(),
+	if err := d.UpdateOne(ctx, bson.M{"_id": top.Id, "user_id": top.UserId}, bson.M{
+		"is_top": util.BoolToInt(top.Type == 1),
 	}); err != nil {
 		return err
 	}
@@ -143,9 +141,8 @@ func (d *TalkSessionDao) Top(ctx context.Context, top *do.TalkSessionTop) error 
 // 会话免打扰
 func (d *TalkSessionDao) Disturb(ctx context.Context, disturb *do.TalkSessionDisturb) error {
 
-	if err := d.UpdateOne(ctx, bson.M{"user_id": disturb.UserId, "receiver_id": disturb.ReceiverId, "talk_type": disturb.TalkType}, &do.TalkSession{
-		IsDisturb: disturb.IsDisturb,
-		UpdatedAt: gtime.Timestamp(),
+	if err := d.UpdateOne(ctx, bson.M{"user_id": disturb.UserId, "receiver_id": disturb.ReceiverId, "talk_type": disturb.TalkType}, bson.M{
+		"is_disturb": disturb.IsDisturb,
 	}); err != nil {
 		return err
 	}

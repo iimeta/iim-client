@@ -44,7 +44,6 @@ type Chat struct {
 	Domain          string `json:"domain"`
 	RandomThreshold int    `json:"random_threshold"`
 	MaxTokens       int    `json:"max_tokens"`
-	Auditing        string `json:"auditing"`
 }
 
 type Payload struct {
@@ -97,7 +96,7 @@ type SparkRes struct {
 	Payload Payload `json:"payload"`
 }
 
-func SparkChat(ctx context.Context, model string, text []Text, retry ...int) (string, error) {
+func SparkChat(ctx context.Context, model, uid string, text []Text, retry ...int) (string, error) {
 
 	app_id, err := config.Get(ctx, "xfyun.spark.app_id")
 	if err != nil {
@@ -111,17 +110,18 @@ func SparkChat(ctx context.Context, model string, text []Text, retry ...int) (st
 		return "", err
 	}
 
+	max_tokens := config.GetInt(ctx, "xfyun.spark.max_tokens")
+
 	sparkReq := SparkReq{
 		Header: Header{
 			AppId: app_id.String(),
-			Uid:   "loka",
+			Uid:   uid,
 		},
 		Parameter: Parameter{
 			Chat: &Chat{
 				Domain:          domain.String(),
 				RandomThreshold: 0,
-				MaxTokens:       4096,
-				Auditing:        "default",
+				MaxTokens:       max_tokens,
 			},
 		},
 		Payload: Payload{
@@ -184,7 +184,7 @@ func SparkChat(ctx context.Context, model string, text []Text, retry ...int) (st
 	}
 }
 
-func SparkStreaming(ctx context.Context, model string, text []Text, responseContent chan Payload, retry ...int) {
+func SparkStreaming(ctx context.Context, model, uid string, text []Text, responseContent chan Payload, retry ...int) {
 
 	app_id, err := config.Get(ctx, "xfyun.spark.app_id")
 	if err != nil {
@@ -198,17 +198,18 @@ func SparkStreaming(ctx context.Context, model string, text []Text, responseCont
 		return
 	}
 
+	max_tokens := config.GetInt(ctx, "xfyun.spark.max_tokens")
+
 	sparkReq := SparkReq{
 		Header: Header{
 			AppId: app_id.String(),
-			Uid:   "loka",
+			Uid:   uid,
 		},
 		Parameter: Parameter{
 			Chat: &Chat{
 				Domain:          domain.String(),
 				RandomThreshold: 0,
-				MaxTokens:       4096,
-				Auditing:        "default",
+				MaxTokens:       max_tokens,
 			},
 		},
 		Payload: Payload{
