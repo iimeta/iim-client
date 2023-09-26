@@ -35,11 +35,11 @@ func New() service.INoteAnnex {
 	}
 }
 
-func (s *sNoteAnnex) Create(ctx context.Context, data *model.ArticleAnnex) error {
+func (s *sNoteAnnex) Create(ctx context.Context, data *model.Annex) error {
 
 	if _, err := dao.NoteAnnex.Insert(ctx, &do.NoteAnnex{
 		UserId:       data.UserId,
-		ArticleId:    data.ArticleId,
+		NoteId:       data.NoteId,
 		Drive:        data.Drive,
 		Suffix:       data.Suffix,
 		Size:         data.Size,
@@ -56,7 +56,7 @@ func (s *sNoteAnnex) Create(ctx context.Context, data *model.ArticleAnnex) error
 }
 
 // 上传附件
-func (s *sNoteAnnex) Upload(ctx context.Context, params model.ArticleAnnexUploadReq) (*model.ArticleAnnexUploadRes, error) {
+func (s *sNoteAnnex) Upload(ctx context.Context, params model.AnnexUploadReq) (*model.AnnexUploadRes, error) {
 
 	_, file, err := g.RequestFromCtx(ctx).Request.FormFile("annex")
 	if err != nil {
@@ -86,7 +86,7 @@ func (s *sNoteAnnex) Upload(ctx context.Context, params model.ArticleAnnexUpload
 
 	data := &do.NoteAnnex{
 		UserId:       service.Session().GetUid(ctx),
-		ArticleId:    params.ArticleId,
+		NoteId:       params.NoteId,
 		Drive:        consts.FileDriveMode(s.Filesystem.Driver()),
 		Suffix:       ext,
 		Size:         int(file.Size),
@@ -101,7 +101,7 @@ func (s *sNoteAnnex) Upload(ctx context.Context, params model.ArticleAnnexUpload
 		return nil, errors.New("附件上传失败")
 	}
 
-	return &model.ArticleAnnexUploadRes{
+	return &model.AnnexUploadRes{
 		Id:           id,
 		Size:         data.Size,
 		Path:         data.Path,
@@ -111,7 +111,7 @@ func (s *sNoteAnnex) Upload(ctx context.Context, params model.ArticleAnnexUpload
 }
 
 // 删除附件
-func (s *sNoteAnnex) Delete(ctx context.Context, params model.ArticleAnnexDeleteReq) error {
+func (s *sNoteAnnex) Delete(ctx context.Context, params model.AnnexDeleteReq) error {
 
 	err := dao.NoteAnnex.UpdateStatus(ctx, service.Session().GetUid(ctx), params.AnnexId, 2)
 	if err != nil {
@@ -123,7 +123,7 @@ func (s *sNoteAnnex) Delete(ctx context.Context, params model.ArticleAnnexDelete
 }
 
 // 恢复附件
-func (s *sNoteAnnex) Recover(ctx context.Context, params model.ArticleAnnexRecoverReq) error {
+func (s *sNoteAnnex) Recover(ctx context.Context, params model.AnnexRecoverReq) error {
 
 	err := dao.NoteAnnex.UpdateStatus(ctx, service.Session().GetUid(ctx), params.AnnexId, 1)
 	if err != nil {
@@ -135,7 +135,7 @@ func (s *sNoteAnnex) Recover(ctx context.Context, params model.ArticleAnnexRecov
 }
 
 // 附件回收站列表
-func (s *sNoteAnnex) RecoverList(ctx context.Context) (*model.ArticleAnnexRecoverListRes, error) {
+func (s *sNoteAnnex) RecoverList(ctx context.Context) (*model.AnnexRecoverListRes, error) {
 
 	noteAnnexList, noteList, err := dao.NoteAnnex.RecoverList(ctx, service.Session().GetUid(ctx))
 	if err != nil {
@@ -151,26 +151,26 @@ func (s *sNoteAnnex) RecoverList(ctx context.Context) (*model.ArticleAnnexRecove
 	for _, annex := range noteAnnexList {
 		items = append(items, &model.RecoverAnnexItem{
 			Id:           annex.Id,
-			ArticleId:    annex.ArticleId,
-			Title:        noteMap[annex.ArticleId].Title,
+			NoteId:       annex.NoteId,
+			Title:        noteMap[annex.NoteId].Title,
 			OriginalName: annex.OriginalName,
 			DeletedAt:    annex.DeletedAt,
 		})
 	}
 
-	data := make([]*model.ArticleAnnexRecoverListResponse_Item, 0)
+	data := make([]*model.AnnexRecoverListResponse_Item, 0)
 	for _, item := range items {
 		at := gtime.NewFromTimeStamp(item.DeletedAt).Add(time.Hour * 24 * 30)
-		data = append(data, &model.ArticleAnnexRecoverListResponse_Item{
+		data = append(data, &model.AnnexRecoverListResponse_Item{
 			Id:           item.Id,
-			ArticleId:    item.ArticleId,
+			NoteId:       item.NoteId,
 			Title:        item.Title,
 			OriginalName: item.OriginalName,
 			Day:          int(math.Ceil(float64(at.Second() / 86400))), // todo 有没有更好的方法
 		})
 	}
 
-	return &model.ArticleAnnexRecoverListRes{
+	return &model.AnnexRecoverListRes{
 		Items: nil,
 		Paginate: &model.Paginate{
 			Page:  1,
@@ -181,7 +181,7 @@ func (s *sNoteAnnex) RecoverList(ctx context.Context) (*model.ArticleAnnexRecove
 }
 
 // 永久删除附件
-func (s *sNoteAnnex) ForeverDelete(ctx context.Context, params model.ArticleAnnexForeverDeleteReq) error {
+func (s *sNoteAnnex) ForeverDelete(ctx context.Context, params model.AnnexForeverDeleteReq) error {
 
 	if err := dao.NoteAnnex.ForeverDelete(ctx, service.Session().GetUid(ctx), params.AnnexId); err != nil {
 		logger.Error(ctx, err)
@@ -192,7 +192,7 @@ func (s *sNoteAnnex) ForeverDelete(ctx context.Context, params model.ArticleAnne
 }
 
 // 下载笔记附件
-func (s *sNoteAnnex) Download(ctx context.Context, params model.ArticleAnnexDownloadReq) error {
+func (s *sNoteAnnex) Download(ctx context.Context, params model.AnnexDownloadReq) error {
 
 	info, err := dao.NoteAnnex.FindById(ctx, params.AnnexId)
 	if err != nil {

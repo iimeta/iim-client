@@ -31,7 +31,7 @@ logger:
   file: "{Ymd_H}.log"         # 日志文件格式。默认为"{Y-m-d}.log"
   prefix: ""                  # 日志内容输出前缀。默认为空
   level: "debug"              # 日志输出级别, debug, info, errors, all
-  ctxKeys: [ ]                # 自定义Context上下文变量名称，自动打印Context的变量到日志中。默认为空
+  ctxKeys: [ "uid" ]          # 自定义Context上下文变量名称，自动打印Context的变量到日志中。默认为空
   header: true                # 是否打印日志的头信息。默认true
   stdout: true                # 日志是否同时输出到终端。默认true
   rotateSize: 0               # 按照日志文件大小对文件进行滚动切分。默认为0，表示关闭滚动切分特性

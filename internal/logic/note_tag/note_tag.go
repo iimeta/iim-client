@@ -20,7 +20,7 @@ func New() service.INoteTag {
 }
 
 // 标签列表
-func (s *sNoteTag) List(ctx context.Context) (*model.ArticleTagListRes, error) {
+func (s *sNoteTag) List(ctx context.Context) (*model.TagListRes, error) {
 
 	list, err := dao.NoteTag.List(ctx, service.Session().GetUid(ctx))
 	if err != nil {
@@ -28,20 +28,20 @@ func (s *sNoteTag) List(ctx context.Context) (*model.ArticleTagListRes, error) {
 		return nil, err
 	}
 
-	items := make([]*model.ArticleTagListResponse_Item, 0, len(list))
+	items := make([]*model.TagListResponse_Item, 0, len(list))
 	for _, item := range list {
-		items = append(items, &model.ArticleTagListResponse_Item{
+		items = append(items, &model.TagListResponse_Item{
 			Id:      item.Id,
 			TagName: item.TagName,
 			Count:   item.Count,
 		})
 	}
 
-	return &model.ArticleTagListRes{Tags: items}, nil
+	return &model.TagListRes{Tags: items}, nil
 }
 
 // 添加或修改标签
-func (s *sNoteTag) Edit(ctx context.Context, params model.ArticleTagEditReq) (*model.ArticleTagEditRes, error) {
+func (s *sNoteTag) Edit(ctx context.Context, params model.TagEditReq) (*model.TagEditRes, error) {
 
 	uid := service.Session().GetUid(ctx)
 
@@ -62,11 +62,11 @@ func (s *sNoteTag) Edit(ctx context.Context, params model.ArticleTagEditReq) (*m
 		}
 	}
 
-	return &model.ArticleTagEditRes{Id: params.TagId}, nil
+	return &model.TagEditRes{Id: params.TagId}, nil
 }
 
 // 删除标签
-func (s *sNoteTag) Delete(ctx context.Context, params model.ArticleTagDeleteReq) error {
+func (s *sNoteTag) Delete(ctx context.Context, params model.TagDeleteReq) error {
 
 	err := dao.NoteTag.Delete(ctx, service.Session().GetUid(ctx), params.TagId)
 	if err != nil {

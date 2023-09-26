@@ -9,7 +9,6 @@ import (
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/iimeta/iim-client/internal/config"
-	"github.com/iimeta/iim-client/internal/controller/article"
 	"github.com/iimeta/iim-client/internal/controller/auth"
 	"github.com/iimeta/iim-client/internal/controller/common"
 	"github.com/iimeta/iim-client/internal/controller/contact"
@@ -17,6 +16,7 @@ import (
 	"github.com/iimeta/iim-client/internal/controller/file"
 	"github.com/iimeta/iim-client/internal/controller/group"
 	"github.com/iimeta/iim-client/internal/controller/message"
+	"github.com/iimeta/iim-client/internal/controller/note"
 	"github.com/iimeta/iim-client/internal/controller/talk"
 	"github.com/iimeta/iim-client/internal/controller/user"
 	"github.com/iimeta/iim-client/internal/service"
@@ -149,7 +149,7 @@ var (
 				v1.Group("/note", func(g *ghttp.RouterGroup) {
 					g.Middleware(MiddlewareAuth)
 					g.Bind(
-						article.NewV1(),
+						note.NewV1(),
 					)
 				})
 			})

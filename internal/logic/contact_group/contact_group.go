@@ -43,8 +43,8 @@ func (s *sContactGroup) Delete(ctx context.Context, id int, uid int) error {
 	return nil
 }
 
-// 用户联系人分组列表
-func (s *sContactGroup) GetUserGroup(ctx context.Context, uid int) ([]*model.ContactGroup, error) {
+// 用户好友分组列表
+func (s *sContactGroup) GetUserGroup(ctx context.Context, uid int) ([]*model.Group, error) {
 
 	contactGroupList, err := dao.ContactGroup.FindContactGroupList(ctx, uid)
 	if err != nil {
@@ -52,9 +52,9 @@ func (s *sContactGroup) GetUserGroup(ctx context.Context, uid int) ([]*model.Con
 		return nil, err
 	}
 
-	items := make([]*model.ContactGroup, 0)
+	items := make([]*model.Group, 0)
 	for _, contactGroup := range contactGroupList {
-		items = append(items, &model.ContactGroup{
+		items = append(items, &model.Group{
 			Id:        contactGroup.Id,
 			UserId:    contactGroup.UserId,
 			Name:      contactGroup.Name,
@@ -68,7 +68,7 @@ func (s *sContactGroup) GetUserGroup(ctx context.Context, uid int) ([]*model.Con
 	return items, nil
 }
 
-// List 联系人分组列表
+// 好友分组列表
 func (s *sContactGroup) List(ctx context.Context) (*model.ContactGroupListRes, error) {
 
 	uid := service.Session().GetUid(ctx)
@@ -104,7 +104,7 @@ func (s *sContactGroup) List(ctx context.Context) (*model.ContactGroupListRes, e
 	return &model.ContactGroupListRes{Items: items}, nil
 }
 
-func (s *sContactGroup) Save(ctx context.Context, params model.ContactGroupSaveReq) error {
+func (s *sContactGroup) Save(ctx context.Context, params model.GroupSaveReq) error {
 
 	uid := service.Session().GetUid(ctx)
 

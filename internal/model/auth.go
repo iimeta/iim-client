@@ -1,7 +1,7 @@
 package model
 
 // 登录接口请求参数
-type AuthLoginReq struct {
+type LoginReq struct {
 	// 登录账号
 	Account string `json:"account,omitempty" v:"required"`
 	// 登录密码
@@ -11,7 +11,7 @@ type AuthLoginReq struct {
 }
 
 // 登录接口响应参数
-type AuthLoginRes struct {
+type LoginRes struct {
 	// Token 类型
 	Type string `json:"type,omitempty"`
 	// token
@@ -21,7 +21,7 @@ type AuthLoginRes struct {
 }
 
 // 注册接口请求参数
-type AuthRegisterReq struct {
+type RegisterReq struct {
 	// 登录账号
 	Account string `json:"account,omitempty" v:"required"`
 	// 登录密码
@@ -35,17 +35,17 @@ type AuthRegisterReq struct {
 }
 
 // 注册接口响应参数
-type AuthRegisterRes struct {
+type RegisterRes struct {
 }
 
 // Token 刷新接口响应参数
-type AuthRefreshRes struct {
+type RefreshRes struct {
 	Type        string `json:"type,omitempty"`
 	AccessToken string `json:"access_token,omitempty"`
 	ExpiresIn   int    `json:"expires_in,omitempty"`
 }
 
 // 找回密码接口请求参数
-type AuthForgetReq struct {
+type ForgetReq struct {
 	*UserForget
 }

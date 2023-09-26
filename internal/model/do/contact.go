@@ -29,7 +29,7 @@ type ContactApply struct {
 	CreatedAt  int64  `bson:"created_at,omitempty"` // 申请时间
 }
 
-// 联系人分组
+// 好友分组
 type ContactGroup struct {
 	gmeta.Meta `collection:"contact_group" bson:"-"`
 	Id         string `bson:"_id"`        // ID todo

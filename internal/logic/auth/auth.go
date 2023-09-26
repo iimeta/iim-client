@@ -30,7 +30,7 @@ func New() service.IAuth {
 }
 
 // 登录接口
-func (s *sAuth) Login(ctx context.Context, params model.AuthLoginReq) (*model.AuthLoginRes, error) {
+func (s *sAuth) Login(ctx context.Context, params model.LoginReq) (*model.LoginRes, error) {
 
 	user, err := service.User().Login(ctx, params.Account, params.Password)
 	if err != nil {
@@ -63,7 +63,7 @@ func (s *sAuth) Login(ctx context.Context, params model.AuthLoginReq) (*model.Au
 		})
 	}
 
-	return &model.AuthLoginRes{
+	return &model.LoginRes{
 		Type:        "Bearer",
 		AccessToken: token(user.UserId),
 		ExpiresIn:   int(config.Cfg.Jwt.ExpiresTime),
@@ -71,7 +71,7 @@ func (s *sAuth) Login(ctx context.Context, params model.AuthLoginReq) (*model.Au
 }
 
 // 注册接口
-func (s *sAuth) Register(ctx context.Context, params model.AuthRegisterReq) error {
+func (s *sAuth) Register(ctx context.Context, params model.RegisterReq) error {
 
 	// 验证验证码是否正确
 	if !service.Email().Verify(ctx, consts.CHANNEL_REGISTER, params.Account, params.Code) {
@@ -100,7 +100,7 @@ func (s *sAuth) Register(ctx context.Context, params model.AuthRegisterReq) erro
 
 		for _, uid := range value.Ints() {
 
-			applyId, err := service.ContactApply().Create(ctx, &model.ContactApply{
+			applyId, err := service.ContactApply().Create(ctx, &model.Apply{
 				UserId:   user.UserId,
 				Remarks:  user.Email,
 				FriendId: uid,
@@ -110,7 +110,7 @@ func (s *sAuth) Register(ctx context.Context, params model.AuthRegisterReq) erro
 				logger.Error(ctx, err)
 			} else {
 
-				applyInfo, err := service.ContactApply().Accept(ctx, &model.ContactApply{
+				applyInfo, err := service.ContactApply().Accept(ctx, &model.Apply{
 					Remarks: user.Nickname,
 					ApplyId: applyId,
 					UserId:  uid,
@@ -143,11 +143,11 @@ func (s *sAuth) Logout(ctx context.Context) error {
 }
 
 // Token 刷新接口
-func (s *sAuth) Refresh(ctx context.Context) (*model.AuthRefreshRes, error) {
+func (s *sAuth) Refresh(ctx context.Context) (*model.RefreshRes, error) {
 
 	toBlackList(ctx)
 
-	return &model.AuthRefreshRes{
+	return &model.RefreshRes{
 		Type:        "Bearer",
 		AccessToken: token(service.Session().GetUid(ctx)),
 		ExpiresIn:   int(config.Cfg.Jwt.ExpiresTime),
@@ -155,7 +155,7 @@ func (s *sAuth) Refresh(ctx context.Context) (*model.AuthRefreshRes, error) {
 }
 
 // 账号找回接口
-func (s *sAuth) Forget(ctx context.Context, params model.AuthForgetReq) error {
+func (s *sAuth) Forget(ctx context.Context, params model.ForgetReq) error {
 
 	// 验证验证码是否正确
 	if !service.Email().Verify(ctx, consts.CHANNEL_FORGET_ACCOUNT, params.Account, params.Code) {

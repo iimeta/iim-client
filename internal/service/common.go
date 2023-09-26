@@ -13,11 +13,11 @@ import (
 
 type (
 	ICommon interface {
-		// SmsCode 发送短信验证码
-		SmsCode(ctx context.Context, params model.CommonSendSmsReq) (*model.CommonSendSmsRes, error)
-		// EmailCode 发送邮件验证码
-		EmailCode(ctx context.Context, params model.CommonSendEmailReq) (*model.CommonSendEmailRes, error)
-		// Setting 公共设置
+		// 发送短信验证码
+		SmsCode(ctx context.Context, params model.SendSmsReq) (*model.SendSmsRes, error)
+		// 发送邮件验证码
+		EmailCode(ctx context.Context, params model.SendEmailReq) (*model.SendEmailRes, error)
+		// 公共设置
 		Setting(ctx context.Context) error
 	}
 )

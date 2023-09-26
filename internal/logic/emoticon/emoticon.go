@@ -37,13 +37,13 @@ func New() service.IEmoticon {
 }
 
 // 收藏列表
-func (s *sEmoticon) CollectList(ctx context.Context) (*model.EmoticonListRes, error) {
+func (s *sEmoticon) CollectList(ctx context.Context) (*model.ListRes, error) {
 
 	var (
 		uid  = service.Session().GetUid(ctx)
-		resp = &model.EmoticonListRes{
-			SysEmoticon:     make([]*model.EmoticonListResponse_SysEmoticon, 0),
-			CollectEmoticon: make([]*model.EmoticonListItem, 0),
+		resp = &model.ListRes{
+			SysEmoticon:     make([]*model.ListResponse_SysEmoticon, 0),
+			CollectEmoticon: make([]*model.ListItem, 0),
 		}
 	)
 
@@ -56,16 +56,16 @@ func (s *sEmoticon) CollectList(ctx context.Context) (*model.EmoticonListRes, er
 		}
 
 		for _, item := range emoticonList {
-			data := &model.EmoticonListResponse_SysEmoticon{
+			data := &model.ListResponse_SysEmoticon{
 				EmoticonId: item.Id,
 				Url:        item.Icon,
 				Name:       item.Name,
-				List:       make([]*model.EmoticonListItem, 0),
+				List:       make([]*model.ListItem, 0),
 			}
 
 			if list, err := dao.Emoticon.GetDetailsAll(ctx, item.Id, 0); err == nil {
 				for _, v := range list {
-					data.List = append(data.List, &model.EmoticonListItem{
+					data.List = append(data.List, &model.ListItem{
 						MediaId: v.Id,
 						Src:     v.Url,
 					})
@@ -78,7 +78,7 @@ func (s *sEmoticon) CollectList(ctx context.Context) (*model.EmoticonListRes, er
 
 	if items, err := dao.Emoticon.GetDetailsAll(ctx, "", uid); err == nil {
 		for _, item := range items {
-			resp.CollectEmoticon = append(resp.CollectEmoticon, &model.EmoticonListItem{
+			resp.CollectEmoticon = append(resp.CollectEmoticon, &model.ListItem{
 				MediaId: item.Id,
 				Src:     item.Url,
 			})
@@ -89,7 +89,7 @@ func (s *sEmoticon) CollectList(ctx context.Context) (*model.EmoticonListRes, er
 }
 
 // 删除收藏表情包
-func (s *sEmoticon) DeleteCollect(ctx context.Context, params model.EmoticonDeleteReq) error {
+func (s *sEmoticon) DeleteCollect(ctx context.Context, params model.DeleteReq) error {
 
 	if _, err := dao.Emoticon.DeleteCollect(ctx, service.Session().GetUid(ctx), util.ParseIds(params.Ids)); err != nil {
 		logger.Error(ctx, err)
@@ -100,7 +100,7 @@ func (s *sEmoticon) DeleteCollect(ctx context.Context, params model.EmoticonDele
 }
 
 // 上传自定义表情包
-func (s *sEmoticon) Upload(ctx context.Context) (*model.EmoticonUploadRes, error) {
+func (s *sEmoticon) Upload(ctx context.Context) (*model.UploadRes, error) {
 
 	_, file, err := g.RequestFromCtx(ctx).Request.FormFile("emoticon")
 	if err != nil {
@@ -144,14 +144,14 @@ func (s *sEmoticon) Upload(ctx context.Context) (*model.EmoticonUploadRes, error
 		return nil, errors.New("上传失败")
 	}
 
-	return &model.EmoticonUploadRes{
+	return &model.UploadRes{
 		MediaId: id,
 		Src:     m.Url,
 	}, nil
 }
 
 // 系统表情包列表
-func (s *sEmoticon) SystemList(ctx context.Context) ([]*model.EmoticonSysListResponse_Item, error) {
+func (s *sEmoticon) SystemList(ctx context.Context) ([]*model.SysListResponse_Item, error) {
 
 	items, err := dao.Emoticon.GetSystemEmoticonList(ctx)
 	if err != nil {
@@ -161,9 +161,9 @@ func (s *sEmoticon) SystemList(ctx context.Context) ([]*model.EmoticonSysListRes
 
 	ids := dao.Emoticon.GetUserInstallIds(ctx, service.Session().GetUid(ctx))
 
-	data := make([]*model.EmoticonSysListResponse_Item, 0)
+	data := make([]*model.SysListResponse_Item, 0)
 	for _, item := range items {
-		data = append(data, &model.EmoticonSysListResponse_Item{
+		data = append(data, &model.SysListResponse_Item{
 			Id:     item.Id,
 			Name:   item.Name,
 			Icon:   item.Icon,
@@ -175,7 +175,7 @@ func (s *sEmoticon) SystemList(ctx context.Context) ([]*model.EmoticonSysListRes
 }
 
 // 添加或移除系统表情包
-func (s *sEmoticon) SetSystemEmoticon(ctx context.Context, params model.EmoticonSetSystemReq) (*model.EmoticonSetSystemRes, error) {
+func (s *sEmoticon) SetSystemEmoticon(ctx context.Context, params model.SetSystemReq) (*model.SetSystemRes, error) {
 
 	var (
 		err error
@@ -209,17 +209,17 @@ func (s *sEmoticon) SetSystemEmoticon(ctx context.Context, params model.Emoticon
 		return nil, err
 	}
 
-	items := make([]*model.EmoticonListItem, 0)
+	items := make([]*model.ListItem, 0)
 	if list, err := dao.Emoticon.GetDetailsAll(ctx, params.EmoticonId, 0); err == nil {
 		for _, item := range list {
-			items = append(items, &model.EmoticonListItem{
+			items = append(items, &model.ListItem{
 				MediaId: item.Id,
 				Src:     item.Url,
 			})
 		}
 	}
 
-	return &model.EmoticonSetSystemRes{
+	return &model.SetSystemRes{
 		EmoticonId: emoticon.Id,
 		Url:        emoticon.Icon,
 		Name:       emoticon.Name,

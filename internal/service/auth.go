@@ -13,16 +13,16 @@ import (
 
 type (
 	IAuth interface {
-		// Login 登录接口
-		Login(ctx context.Context, params model.AuthLoginReq) (*model.AuthLoginRes, error)
-		// Register 注册接口
-		Register(ctx context.Context, params model.AuthRegisterReq) error
-		// Logout 退出登录接口
+		// 登录接口
+		Login(ctx context.Context, params model.LoginReq) (*model.LoginRes, error)
+		// 注册接口
+		Register(ctx context.Context, params model.RegisterReq) error
+		// 退出登录接口
 		Logout(ctx context.Context) error
-		// Refresh Token 刷新接口
-		Refresh(ctx context.Context) (*model.AuthRefreshRes, error)
-		// Forget 账号找回接口
-		Forget(ctx context.Context, params model.AuthForgetReq) error
+		// Token 刷新接口
+		Refresh(ctx context.Context) (*model.RefreshRes, error)
+		// 账号找回接口
+		Forget(ctx context.Context, params model.ForgetReq) error
 	}
 )
 

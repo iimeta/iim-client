@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/iimeta/iim-client/utility/jwt"
+	"github.com/iimeta/iim-client/utility/logger"
 	"net/http"
 	"strconv"
 	"strings"
@@ -62,6 +63,8 @@ func Auth(r *ghttp.Request, secret string, guard string, storage IStorage) {
 	})
 
 	r.SetCtxVar(UID_KEY, uid)
+
+	logger.Debugf(r.GetCtx(), "url: %s, body: %s", r.GetUrl(), r.GetBodyString())
 
 	r.Middleware.Next()
 }

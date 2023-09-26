@@ -30,8 +30,8 @@ func NewNoteAnnexDao(database ...string) *NoteAnnexDao {
 	}
 }
 
-func (d *NoteAnnexDao) AnnexList(ctx context.Context, uid int, articleId string) ([]*entity.NoteAnnex, error) {
-	return d.Find(ctx, bson.M{"user_id": uid, "article_id": articleId, "status": 1})
+func (d *NoteAnnexDao) AnnexList(ctx context.Context, uid int, noteId string) ([]*entity.NoteAnnex, error) {
+	return d.Find(ctx, bson.M{"user_id": uid, "note_id": noteId, "status": 1})
 }
 
 func (d *NoteAnnexDao) RecoverList(ctx context.Context, uid int) ([]*entity.NoteAnnex, []*entity.Note, error) {
@@ -41,12 +41,12 @@ func (d *NoteAnnexDao) RecoverList(ctx context.Context, uid int) ([]*entity.Note
 		return nil, nil, err
 	}
 
-	articleIds := make([]string, 0)
+	noteIds := make([]string, 0)
 	for _, noteAnnex := range noteAnnexList {
-		articleIds = append(articleIds, noteAnnex.ArticleId)
+		noteIds = append(noteIds, noteAnnex.NoteId)
 	}
 
-	noteList, err := Note.FindByIds(ctx, articleIds)
+	noteList, err := Note.FindByIds(ctx, noteIds)
 	if err != nil {
 		return nil, nil, err
 	}

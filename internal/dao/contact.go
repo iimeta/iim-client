@@ -125,9 +125,9 @@ func (d *ContactDao) LoadContactCache(ctx context.Context, uid int) error {
 	return d.cache.MSet(ctx, uid, items)
 }
 
-// UpdateRemark 编辑联系人备注
+// UpdateRemark 编辑好友备注
 // @params uid      用户ID
-// @params friendId 联系人ID
+// @params friendId 好友ID
 func (d *ContactDao) UpdateRemark(ctx context.Context, uid int, friendId int, remark string) error {
 
 	filter := bson.M{
@@ -146,9 +146,9 @@ func (d *ContactDao) UpdateRemark(ctx context.Context, uid int, friendId int, re
 	return nil
 }
 
-// Delete 删除联系人
+// Delete 删除好友
 // @params uid      用户ID
-// @params friendId 联系人ID
+// @params friendId 好友ID
 func (d *ContactDao) Delete(ctx context.Context, uid, friendId int) error {
 
 	filter := bson.M{
@@ -186,7 +186,7 @@ func (d *ContactDao) Delete(ctx context.Context, uid, friendId int) error {
 	return nil
 }
 
-// 获取联系人列表
+// 获取好友列表
 func (d *ContactDao) List(ctx context.Context, uid int) ([]*entity.Contact, []*entity.User, error) {
 
 	filter := bson.M{

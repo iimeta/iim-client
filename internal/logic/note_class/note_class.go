@@ -20,7 +20,7 @@ func New() service.INoteClass {
 }
 
 // 分类列表
-func (s *sNoteClass) List(ctx context.Context) (*model.ArticleClassListRes, error) {
+func (s *sNoteClass) List(ctx context.Context) (*model.ClassListRes, error) {
 
 	noteClassList, err := dao.NoteClass.List(ctx, service.Session().GetUid(ctx))
 	if err != nil {
@@ -34,20 +34,29 @@ func (s *sNoteClass) List(ctx context.Context) (*model.ArticleClassListRes, erro
 		return nil, err
 	}
 
-	list := make([]*model.ArticleClassItem, 0)
-	list = append(list, &model.ArticleClassItem{
+	list := make([]*model.ClassItem, 0)
+	list = append(list, &model.ClassItem{
 		ClassName: "默认分类",
 	})
 
-	for i := range noteClassList {
-		if num, ok := data[noteClassList[i].Id]; ok {
-			list[i].Count = num
+	for _, noteClass := range noteClassList {
+
+		classItem := &model.ClassItem{
+			Id:        noteClass.Id,
+			ClassName: noteClass.ClassName,
+			IsDefault: noteClass.IsDefault,
 		}
+
+		if num, ok := data[noteClass.Id]; ok {
+			classItem.Count = num
+		}
+
+		list = append(list, classItem)
 	}
 
-	items := make([]*model.ArticleClassListResponse_Item, 0, len(list))
+	items := make([]*model.ClassListResponse_Item, 0, len(list))
 	for _, item := range list {
-		items = append(items, &model.ArticleClassListResponse_Item{
+		items = append(items, &model.ClassListResponse_Item{
 			Id:        item.Id,
 			ClassName: item.ClassName,
 			IsDefault: item.IsDefault,
@@ -55,7 +64,7 @@ func (s *sNoteClass) List(ctx context.Context) (*model.ArticleClassListRes, erro
 		})
 	}
 
-	return &model.ArticleClassListRes{
+	return &model.ClassListRes{
 		Items: items,
 		Paginate: &model.Paginate{
 			Page:  1,
@@ -66,7 +75,7 @@ func (s *sNoteClass) List(ctx context.Context) (*model.ArticleClassListRes, erro
 }
 
 // 添加或修改分类
-func (s *sNoteClass) Edit(ctx context.Context, params model.ArticleClassEditReq) (*model.ArticleClassEditRes, error) {
+func (s *sNoteClass) Edit(ctx context.Context, params model.ClassEditReq) (*model.ClassEditRes, error) {
 
 	uid := service.Session().GetUid(ctx)
 
@@ -87,13 +96,13 @@ func (s *sNoteClass) Edit(ctx context.Context, params model.ArticleClassEditReq)
 		}
 	}
 
-	return &model.ArticleClassEditRes{
+	return &model.ClassEditRes{
 		Id: params.ClassId,
 	}, nil
 }
 
 // 删除分类
-func (s *sNoteClass) Delete(ctx context.Context, params model.ArticleClassDeleteReq) error {
+func (s *sNoteClass) Delete(ctx context.Context, params model.ClassDeleteReq) error {
 
 	err := dao.NoteClass.Delete(ctx, service.Session().GetUid(ctx), params.ClassId)
 	if err != nil {
@@ -105,7 +114,7 @@ func (s *sNoteClass) Delete(ctx context.Context, params model.ArticleClassDelete
 }
 
 // 分类排序
-func (s *sNoteClass) Sort(ctx context.Context, params model.ArticleClassSortReq) error {
+func (s *sNoteClass) Sort(ctx context.Context, params model.ClassSortReq) error {
 
 	err := dao.NoteClass.Sort(ctx, service.Session().GetUid(ctx), params.ClassId, params.SortType)
 	if err != nil {

@@ -83,7 +83,7 @@ func (d *NoteClassDao) List(ctx context.Context, uid int) ([]*entity.NoteClass, 
 
 	noteClassList, err := d.Find(ctx, bson.M{"user_id": uid}, "sort")
 	if err != nil {
-
+		return nil, err
 	}
 
 	return noteClassList, nil

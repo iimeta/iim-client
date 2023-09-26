@@ -14,11 +14,11 @@ import (
 type (
 	INoteTag interface {
 		// List 标签列表
-		List(ctx context.Context) (*model.ArticleTagListRes, error)
+		List(ctx context.Context) (*model.TagListRes, error)
 		// Edit 添加或修改标签
-		Edit(ctx context.Context, params model.ArticleTagEditReq) (*model.ArticleTagEditRes, error)
+		Edit(ctx context.Context, params model.TagEditReq) (*model.TagEditRes, error)
 		// Delete 删除标签
-		Delete(ctx context.Context, params model.ArticleTagDeleteReq) error
+		Delete(ctx context.Context, params model.TagDeleteReq) error
 	}
 )
 

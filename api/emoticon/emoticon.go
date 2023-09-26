@@ -1,19 +1,21 @@
 // =================================================================================
-// Code generated and maintained by GoFrame CLI tool. DO NOT EDIT.
+// Code generated and maintained by GoFrame CLI tool. DO NOT EDIT. 
 // =================================================================================
 
 package emoticon
 
 import (
 	"context"
-
+	
 	"github.com/iimeta/iim-client/api/emoticon/v1"
 )
 
 type IEmoticonV1 interface {
-	EmoticonSetSystem(ctx context.Context, req *v1.EmoticonSetSystemReq) (res *v1.EmoticonSetSystemRes, err error)
-	EmoticonDelete(ctx context.Context, req *v1.EmoticonDeleteReq) (res *v1.EmoticonDeleteRes, err error)
-	EmoticonSysList(ctx context.Context, req *v1.EmoticonSysListReq) (res *v1.EmoticonSysListRes, err error)
-	EmoticonList(ctx context.Context, req *v1.EmoticonListReq) (res *v1.EmoticonListRes, err error)
-	EmoticonUpload(ctx context.Context, req *v1.EmoticonUploadReq) (res *v1.EmoticonUploadRes, err error)
+	SetSystem(ctx context.Context, req *v1.SetSystemReq) (res *v1.SetSystemRes, err error)
+	Delete(ctx context.Context, req *v1.DeleteReq) (res *v1.DeleteRes, err error)
+	SysList(ctx context.Context, req *v1.SysListReq) (res *v1.SysListRes, err error)
+	List(ctx context.Context, req *v1.ListReq) (res *v1.ListRes, err error)
+	Upload(ctx context.Context, req *v1.UploadReq) (res *v1.UploadRes, err error)
 }
+
+

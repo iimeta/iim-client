@@ -5,30 +5,30 @@ import (
 	"time"
 )
 
-type ArticleListItem struct {
-	Id         string `json:"id"`          // 文章ID
+type NoteListItem struct {
+	Id         string `json:"id"`          // 笔记ID
 	UserId     int    `json:"user_id"`     // 用户ID
 	ClassId    string `json:"class_id"`    // 分类ID
 	TagsId     string `json:"tags_id"`     // 笔记关联标签
-	Title      string `json:"title"`       // 文章标题
-	Abstract   string `json:"abstract"`    // 文章摘要
-	Image      string `json:"image"`       // 文章首图
-	IsAsterisk int    `json:"is_asterisk"` // 是否星标文章[0:否;1:是;]
+	Title      string `json:"title"`       // 笔记标题
+	Abstract   string `json:"abstract"`    // 笔记摘要
+	Image      string `json:"image"`       // 笔记首图
+	IsAsterisk int    `json:"is_asterisk"` // 是否星标笔记[0:否;1:是;]
 	Status     int    `json:"status"`      // 笔记状态[1:正常;2:已删除;]
 	CreatedAt  int64  `json:"created_at"`  // 创建时间
 	UpdatedAt  int64  `json:"updated_at"`  // 更新时间
 	ClassName  string `json:"class_name"`  // 分类名
 }
 
-type ArticleDetailInfo struct {
-	Id         string `json:"id"`          // 文章ID
+type NoteDetailInfo struct {
+	Id         string `json:"id"`          // 笔记ID
 	UserId     int    `json:"user_id"`     // 用户ID
 	ClassId    string `json:"class_id"`    // 分类ID
 	TagsId     string `json:"tags_id"`     // 笔记关联标签
-	Title      string `json:"title"`       // 文章标题
-	Abstract   string `json:"abstract"`    // 文章摘要
-	Image      string `json:"image"`       // 文章首图
-	IsAsterisk int    `json:"is_asterisk"` // 是否星标文章(0:否  1:是)
+	Title      string `json:"title"`       // 笔记标题
+	Abstract   string `json:"abstract"`    // 笔记摘要
+	Image      string `json:"image"`       // 笔记首图
+	IsAsterisk int    `json:"is_asterisk"` // 是否星标笔记(0:否  1:是)
 	Status     int    `json:"status"`      // 笔记状态 1:正常 2:已删除
 	CreatedAt  int64  `json:"created_at"`  // 添加时间
 	UpdatedAt  int64  `json:"updated_at"`  // 最后一次更新时间
@@ -36,16 +36,16 @@ type ArticleDetailInfo struct {
 	Content    string `json:"content"`     // Markdown 解析HTML内容
 }
 
-type ArticleEditOpt struct {
+type NoteEditOpt struct {
 	UserId    int
-	ArticleId string
+	NoteId    string
 	ClassId   string
 	Title     string
 	Content   string
 	MdContent string
 }
 
-type ArticleListOpt struct {
+type NoteListOpt struct {
 	UserId   int
 	Keyword  string
 	FindType int
@@ -53,30 +53,30 @@ type ArticleListOpt struct {
 	Page     int
 }
 
-// 文章编辑接口请求参数
-type ArticleEditReq struct {
-	ArticleId string `json:"article_id,omitempty"`
+// 笔记编辑接口请求参数
+type NoteEditReq struct {
+	NoteId    string `json:"note_id,omitempty"`
 	ClassId   string `json:"class_id,omitempty"`
 	Title     string `json:"title,omitempty" v:"required"`
 	Content   string `json:"content,omitempty" v:"required"`
 	MdContent string `json:"md_content,omitempty" v:"required"`
 }
 
-// 文章编辑接口响应参数
-type ArticleEditRes struct {
+// 笔记编辑接口响应参数
+type NoteEditRes struct {
 	Id       string `json:"id,omitempty"`
 	Title    string `json:"title,omitempty"`
 	Abstract string `json:"abstract,omitempty"`
 	Image    string `json:"image,omitempty"`
 }
 
-// 文章详情接口请求参数
-type ArticleDetailReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required"`
+// 笔记详情接口请求参数
+type NoteDetailReq struct {
+	NoteId string `json:"note_id,omitempty" v:"required"`
 }
 
-// 文章详情接口响应参数
-type ArticleDetailRes struct {
+// 笔记详情接口响应参数
+type NoteDetailRes struct {
 	Id         string `json:"id,omitempty"`
 	ClassId    string `json:"class_id,omitempty"`
 	Title      string `json:"title,omitempty"`
@@ -86,73 +86,68 @@ type ArticleDetailRes struct {
 	CreatedAt  string `json:"created_at,omitempty"`
 	UpdatedAt  string `json:"updated_at,omitempty"`
 	// 标签列表
-	Tags []*ArticleDetailResponse_Tag `json:"tags,omitempty"`
+	Tags []*DetailResponse_Tag `json:"tags,omitempty"`
 	// 附件列表
-	Files []*ArticleDetailResponse_File `json:"files,omitempty"`
+	Files []*DetailResponse_File `json:"files,omitempty"`
 }
 
-// 文章列表接口请求参数
-type ArticleListReq struct {
+// 笔记列表接口请求参数
+type NoteListReq struct {
 	Keyword  string `json:"keyword,omitempty"`
 	FindType int    `json:"find_type,omitempty"`
-	Cid      int    `json:"cid,omitempty"`
+	Cid      string `json:"cid,omitempty"`
 	Page     int    `json:"page,omitempty"`
 }
 
-// 文章列表请求接口响应参数
-type ArticleListRes struct {
-	Items    []*ArticleListResponse_Item   `json:"items"`
-	Paginate *ArticleListResponse_Paginate `json:"paginate"`
+// 笔记列表请求接口响应参数
+type NoteListRes struct {
+	Items    []*ListResponse_Item   `json:"items"`
+	Paginate *ListResponse_Paginate `json:"paginate"`
 }
 
-// 文章删除接口请求参数
-type ArticleDeleteReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required"`
+// 笔记删除接口请求参数
+type NoteDeleteReq struct {
+	NoteId string `json:"note_id,omitempty" v:"required"`
 }
 
-// 恢复文章接口请求参数
-type ArticleRecoverReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required"`
+// 恢复笔记接口请求参数
+type NoteRecoverReq struct {
+	NoteId string `json:"note_id,omitempty" v:"required"`
 }
 
-// 文章移动分类接口请求参数
-type ArticleMoveReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required|gt:0"`
-	ClassId   string `json:"class_id,omitempty" v:"required|gt:0"`
+// 笔记移动分类接口请求参数
+type NoteMoveReq struct {
+	NoteId  string `json:"note_id,omitempty" v:"required"`
+	ClassId string `json:"class_id,omitempty" v:"required"`
 }
 
-// 标记文章接口请求参数
-type ArticleAsteriskReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required|gt:0"`
-	Type      int    `json:"type,omitempty" v:"required|in:1,2"`
+// 标记笔记接口请求参数
+type NoteAsteriskReq struct {
+	NoteId string `json:"note_id,omitempty" v:"required"`
+	Type   int    `json:"type,omitempty" v:"required|in:1,2"`
 }
 
-// 文章标签接口请求参数
-type ArticleTagsReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required|gt:0"`
-	Tags      []int  `json:"tags,omitempty"`
+// 笔记标签接口请求参数
+type NoteTagsReq struct {
+	NoteId string `json:"note_id,omitempty" v:"required"`
+	Tags   []int  `json:"tags,omitempty"`
 }
 
-// 永久删除文章接口请求参数
-type ArticleForeverDeleteReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required|gt:0"`
+// 永久删除笔记接口请求参数
+type NoteForeverDeleteReq struct {
+	NoteId string `json:"note_id,omitempty" v:"required"`
 }
 
-// 文章图片上传接口请求参数
-type ArticleUploadImageReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required|gt:0"`
-}
-
-// 文章图片上传接口响应参数
-type ArticleUploadImageRes struct {
+// 笔记图片上传接口响应参数
+type NoteUploadImageRes struct {
 	Url string `json:"url"`
 }
 
-type ArticleDetailResponse_Tag struct {
+type DetailResponse_Tag struct {
 	Id string `json:"id,omitempty"`
 }
 
-type ArticleDetailResponse_File struct {
+type DetailResponse_File struct {
 	Id           string `json:"id,omitempty"`
 	OriginalName string `json:"original_name,omitempty"`
 	Size         int    `json:"size,omitempty"`
@@ -160,7 +155,7 @@ type ArticleDetailResponse_File struct {
 	CreatedAt    string `json:"created_at,omitempty"`
 }
 
-type ArticleListResponse_Item struct {
+type ListResponse_Item struct {
 	Id         string `json:"id,omitempty"`
 	ClassId    string `json:"class_id,omitempty"`
 	TagsId     string `json:"tags_id,omitempty"`
@@ -174,16 +169,16 @@ type ArticleListResponse_Item struct {
 	Abstract   string `json:"abstract,omitempty"`
 }
 
-type ArticleListResponse_Paginate struct {
+type ListResponse_Paginate struct {
 	Page  int `json:"page,omitempty"`
 	Size  int `json:"size,omitempty"`
 	Total int `json:"total,omitempty"`
 }
 
-type ArticleAnnex struct {
+type Annex struct {
 	Id           string       `json:"id"`            // 文件ID
 	UserId       int          `json:"user_id"`       // 上传文件的用户ID
-	ArticleId    string       `json:"article_id"`    // 笔记ID
+	NoteId       string       `json:"note_id"`       // 笔记ID
 	Drive        int          `json:"drive"`         // 文件驱动[1:local;2:cos;]
 	Suffix       string       `json:"suffix"`        // 文件后缀名
 	Size         int          `json:"size"`          // 文件大小
@@ -197,19 +192,19 @@ type ArticleAnnex struct {
 
 type RecoverAnnexItem struct {
 	Id           string `json:"id"`            // 文件ID
-	ArticleId    string `json:"article_id"`    // 笔记ID
+	NoteId       string `json:"note_id"`       // 笔记ID
 	Title        string `json:"title"`         // 原文件名
 	OriginalName string `json:"original_name"` // 原文件名
 	DeletedAt    int64  `json:"deleted_at"`    // 附件删除时间
 }
 
-// 文章附件上传接口请求参数
-type ArticleAnnexUploadReq struct {
-	ArticleId string `json:"article_id,omitempty" v:"required"`
+// 笔记附件上传接口请求参数
+type AnnexUploadReq struct {
+	NoteId string `json:"note_id,omitempty" v:"required"`
 }
 
-// 文章附件上传接口响应参数
-type ArticleAnnexUploadRes struct {
+// 笔记附件上传接口响应参数
+type AnnexUploadRes struct {
 	Id           string `json:"id,omitempty"`
 	Size         int    `json:"size,omitempty"`
 	Path         string `json:"path,omitempty"`
@@ -217,76 +212,76 @@ type ArticleAnnexUploadRes struct {
 	OriginalName string `json:"original_name,omitempty"`
 }
 
-// 文章附件删除接口请求参数
-type ArticleAnnexDeleteReq struct {
+// 笔记附件删除接口请求参数
+type AnnexDeleteReq struct {
 	AnnexId string `json:"annex_id,omitempty" v:"required"`
 }
 
-// 文章附件恢复删除接口请求参数
-type ArticleAnnexRecoverReq struct {
+// 笔记附件恢复删除接口请求参数
+type AnnexRecoverReq struct {
 	AnnexId string `json:"annex_id,omitempty" v:"required"`
 }
 
-// 文章附件回收站列表接口响应参数
-type ArticleAnnexRecoverListRes struct {
-	Items    []*ArticleAnnexRecoverListResponse_Item `json:"items"`
-	Paginate *Paginate                               `json:"paginate,omitempty"`
+// 笔记附件回收站列表接口响应参数
+type AnnexRecoverListRes struct {
+	Items    []*AnnexRecoverListResponse_Item `json:"items"`
+	Paginate *Paginate                        `json:"paginate,omitempty"`
 }
 
-type ArticleAnnexRecoverListResponse_Item struct {
+type AnnexRecoverListResponse_Item struct {
 	Id           string `json:"id,omitempty"`
-	ArticleId    string `json:"article_id,omitempty"`
+	NoteId       string `json:"note_id,omitempty"`
 	Title        string `json:"title,omitempty"`
 	OriginalName string `json:"original_name,omitempty"`
 	Day          int    `json:"day,omitempty"`
 }
 
-// 文章附件永久删除接口请求参数
-type ArticleAnnexForeverDeleteReq struct {
+// 笔记附件永久删除接口请求参数
+type AnnexForeverDeleteReq struct {
 	AnnexId string `json:"annex_id,omitempty" v:"required"`
 }
 
-// 文章附件下载接口请求参数
-type ArticleAnnexDownloadReq struct {
+// 笔记附件下载接口请求参数
+type AnnexDownloadReq struct {
 	AnnexId string `json:"annex_id,omitempty" v:"required"`
 }
 
-type ArticleClassItem struct {
-	Id        string `json:"id"`         // 文章分类ID
+type ClassItem struct {
+	Id        string `json:"id"`         // 笔记分类ID
 	ClassName string `json:"class_name"` // 分类名
 	IsDefault int    `json:"is_default"` // 默认分类1:是 0:不是
 	Count     int    `json:"count"`      // 分类名
 }
 
-// 文章分类列表接口响应参数
-type ArticleClassListRes struct {
-	Items    []*ArticleClassListResponse_Item `json:"items"`
-	Paginate *Paginate                        `json:"paginate"`
+// 笔记分类列表接口响应参数
+type ClassListRes struct {
+	Items    []*ClassListResponse_Item `json:"items"`
+	Paginate *Paginate                 `json:"paginate"`
 }
 
-// 文章分类编辑接口请求参数
-type ArticleClassEditReq struct {
+// 笔记分类编辑接口请求参数
+type ClassEditReq struct {
 	ClassId   string `json:"class_id,omitempty"`
 	ClassName string `json:"class_name,omitempty" v:"required"`
 }
 
-// 文章分类编辑接口响应参数
-type ArticleClassEditRes struct {
+// 笔记分类编辑接口响应参数
+type ClassEditRes struct {
 	Id string `json:"id,omitempty"`
 }
 
-// 文章分类删除接口请求参数
-type ArticleClassDeleteReq struct {
+// 笔记分类删除接口请求参数
+type ClassDeleteReq struct {
 	ClassId string `json:"class_id,omitempty" v:"required"`
 }
 
-// 文章分类排序接口请求参数
-type ArticleClassSortReq struct {
+// 笔记分类排序接口请求参数
+type ClassSortReq struct {
 	ClassId  string `json:"class_id,omitempty" v:"required"`
 	SortType int    `json:"sort_type,omitempty" v:"required|in:1,2"`
 }
 
-type ArticleClassListResponse_Item struct {
+type ClassListResponse_Item struct {
 	Id        string `json:"id,omitempty"`
 	ClassName string `json:"class_name,omitempty"`
 	IsDefault int    `json:"is_default,omitempty"`
@@ -294,33 +289,33 @@ type ArticleClassListResponse_Item struct {
 }
 
 type TagItem struct {
-	Id      string `json:"id"`       // 文章分类ID
+	Id      string `json:"id"`       // 笔记分类ID
 	TagName string `json:"tag_name"` // 标签名
 	Count   int    `json:"count"`    // 排序
 }
 
-// 文章标签列表接口响应参数
-type ArticleTagListRes struct {
-	Tags []*ArticleTagListResponse_Item `json:"tags"`
+// 笔记标签列表接口响应参数
+type TagListRes struct {
+	Tags []*TagListResponse_Item `json:"tags"`
 }
 
-// 文章标签编辑接口请求参数
-type ArticleTagEditReq struct {
+// 笔记标签编辑接口请求参数
+type TagEditReq struct {
 	TagId   string `json:"tag_id,omitempty"`
 	TagName string `json:"tag_name,omitempty" v:"required"`
 }
 
-// 文章标签编辑接口请求参数
-type ArticleTagEditRes struct {
+// 笔记标签编辑接口请求参数
+type TagEditRes struct {
 	Id string `json:"id,omitempty"`
 }
 
-// 文章标签删除接口请求参数
-type ArticleTagDeleteReq struct {
+// 笔记标签删除接口请求参数
+type TagDeleteReq struct {
 	TagId string `json:"tag_id,omitempty" v:"required"`
 }
 
-type ArticleTagListResponse_Item struct {
+type TagListResponse_Item struct {
 	Id      string `json:"id,omitempty"`
 	TagName string `json:"tag_name,omitempty"`
 	Count   int    `json:"count,omitempty"`

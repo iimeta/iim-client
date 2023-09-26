@@ -6,56 +6,56 @@ import (
 )
 
 // 登录接口请求参数
-type AuthLoginReq struct {
+type LoginReq struct {
 	g.Meta `path:"/login" tags:"auth" method:"post" summary:"登录接口"`
-	model.AuthLoginReq
+	model.LoginReq
 }
 
 // 登录接口响应参数
-type AuthLoginRes struct {
+type LoginRes struct {
 	g.Meta `mime:"application/json" example:"json"`
-	*model.AuthLoginRes
+	*model.LoginRes
 }
 
 // 登出接口请求参数
-type AuthLogoutReq struct {
+type LogoutReq struct {
 	g.Meta `path:"/logout" tags:"auth" method:"post" summary:"登出接口"`
 }
 
 // 登出接口响应参数
-type AuthLogoutRes struct {
+type LogoutRes struct {
 	g.Meta `mime:"application/json" example:"json"`
 }
 
 // 注册接口请求参数
-type AuthRegisterReq struct {
+type RegisterReq struct {
 	g.Meta `path:"/register" tags:"auth" method:"post" summary:"注册接口"`
-	model.AuthRegisterReq
+	model.RegisterReq
 }
 
 // 注册接口响应参数
-type AuthRegisterRes struct {
+type RegisterRes struct {
 	g.Meta `mime:"application/json" example:"json"`
 }
 
 // Token 刷新接口请求参数
-type AuthRefreshReq struct {
+type RefreshReq struct {
 	g.Meta `path:"/refresh" tags:"auth" method:"post" summary:"刷新Token接口"`
 }
 
 // Token 刷新接口响应参数
-type AuthRefreshRes struct {
+type RefreshRes struct {
 	g.Meta `mime:"application/json" example:"json"`
-	*model.AuthRefreshRes
+	*model.RefreshRes
 }
 
 // 找回密码接口请求参数
-type AuthForgetReq struct {
+type ForgetReq struct {
 	g.Meta `path:"/forget" tags:"auth" method:"post" summary:"找回密码接口"`
-	model.AuthForgetReq
+	model.ForgetReq
 }
 
 // 找回密码接口响应参数
-type AuthForgetRes struct {
+type ForgetRes struct {
 	g.Meta `mime:"application/json" example:"json"`
 }

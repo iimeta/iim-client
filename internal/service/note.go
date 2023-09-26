@@ -13,26 +13,26 @@ import (
 
 type (
 	INote interface {
-		// List 文章列表
-		List(ctx context.Context, params model.ArticleListReq) (*model.ArticleListRes, error)
-		// Detail 文章详情
-		Detail(ctx context.Context, params model.ArticleDetailReq) (*model.ArticleDetailRes, error)
-		// Edit 添加或编辑文章
-		Edit(ctx context.Context, params model.ArticleEditReq) (*model.ArticleEditRes, error)
-		// Delete 删除文章
-		Delete(ctx context.Context, params model.ArticleDeleteReq) error
-		// Recover 恢复文章
-		Recover(ctx context.Context, params model.ArticleRecoverReq) error
-		// Upload 文章图片上传
-		Upload(ctx context.Context) (*model.ArticleUploadImageRes, error)
-		// Move 文章移动
-		Move(ctx context.Context, params model.ArticleMoveReq) error
-		// Asterisk 标记文章
-		Asterisk(ctx context.Context, params model.ArticleAsteriskReq) error
-		// Tag 文章标签
-		Tag(ctx context.Context, params model.ArticleTagsReq) error
-		// ForeverDelete 永久删除文章
-		ForeverDelete(ctx context.Context, params model.ArticleForeverDeleteReq) error
+		// 笔记列表
+		List(ctx context.Context, params model.NoteListReq) (*model.NoteListRes, error)
+		// 笔记详情
+		Detail(ctx context.Context, params model.NoteDetailReq) (*model.NoteDetailRes, error)
+		// 添加或编辑笔记
+		Edit(ctx context.Context, params model.NoteEditReq) (*model.NoteEditRes, error)
+		// 删除笔记
+		Delete(ctx context.Context, params model.NoteDeleteReq) error
+		// 恢复笔记
+		Recover(ctx context.Context, params model.NoteRecoverReq) error
+		// 笔记图片上传
+		Upload(ctx context.Context) (*model.NoteUploadImageRes, error)
+		// 笔记移动
+		Move(ctx context.Context, params model.NoteMoveReq) error
+		// 标记笔记
+		Asterisk(ctx context.Context, params model.NoteAsteriskReq) error
+		// 笔记标签
+		Tag(ctx context.Context, params model.NoteTagsReq) error
+		// 永久删除笔记
+		ForeverDelete(ctx context.Context, params model.NoteForeverDeleteReq) error
 	}
 )
 

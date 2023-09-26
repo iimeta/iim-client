@@ -22,7 +22,7 @@ func New() service.ICommon {
 }
 
 // 发送短信验证码
-func (s *sCommon) SmsCode(ctx context.Context, params model.CommonSendSmsReq) (*model.CommonSendSmsRes, error) {
+func (s *sCommon) SmsCode(ctx context.Context, params model.SendSmsReq) (*model.SendSmsRes, error) {
 
 	switch params.Channel {
 	// 需要判断账号是否存在
@@ -49,7 +49,7 @@ func (s *sCommon) SmsCode(ctx context.Context, params model.CommonSendSmsReq) (*
 	}
 
 	if config.Cfg.App.Debug {
-		return &model.CommonSendSmsRes{
+		return &model.SendSmsRes{
 			IsDebug: true,
 			SmsCode: code,
 		}, nil
@@ -59,7 +59,7 @@ func (s *sCommon) SmsCode(ctx context.Context, params model.CommonSendSmsReq) (*
 }
 
 // 发送邮件验证码
-func (s *sCommon) EmailCode(ctx context.Context, params model.CommonSendEmailReq) (*model.CommonSendEmailRes, error) {
+func (s *sCommon) EmailCode(ctx context.Context, params model.SendEmailReq) (*model.SendEmailRes, error) {
 
 	switch params.Channel {
 	// 需要判断账号是否存在
@@ -92,7 +92,7 @@ func (s *sCommon) EmailCode(ctx context.Context, params model.CommonSendEmailReq
 	}
 
 	if config.Cfg.App.Debug {
-		return &model.CommonSendEmailRes{
+		return &model.SendEmailRes{
 			IsDebug: true,
 			Code:    code,
 		}, nil
@@ -101,7 +101,7 @@ func (s *sCommon) EmailCode(ctx context.Context, params model.CommonSendEmailReq
 	return nil, nil
 }
 
-// Setting 公共设置
+// 公共设置
 func (s *sCommon) Setting(ctx context.Context) error {
 	return nil
 }

@@ -13,15 +13,15 @@ import (
 
 type (
 	IContact interface {
-		// List 联系人列表
+		// List 好友列表
 		List(ctx context.Context) (*model.ContactListRes, error)
-		// Delete 删除联系人
+		// Delete 删除好友
 		Delete(ctx context.Context, params model.ContactDeleteReq) error
-		// Search 查找联系人
+		// Search 查找好友
 		Search(ctx context.Context, params model.ContactSearchReq) (*model.ContactSearchRes, error)
-		// Remark 编辑联系人备注
+		// Remark 编辑好友备注
 		Remark(ctx context.Context, params model.ContactEditRemarkReq) error
-		// Detail 联系人详情信息
+		// Detail 好友详情信息
 		Detail(ctx context.Context, params model.ContactDetailReq) (*model.ContactDetailRes, error)
 		// MoveGroup 移动好友分组
 		MoveGroup(ctx context.Context, params model.ContactChangeGroupReq) error

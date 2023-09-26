@@ -5,7 +5,6 @@
 package logic
 
 import (
-	_ "github.com/iimeta/iim-client/internal/logic/apply"
 	_ "github.com/iimeta/iim-client/internal/logic/auth"
 	_ "github.com/iimeta/iim-client/internal/logic/common"
 	_ "github.com/iimeta/iim-client/internal/logic/contact"

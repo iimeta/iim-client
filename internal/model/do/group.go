@@ -37,7 +37,7 @@ type GroupCreate struct {
 	Name      string // 群名称
 	Avatar    string // 群头像
 	Profile   string // 群简介
-	MemberIds []int  // 联系人ID
+	MemberIds []int  // 好友ID
 }
 
 type GroupUpdate struct {

@@ -33,8 +33,8 @@ func New() service.INote {
 	}
 }
 
-// 文章列表
-func (s *sNote) List(ctx context.Context, params model.ArticleListReq) (*model.ArticleListRes, error) {
+// 笔记列表
+func (s *sNote) List(ctx context.Context, params model.NoteListReq) (*model.NoteListRes, error) {
 
 	noteList, noteClassList, err := dao.Note.List(ctx, &do.NoteList{
 		UserId:   service.Session().GetUid(ctx),
@@ -52,10 +52,10 @@ func (s *sNote) List(ctx context.Context, params model.ArticleListReq) (*model.A
 		return t.Id
 	})
 
-	items := make([]*model.ArticleListItem, 0)
+	items := make([]*model.NoteListItem, 0)
 	for _, note := range noteList {
 
-		articleListItem := &model.ArticleListItem{
+		noteListItem := &model.NoteListItem{
 			Id:         note.Id,
 			UserId:     note.UserId,
 			TagsId:     note.TagsId,
@@ -69,16 +69,16 @@ func (s *sNote) List(ctx context.Context, params model.ArticleListReq) (*model.A
 		}
 
 		if noteClassMap[note.ClassId] != nil {
-			articleListItem.ClassName = noteClassMap[note.ClassId].ClassName
-			articleListItem.ClassId = noteClassMap[note.ClassId].Id
+			noteListItem.ClassName = noteClassMap[note.ClassId].ClassName
+			noteListItem.ClassId = noteClassMap[note.ClassId].Id
 		}
 
-		items = append(items, articleListItem)
+		items = append(items, noteListItem)
 	}
 
-	list := make([]*model.ArticleListResponse_Item, 0)
+	list := make([]*model.ListResponse_Item, 0)
 	for _, item := range items {
-		list = append(list, &model.ArticleListResponse_Item{
+		list = append(list, &model.ListResponse_Item{
 			Id:         item.Id,
 			ClassId:    item.ClassId,
 			TagsId:     item.TagsId,
@@ -93,9 +93,9 @@ func (s *sNote) List(ctx context.Context, params model.ArticleListReq) (*model.A
 		})
 	}
 
-	return &model.ArticleListRes{
+	return &model.NoteListRes{
 		Items: list,
-		Paginate: &model.ArticleListResponse_Paginate{
+		Paginate: &model.ListResponse_Paginate{
 			Page:  1,
 			Size:  1000,
 			Total: len(list),
@@ -103,18 +103,18 @@ func (s *sNote) List(ctx context.Context, params model.ArticleListReq) (*model.A
 	}, nil
 }
 
-// 文章详情
-func (s *sNote) Detail(ctx context.Context, params model.ArticleDetailReq) (*model.ArticleDetailRes, error) {
+// 笔记详情
+func (s *sNote) Detail(ctx context.Context, params model.NoteDetailReq) (*model.NoteDetailRes, error) {
 
 	uid := service.Session().GetUid(ctx)
 
-	note, noteDetail, err := dao.Note.Detail(ctx, uid, params.ArticleId)
+	note, noteDetail, err := dao.Note.Detail(ctx, uid, params.NoteId)
 	if err != nil {
 		logger.Error(ctx, err)
 		return nil, errors.New("笔记不存在")
 	}
 
-	detail := &model.ArticleDetailInfo{
+	detail := &model.NoteDetailInfo{
 		Id:         note.Id,
 		UserId:     note.UserId,
 		ClassId:    note.ClassId,
@@ -130,16 +130,16 @@ func (s *sNote) Detail(ctx context.Context, params model.ArticleDetailReq) (*mod
 		Content:    html.UnescapeString(noteDetail.Content),
 	}
 
-	tags := make([]*model.ArticleDetailResponse_Tag, 0)
+	tags := make([]*model.DetailResponse_Tag, 0)
 	for _, id := range gstr.Split(detail.TagsId, ",") {
-		tags = append(tags, &model.ArticleDetailResponse_Tag{Id: id})
+		tags = append(tags, &model.DetailResponse_Tag{Id: id})
 	}
 
-	files := make([]*model.ArticleDetailResponse_File, 0)
-	items, err := dao.NoteAnnex.AnnexList(ctx, uid, params.ArticleId)
+	files := make([]*model.DetailResponse_File, 0)
+	items, err := dao.NoteAnnex.AnnexList(ctx, uid, params.NoteId)
 	if err == nil {
 		for _, item := range items {
-			files = append(files, &model.ArticleDetailResponse_File{
+			files = append(files, &model.DetailResponse_File{
 				Id:           item.Id,
 				Suffix:       item.Suffix,
 				Size:         item.Size,
@@ -149,7 +149,7 @@ func (s *sNote) Detail(ctx context.Context, params model.ArticleDetailReq) (*mod
 		}
 	}
 
-	return &model.ArticleDetailRes{
+	return &model.NoteDetailRes{
 		Id:         detail.Id,
 		ClassId:    detail.ClassId,
 		Title:      detail.Title,
@@ -163,13 +163,13 @@ func (s *sNote) Detail(ctx context.Context, params model.ArticleDetailReq) (*mod
 	}, nil
 }
 
-// 添加或编辑文章
-func (s *sNote) Edit(ctx context.Context, params model.ArticleEditReq) (*model.ArticleEditRes, error) {
+// 添加或编辑笔记
+func (s *sNote) Edit(ctx context.Context, params model.NoteEditReq) (*model.NoteEditRes, error) {
 
-	if params.ArticleId == "" || params.ArticleId == "0" { // todo
+	if params.NoteId == "" || params.NoteId == "0" { // todo
 		opt := &do.NoteCreate{
 			UserId:    service.Session().GetUid(ctx),
-			ArticleId: params.ArticleId,
+			NoteId:    params.NoteId,
 			ClassId:   params.ClassId,
 			Title:     params.Title,
 			Content:   params.Content,
@@ -180,11 +180,11 @@ func (s *sNote) Edit(ctx context.Context, params model.ArticleEditReq) (*model.A
 			logger.Error(ctx, err)
 			return nil, err
 		}
-		params.ArticleId = id
+		params.NoteId = id
 	} else {
 		opt := &do.NoteEdit{
 			UserId:    service.Session().GetUid(ctx),
-			ArticleId: params.ArticleId,
+			NoteId:    params.NoteId,
 			ClassId:   params.ClassId,
 			Title:     params.Title,
 			Content:   params.Content,
@@ -196,13 +196,13 @@ func (s *sNote) Edit(ctx context.Context, params model.ArticleEditReq) (*model.A
 		}
 	}
 
-	info, err := dao.Note.FindById(ctx, params.ArticleId)
+	info, err := dao.Note.FindById(ctx, params.NoteId)
 	if err != nil {
 		logger.Error(ctx, err)
 		return nil, err
 	}
 
-	return &model.ArticleEditRes{
+	return &model.NoteEditRes{
 		Id:       info.Id,
 		Title:    info.Title,
 		Abstract: info.Abstract,
@@ -210,10 +210,10 @@ func (s *sNote) Edit(ctx context.Context, params model.ArticleEditReq) (*model.A
 	}, nil
 }
 
-// 删除文章
-func (s *sNote) Delete(ctx context.Context, params model.ArticleDeleteReq) error {
+// 删除笔记
+func (s *sNote) Delete(ctx context.Context, params model.NoteDeleteReq) error {
 
-	err := dao.Note.UpdateStatus(ctx, service.Session().GetUid(ctx), params.ArticleId, 2)
+	err := dao.Note.UpdateStatus(ctx, service.Session().GetUid(ctx), params.NoteId, 2)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -222,10 +222,10 @@ func (s *sNote) Delete(ctx context.Context, params model.ArticleDeleteReq) error
 	return nil
 }
 
-// 恢复文章
-func (s *sNote) Recover(ctx context.Context, params model.ArticleRecoverReq) error {
+// 恢复笔记
+func (s *sNote) Recover(ctx context.Context, params model.NoteRecoverReq) error {
 
-	err := dao.Note.UpdateStatus(ctx, service.Session().GetUid(ctx), params.ArticleId, 1)
+	err := dao.Note.UpdateStatus(ctx, service.Session().GetUid(ctx), params.NoteId, 1)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -234,8 +234,8 @@ func (s *sNote) Recover(ctx context.Context, params model.ArticleRecoverReq) err
 	return nil
 }
 
-// 文章图片上传
-func (s *sNote) Upload(ctx context.Context) (*model.ArticleUploadImageRes, error) {
+// 笔记图片上传
+func (s *sNote) Upload(ctx context.Context) (*model.NoteUploadImageRes, error) {
 
 	_, file, err := g.RequestFromCtx(ctx).Request.FormFile("image")
 	if err != nil {
@@ -268,13 +268,13 @@ func (s *sNote) Upload(ctx context.Context) (*model.ArticleUploadImageRes, error
 		return nil, errors.New("文件上传失败")
 	}
 
-	return &model.ArticleUploadImageRes{Url: s.Filesystem.Default.PublicUrl(filePath)}, nil
+	return &model.NoteUploadImageRes{Url: s.Filesystem.Default.PublicUrl(filePath)}, nil
 }
 
-// 文章移动
-func (s *sNote) Move(ctx context.Context, params model.ArticleMoveReq) error {
+// 笔记移动
+func (s *sNote) Move(ctx context.Context, params model.NoteMoveReq) error {
 
-	if err := dao.Note.Move(ctx, service.Session().GetUid(ctx), params.ArticleId, params.ClassId); err != nil {
+	if err := dao.Note.Move(ctx, service.Session().GetUid(ctx), params.NoteId, params.ClassId); err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
@@ -282,10 +282,10 @@ func (s *sNote) Move(ctx context.Context, params model.ArticleMoveReq) error {
 	return nil
 }
 
-// 标记文章
-func (s *sNote) Asterisk(ctx context.Context, params model.ArticleAsteriskReq) error {
+// 标记笔记
+func (s *sNote) Asterisk(ctx context.Context, params model.NoteAsteriskReq) error {
 
-	if err := dao.Note.Asterisk(ctx, service.Session().GetUid(ctx), params.ArticleId, params.Type); err != nil {
+	if err := dao.Note.Asterisk(ctx, service.Session().GetUid(ctx), params.NoteId, params.Type); err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
@@ -293,10 +293,10 @@ func (s *sNote) Asterisk(ctx context.Context, params model.ArticleAsteriskReq) e
 	return nil
 }
 
-// 文章标签
-func (s *sNote) Tag(ctx context.Context, params model.ArticleTagsReq) error {
+// 笔记标签
+func (s *sNote) Tag(ctx context.Context, params model.NoteTagsReq) error {
 
-	if err := dao.Note.Tag(ctx, service.Session().GetUid(ctx), params.ArticleId, params.Tags); err != nil {
+	if err := dao.Note.Tag(ctx, service.Session().GetUid(ctx), params.NoteId, params.Tags); err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
@@ -304,10 +304,10 @@ func (s *sNote) Tag(ctx context.Context, params model.ArticleTagsReq) error {
 	return nil
 }
 
-// 永久删除文章
-func (s *sNote) ForeverDelete(ctx context.Context, params model.ArticleForeverDeleteReq) error {
+// 永久删除笔记
+func (s *sNote) ForeverDelete(ctx context.Context, params model.NoteForeverDeleteReq) error {
 
-	if err := dao.Note.ForeverDelete(ctx, service.Session().GetUid(ctx), params.ArticleId); err != nil {
+	if err := dao.Note.ForeverDelete(ctx, service.Session().GetUid(ctx), params.NoteId); err != nil {
 		logger.Error(ctx, err)
 		return err
 	}

@@ -1,16 +1,18 @@
 // =================================================================================
-// Code generated and maintained by GoFrame CLI tool. DO NOT EDIT.
+// Code generated and maintained by GoFrame CLI tool. DO NOT EDIT. 
 // =================================================================================
 
 package common
 
 import (
 	"context"
-
+	
 	"github.com/iimeta/iim-client/api/common/v1"
 )
 
 type ICommonV1 interface {
-	CommonSendSms(ctx context.Context, req *v1.CommonSendSmsReq) (res *v1.CommonSendSmsRes, err error)
-	CommonSendEmail(ctx context.Context, req *v1.CommonSendEmailReq) (res *v1.CommonSendEmailRes, err error)
+	SendSms(ctx context.Context, req *v1.SendSmsReq) (res *v1.SendSmsRes, err error)
+	SendEmail(ctx context.Context, req *v1.SendEmailReq) (res *v1.SendEmailRes, err error)
 }
+
+

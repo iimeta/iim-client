@@ -13,19 +13,19 @@ import (
 
 type (
 	INoteAnnex interface {
-		Create(ctx context.Context, data *model.ArticleAnnex) error
+		Create(ctx context.Context, data *model.Annex) error
 		// Upload 上传附件
-		Upload(ctx context.Context, params model.ArticleAnnexUploadReq) (*model.ArticleAnnexUploadRes, error)
+		Upload(ctx context.Context, params model.AnnexUploadReq) (*model.AnnexUploadRes, error)
 		// Delete 删除附件
-		Delete(ctx context.Context, params model.ArticleAnnexDeleteReq) error
+		Delete(ctx context.Context, params model.AnnexDeleteReq) error
 		// Recover 恢复附件
-		Recover(ctx context.Context, params model.ArticleAnnexRecoverReq) error
+		Recover(ctx context.Context, params model.AnnexRecoverReq) error
 		// RecoverList 附件回收站列表
-		RecoverList(ctx context.Context) (*model.ArticleAnnexRecoverListRes, error)
+		RecoverList(ctx context.Context) (*model.AnnexRecoverListRes, error)
 		// ForeverDelete 永久删除附件
-		ForeverDelete(ctx context.Context, params model.ArticleAnnexForeverDeleteReq) error
+		ForeverDelete(ctx context.Context, params model.AnnexForeverDeleteReq) error
 		// Download 下载笔记附件
-		Download(ctx context.Context, params model.ArticleAnnexDownloadReq) error
+		Download(ctx context.Context, params model.AnnexDownloadReq) error
 	}
 )
 

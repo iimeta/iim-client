@@ -13,16 +13,16 @@ import (
 
 type (
 	IEmoticon interface {
-		// CollectList 收藏列表
-		CollectList(ctx context.Context) (*model.EmoticonListRes, error)
-		// DeleteCollect 删除收藏表情包
-		DeleteCollect(ctx context.Context, params model.EmoticonDeleteReq) error
-		// Upload 上传自定义表情包
-		Upload(ctx context.Context) (*model.EmoticonUploadRes, error)
-		// SystemList 系统表情包列表
-		SystemList(ctx context.Context) ([]*model.EmoticonSysListResponse_Item, error)
-		// SetSystemEmoticon 添加或移除系统表情包
-		SetSystemEmoticon(ctx context.Context, params model.EmoticonSetSystemReq) (*model.EmoticonSetSystemRes, error)
+		// 收藏列表
+		CollectList(ctx context.Context) (*model.ListRes, error)
+		// 删除收藏表情包
+		DeleteCollect(ctx context.Context, params model.DeleteReq) error
+		// 上传自定义表情包
+		Upload(ctx context.Context) (*model.UploadRes, error)
+		// 系统表情包列表
+		SystemList(ctx context.Context) ([]*model.SysListResponse_Item, error)
+		// 添加或移除系统表情包
+		SetSystemEmoticon(ctx context.Context, params model.SetSystemReq) (*model.SetSystemRes, error)
 	}
 )
 

@@ -14,11 +14,11 @@ import (
 type (
 	IContactGroup interface {
 		Delete(ctx context.Context, id int, uid int) error
-		// GetUserGroup 用户联系人分组列表
-		GetUserGroup(ctx context.Context, uid int) ([]*model.ContactGroup, error)
-		// List 联系人分组列表
+		// 用户好友分组列表
+		GetUserGroup(ctx context.Context, uid int) ([]*model.Group, error)
+		// 好友分组列表
 		List(ctx context.Context) (*model.ContactGroupListRes, error)
-		Save(ctx context.Context, params model.ContactGroupSaveReq) error
+		Save(ctx context.Context, params model.GroupSaveReq) error
 	}
 )
 
