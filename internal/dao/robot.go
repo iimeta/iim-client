@@ -2,7 +2,7 @@ package dao
 
 import (
 	"context"
-	"github.com/iimeta/iim-client/internal/model"
+	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/model/do"
 	"github.com/iimeta/iim-client/internal/model/entity"
 	"github.com/iimeta/iim-client/utility/db"
@@ -29,7 +29,7 @@ func NewRobotDao(database ...string) *RobotDao {
 // 获取登录机器的信息
 func (d *RobotDao) GetLoginRobot(ctx context.Context) (*entity.Robot, error) {
 
-	robot, err := d.FindOne(ctx, bson.M{"user_id": 1, "status": model.RootStatusNormal})
+	robot, err := d.FindOne(ctx, bson.M{"user_id": 1, "status": consts.RootStatusNormal})
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (d *RobotDao) GetLoginRobot(ctx context.Context) (*entity.Robot, error) {
 // 根据绑定userId获取机器人的信息
 func (d *RobotDao) GetRobotByUserId(ctx context.Context, userId int) (*entity.Robot, error) {
 
-	robot, err := d.FindOne(ctx, bson.M{"user_id": userId, "status": model.RootStatusNormal})
+	robot, err := d.FindOne(ctx, bson.M{"user_id": userId, "status": consts.RootStatusNormal})
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (d *RobotDao) GetRobotList(ctx context.Context, userIds ...int) ([]*entity.
 
 	filter := bson.M{
 		"is_talk": 1,
-		"status":  model.RootStatusNormal,
+		"status":  consts.RootStatusNormal,
 	}
 
 	if len(userIds) > 0 {

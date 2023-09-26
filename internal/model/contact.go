@@ -1,26 +1,5 @@
 package model
 
-import (
-	"time"
-)
-
-const (
-	ContactStatusNormal = 1
-	ContactStatusDelete = 0
-)
-
-// Contact 用户好友关系表
-type Contact struct {
-	Id        string    `json:"id"`         // 关系ID
-	UserId    int       `json:"user_id"`    // 用户id
-	FriendId  int       `json:"friend_id"`  // 好友id
-	Remark    string    `json:"remark"`     // 好友的备注
-	Status    int       `json:"status"`     // 好友状态 [0:否;1:是]
-	GroupId   int       `json:"group_id"`   // 分组id
-	CreatedAt time.Time `json:"created_at"` // 创建时间
-	UpdatedAt time.Time `json:"updated_at"` // 更新时间
-}
-
 type ContactListItem struct {
 	Id       int    `json:"id"`            // 用户ID
 	Nickname string `json:"nickname"`      // 用户昵称
@@ -38,23 +17,14 @@ type ContactListRes struct {
 }
 
 type ContactListResponse_Item struct {
-
-	// 用户ID
-	Id int `json:"id"`
-	// 昵称
-	Nickname string `json:"nickname"`
-	// 性别[0:未知;1:男;2:女;]
-	Gender int `json:"gender"`
-	// 座右铭
-	Motto string `json:"motto"`
-	// 头像
-	Avatar string `json:"avatar"`
-	// 备注
-	Remark string `json:"remark"`
-	// 是否在线
-	IsOnline int `json:"is_online"`
-	// 好友分组ID
-	GroupId string `json:"group_id"`
+	Id       int    `json:"id"`        // 用户ID
+	Nickname string `json:"nickname"`  // 昵称
+	Gender   int    `json:"gender"`    // 性别[0:未知;1:男;2:女;]
+	Motto    string `json:"motto"`     // 座右铭
+	Avatar   string `json:"avatar"`    // 头像
+	Remark   string `json:"remark"`    // 备注
+	IsOnline int    `json:"is_online"` // 是否在线
+	GroupId  string `json:"group_id"`  // 好友分组ID
 }
 
 // 好友删除接口请求参数
@@ -132,6 +102,11 @@ type ApplyListRes struct {
 	Items []*ApplyListResponse_Item `json:"items"`
 }
 
+// 好友申请未读数接口响应参数
+type ApplyUnreadNumRes struct {
+	UnreadNum int `json:"unread_num"`
+}
+
 type ApplyListResponse_Item struct {
 	Id        string `json:"id,omitempty"`
 	UserId    int    `json:"user_id,omitempty"`
@@ -171,21 +146,17 @@ type Group struct {
 	UpdatedAt int64  `json:"updated_at"` // 更新时间
 }
 
-type ContactGroupListResponse_Item struct {
-	// 分组ID
-	Id string `json:"id"`
-	// 分组名称
-	Name string `json:"name"`
-	// 好友数
-	Count int `json:"count"`
-	// 分组排序
-	Sort int `json:"sort"`
-}
-
 // 好友分组列表接口响应参数
 type ContactGroupListRes struct {
 	// 分组列表
 	Items []*ContactGroupListResponse_Item `json:"items"`
+}
+
+type ContactGroupListResponse_Item struct {
+	Id    string `json:"id"`    // 分组ID
+	Name  string `json:"name"`  // 分组名称
+	Count int    `json:"count"` // 好友数
+	Sort  int    `json:"sort"`  // 分组排序
 }
 
 // 保存好友分组列表接口请求参数
@@ -194,9 +165,46 @@ type GroupSaveReq struct {
 }
 
 type GroupSaveRequest_Item struct {
-	Id string `json:"id,omitempty" v:"required"`
-	//Sort int    `json:"sort,omitempty" v:"required"`
+	Id   string `json:"id,omitempty" v:"required"`
 	Name string `json:"name,omitempty" v:"required"`
+}
+
+// 添加好友分组接口请求参数
+type ContactGroupCreateReq struct {
+	Name string `json:"name,omitempty" v:"required"`
+	Sort int32  `json:"sort,omitempty" v:"required"`
+}
+
+// 添加好友分组接口响应参数
+type ContactGroupCreateRes struct {
+	Id int32 `json:"id,omitempty"`
+}
+
+// 更新好友分组接口请求参数
+type GroupUpdateReq struct {
+	Id   int32  `json:"id,omitempty" v:"required"`
+	Name string `json:"name,omitempty" v:"required"`
+	Sort int32  `json:"sort,omitempty" v:"required"`
+}
+
+// 更新好友分组接口响应参数
+type GroupUpdateRes struct {
+	Id int32 `json:"id,omitempty"`
+}
+
+// 删除好友分组接口请求参数
+type GroupDeleteReq struct {
+	Id int32 `json:"id,omitempty" v:"required"`
+}
+
+// 删除好友分组接口响应参数
+type GroupDeleteRes struct {
+	Id int32 `json:"id,omitempty"`
+}
+
+// 排序好友分组接口请求参数
+type GroupSortReq struct {
+	Items []*GroupSortRequest_Item `json:"items" v:"required"`
 }
 
 type GroupSortRequest_Item struct {

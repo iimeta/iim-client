@@ -14,11 +14,11 @@ import (
 type (
 	IGroupApply interface {
 		Create(ctx context.Context, params model.GroupApplyCreateReq) error
-		Agree(ctx context.Context, params model.GroupApplyAgreeReq) error
+		Agree(ctx context.Context, params model.ApplyAgreeReq) error
 		Decline(ctx context.Context, params model.GroupApplyDeclineReq) error
-		List(ctx context.Context, params model.GroupApplyListReq) (*model.GroupApplyListRes, error)
-		All(ctx context.Context) (*model.GroupApplyAllRes, error)
-		ApplyUnreadNum(ctx context.Context) (*model.ApplyUnreadNumRes, error)
+		List(ctx context.Context, params model.ApplyListReq) (*model.GroupApplyListRes, error)
+		All(ctx context.Context) (*model.ApplyAllRes, error)
+		ApplyUnreadNum(ctx context.Context) (*model.GroupApplyUnreadNumRes, error)
 		Delete(ctx context.Context, applyId string, userId int) error
 	}
 )

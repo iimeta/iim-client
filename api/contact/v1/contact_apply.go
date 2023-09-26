@@ -7,7 +7,7 @@ import (
 
 // 添加好友申请接口请求参数
 type ApplyCreateReq struct {
-	g.Meta `path:"/apply/create" tags:"contact" method:"post" summary:"添加好友申请接口"`
+	g.Meta `path:"/apply/create" tags:"contact_apply" method:"post" summary:"添加好友申请接口"`
 	model.ApplyCreateReq
 }
 
@@ -18,7 +18,7 @@ type ApplyCreateRes struct {
 
 // 同意好友申请接口请求参数
 type ApplyAcceptReq struct {
-	g.Meta `path:"/apply/accept" tags:"contact" method:"post" summary:"同意好友申请接口"`
+	g.Meta `path:"/apply/accept" tags:"contact_apply" method:"post" summary:"同意好友申请接口"`
 	model.ApplyAcceptReq
 }
 
@@ -29,7 +29,7 @@ type ApplyAcceptRes struct {
 
 // 拒绝好友申请接口请求参数
 type ApplyDeclineReq struct {
-	g.Meta `path:"/apply/decline" tags:"contact" method:"post" summary:"拒绝好友申请接口"`
+	g.Meta `path:"/apply/decline" tags:"contact_apply" method:"post" summary:"拒绝好友申请接口"`
 	model.ApplyDeclineReq
 }
 
@@ -40,7 +40,7 @@ type ApplyDeclineRes struct {
 
 // 好友申请列表接口请求参数
 type ApplyListReq struct {
-	g.Meta `path:"/apply/records" tags:"contact" method:"get" summary:"好友申请列表接口"`
+	g.Meta `path:"/apply/records" tags:"contact_apply" method:"get" summary:"好友申请列表接口"`
 }
 
 // 好友申请列表接口响应参数
@@ -51,11 +51,11 @@ type ApplyListRes struct {
 
 // 好友申请未读数接口请求参数
 type ApplyUnreadNumReq struct {
-	g.Meta `path:"/apply/unread-num" tags:"contact" method:"get" summary:"好友申请未读数接口"`
+	g.Meta `path:"/apply/unread-num" tags:"contact_apply" method:"get" summary:"好友申请未读数接口"`
 }
 
 // 好友申请未读数接口响应参数
 type ApplyUnreadNumRes struct {
-	g.Meta    `mime:"application/json" example:"json"`
-	UnreadNum int `json:"unread_num"`
+	g.Meta `mime:"application/json" example:"json"`
+	*model.ApplyUnreadNumRes
 }

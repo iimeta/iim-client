@@ -36,7 +36,7 @@ func New() service.IGroupApply {
 
 func (s *sGroupApply) Create(ctx context.Context, params model.GroupApplyCreateReq) error {
 
-	groupApply, err := dao.GroupApply.FindOne(ctx, bson.M{"group_id": params.GroupId, "status": model.GroupApplyStatusWait})
+	groupApply, err := dao.GroupApply.FindOne(ctx, bson.M{"group_id": params.GroupId, "status": consts.GroupApplyStatusWait})
 	if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
 		logger.Error(ctx, err)
 		return err
@@ -48,7 +48,7 @@ func (s *sGroupApply) Create(ctx context.Context, params model.GroupApplyCreateR
 		if _, err = dao.GroupApply.Insert(ctx, &do.GroupApply{
 			GroupId: params.GroupId,
 			UserId:  uid,
-			Status:  model.GroupApplyStatusWait,
+			Status:  consts.GroupApplyStatusWait,
 			Remark:  params.Remark,
 		}); err != nil {
 			logger.Error(ctx, err)
@@ -88,7 +88,7 @@ func (s *sGroupApply) Create(ctx context.Context, params model.GroupApplyCreateR
 	return nil
 }
 
-func (s *sGroupApply) Agree(ctx context.Context, params model.GroupApplyAgreeReq) error {
+func (s *sGroupApply) Agree(ctx context.Context, params model.ApplyAgreeReq) error {
 
 	uid := service.Session().GetUid(ctx)
 
@@ -106,7 +106,7 @@ func (s *sGroupApply) Agree(ctx context.Context, params model.GroupApplyAgreeReq
 		return errors.New("无权限访问")
 	}
 
-	if apply.Status != model.GroupApplyStatusWait {
+	if apply.Status != consts.GroupApplyStatusWait {
 		return errors.New("申请信息已被他(她)人处理")
 	}
 
@@ -122,7 +122,7 @@ func (s *sGroupApply) Agree(ctx context.Context, params model.GroupApplyAgreeReq
 	}
 
 	data := bson.M{
-		"status":     model.GroupApplyStatusPass,
+		"status":     consts.GroupApplyStatusPass,
 		"updated_at": gtime.Datetime(),
 	}
 
@@ -150,12 +150,12 @@ func (s *sGroupApply) Decline(ctx context.Context, params model.GroupApplyDeclin
 		return errors.New("无权限访问")
 	}
 
-	if apply.Status != model.GroupApplyStatusWait {
+	if apply.Status != consts.GroupApplyStatusWait {
 		return errors.New("申请信息已被他(她)人处理")
 	}
 
 	data := bson.M{
-		"status":     model.GroupApplyStatusRefuse,
+		"status":     consts.GroupApplyStatusRefuse,
 		"reason":     params.Remark,
 		"updated_at": gtime.Datetime(),
 	}
@@ -169,7 +169,7 @@ func (s *sGroupApply) Decline(ctx context.Context, params model.GroupApplyDeclin
 	return nil
 }
 
-func (s *sGroupApply) List(ctx context.Context, params model.GroupApplyListReq) (*model.GroupApplyListRes, error) {
+func (s *sGroupApply) List(ctx context.Context, params model.ApplyListReq) (*model.GroupApplyListRes, error) {
 
 	if !dao.GroupMember.IsLeader(ctx, params.GroupId, service.Session().GetUid(ctx)) {
 		return nil, errors.New("无权限访问")
@@ -185,9 +185,9 @@ func (s *sGroupApply) List(ctx context.Context, params model.GroupApplyListReq) 
 		return t.UserId
 	})
 
-	list := make([]*model.GroupApplyList, 0)
+	list := make([]*model.ApplyList, 0)
 	for _, apply := range groupApplyList {
-		list = append(list, &model.GroupApplyList{
+		list = append(list, &model.ApplyList{
 			Id:        apply.Id,
 			GroupId:   apply.GroupId,
 			UserId:    apply.UserId,
@@ -214,7 +214,7 @@ func (s *sGroupApply) List(ctx context.Context, params model.GroupApplyListReq) 
 	return &model.GroupApplyListRes{Items: items}, nil
 }
 
-func (s *sGroupApply) All(ctx context.Context) (*model.GroupApplyAllRes, error) {
+func (s *sGroupApply) All(ctx context.Context) (*model.ApplyAllRes, error) {
 
 	all, err := dao.GroupMember.Find(ctx, bson.M{
 		"user_id": service.Session().GetUid(ctx),
@@ -234,7 +234,7 @@ func (s *sGroupApply) All(ctx context.Context) (*model.GroupApplyAllRes, error) 
 		groupIds = append(groupIds, m.GroupId)
 	}
 
-	resp := &model.GroupApplyAllRes{Items: make([]*model.GroupApplyAllResponse_Item, 0)}
+	resp := &model.ApplyAllRes{Items: make([]*model.ApplyAllResponse_Item, 0)}
 
 	if len(groupIds) == 0 {
 		return resp, nil
@@ -250,9 +250,9 @@ func (s *sGroupApply) All(ctx context.Context) (*model.GroupApplyAllRes, error) 
 		return t.UserId
 	})
 
-	list := make([]*model.GroupApplyList, 0)
+	list := make([]*model.ApplyList, 0)
 	for _, apply := range groupApplyList {
-		list = append(list, &model.GroupApplyList{
+		list = append(list, &model.ApplyList{
 			Id:        apply.Id,
 			GroupId:   apply.GroupId,
 			UserId:    apply.UserId,
@@ -274,7 +274,7 @@ func (s *sGroupApply) All(ctx context.Context) (*model.GroupApplyAllRes, error) 
 	})
 
 	for _, item := range list {
-		resp.Items = append(resp.Items, &model.GroupApplyAllResponse_Item{
+		resp.Items = append(resp.Items, &model.ApplyAllResponse_Item{
 			Id:        item.Id,
 			UserId:    item.UserId,
 			GroupName: groupMap[item.GroupId].GroupName,
@@ -291,8 +291,8 @@ func (s *sGroupApply) All(ctx context.Context) (*model.GroupApplyAllRes, error) 
 	return resp, nil
 }
 
-func (s *sGroupApply) ApplyUnreadNum(ctx context.Context) (*model.ApplyUnreadNumRes, error) {
-	return &model.ApplyUnreadNumRes{
+func (s *sGroupApply) ApplyUnreadNum(ctx context.Context) (*model.GroupApplyUnreadNumRes, error) {
+	return &model.GroupApplyUnreadNumRes{
 		UnreadNum: s.GroupApplyStorage.Get(ctx, service.Session().GetUid(ctx)),
 	}, nil
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/iimeta/iim-client/api/group/v1"
 )
 
-func (c *ControllerV1) GroupApplyCreate(ctx context.Context, req *v1.GroupApplyCreateReq) (res *v1.GroupApplyCreateRes, err error) {
+func (c *ControllerV1) ApplyCreate(ctx context.Context, req *v1.ApplyCreateReq) (res *v1.ApplyCreateRes, err error) {
 
 	err = service.GroupApply().Create(ctx, req.GroupApplyCreateReq)
 

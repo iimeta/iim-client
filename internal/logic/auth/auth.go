@@ -162,7 +162,7 @@ func (s *sAuth) Forget(ctx context.Context, params model.ForgetReq) error {
 		return errors.New("验证码填写错误")
 	}
 
-	if _, err := service.User().Forget(ctx, params.UserForget); err != nil {
+	if _, err := service.User().Forget(ctx, params); err != nil {
 		logger.Error(ctx, err)
 		return err
 	}

@@ -141,11 +141,11 @@ func (s *sMessageForward) MultiSplitForward(ctx context.Context, uid int, params
 	receives := make([]map[string]int, 0)
 
 	for _, userId := range params.Uids {
-		receives = append(receives, map[string]int{"receiver_id": userId, "talk_type": model.TalkRecordTalkTypePrivate})
+		receives = append(receives, map[string]int{"receiver_id": userId, "talk_type": consts.TalkRecordTalkTypePrivate})
 	}
 
 	for _, gid := range params.Gids {
-		receives = append(receives, map[string]int{"receiver_id": gid, "talk_type": model.TalkRecordTalkTypeGroup})
+		receives = append(receives, map[string]int{"receiver_id": gid, "talk_type": consts.TalkRecordTalkTypeGroup})
 	}
 
 	records, err := dao.TalkRecords.Find(ctx, bson.M{"record_id": bson.M{"$in": params.MessageIds}})
@@ -161,7 +161,7 @@ func (s *sMessageForward) MultiSplitForward(ctx context.Context, uid int, params
 	for _, v := range receives {
 		var sequences []int64
 
-		if v["talk_type"] == model.TalkRecordTalkTypeGroup {
+		if v["talk_type"] == consts.TalkRecordTalkTypeGroup {
 			sequences = dao.Sequence.BatchGet(ctx, 0, v["receiver_id"], recordsLen)
 		} else {
 			sequences = dao.Sequence.BatchGet(ctx, uid, v["receiver_id"], recordsLen)

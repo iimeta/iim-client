@@ -2,7 +2,6 @@ package v1
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/iimeta/iim-client/internal/dao"
 	"github.com/iimeta/iim-client/internal/model"
 )
 
@@ -37,7 +36,7 @@ type VoteMessageHandleReq struct {
 // 投票消息接口响应参数
 type VoteMessageHandleRes struct {
 	g.Meta `mime:"application/json" example:"json"`
-	*dao.VoteStatistics
+	*model.VoteStatistics
 }
 
 // 发送消息接口请求参数

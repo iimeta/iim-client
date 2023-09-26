@@ -7,16 +7,6 @@ type UserRegister struct {
 	Platform string
 }
 
-// 账号找回接口验证
-type UserForget struct {
-	// 账号
-	Account string `json:"account,omitempty" v:"required"`
-	// 登录密码
-	Password string `json:"password,omitempty" v:"required|min-length:6"`
-	// 短信验证码
-	Code string `json:"code,omitempty" v:"required"`
-}
-
 // 登录用户详情接口响应参数
 type UserDetailRes struct {
 	Id       int    `json:"id"`

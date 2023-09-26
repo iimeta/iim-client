@@ -74,13 +74,13 @@ type GroupInviteRes struct {
 	g.Meta `mime:"application/json" example:"json"`
 }
 
-// 获取待审批入群申请列表接口请求参数
+// 待审批入群申请列表接口请求参数
 type GetInviteFriendsReq struct {
-	g.Meta `path:"/member/invites" tags:"group" method:"get" summary:"获取待审批入群申请列表接口"`
+	g.Meta `path:"/member/invites" tags:"group" method:"get" summary:"待审批入群申请列表接口"`
 	model.GetInviteFriendsReq
 }
 
-// 获取待审批入群申请列表接口响应参数
+// 待审批入群申请列表接口响应参数
 type GetInviteFriendsRes struct {
 	g.Meta `mime:"application/json" example:"json"`
 }

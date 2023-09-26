@@ -1,12 +1,12 @@
 // =================================================================================
-// Code generated and maintained by GoFrame CLI tool. DO NOT EDIT.
+// Code generated and maintained by GoFrame CLI tool. DO NOT EDIT. 
 // =================================================================================
 
 package message
 
 import (
 	"context"
-
+	
 	"github.com/iimeta/iim-client/api/message/v1"
 )
 
@@ -19,3 +19,5 @@ type IMessageV1 interface {
 	RevokeMessage(ctx context.Context, req *v1.RevokeMessageReq) (res *v1.RevokeMessageRes, err error)
 	DeleteMessage(ctx context.Context, req *v1.DeleteMessageReq) (res *v1.DeleteMessageRes, err error)
 }
+
+

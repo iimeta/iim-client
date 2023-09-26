@@ -2,7 +2,7 @@ package dao
 
 import (
 	"context"
-	"github.com/iimeta/iim-client/internal/model"
+	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/model/do"
 	"github.com/iimeta/iim-client/internal/model/entity"
 	"github.com/iimeta/iim-client/utility/cache"
@@ -52,7 +52,7 @@ func (d *ContactDao) IsFriend(ctx context.Context, uid int, friendId int, cache 
 	}
 
 	filter := bson.M{
-		"status": model.ContactStatusNormal,
+		"status": consts.ContactStatusNormal,
 		"$or": bson.A{
 			bson.M{
 				"user_id":   uid,
@@ -107,7 +107,7 @@ func (d *ContactDao) LoadContactCache(ctx context.Context, uid int) error {
 
 	filter := bson.M{
 		"user_id": uid,
-		"status":  model.ContactStatusNormal,
+		"status":  consts.ContactStatusNormal,
 	}
 
 	contactList, err := d.Find(ctx, filter)
@@ -178,7 +178,7 @@ func (d *ContactDao) Delete(ctx context.Context, uid, friendId int) error {
 	}
 
 	if err := d.UpdateOne(ctx, filter, bson.M{
-		"status": model.ContactStatusDelete,
+		"status": consts.ContactStatusDelete,
 	}); err != nil {
 		return err
 	}
@@ -191,7 +191,7 @@ func (d *ContactDao) List(ctx context.Context, uid int) ([]*entity.Contact, []*e
 
 	filter := bson.M{
 		"user_id": uid,
-		"status":  model.ContactStatusNormal,
+		"status":  consts.ContactStatusNormal,
 	}
 
 	contactList, err := d.Find(ctx, filter)
@@ -216,7 +216,7 @@ func (d *ContactDao) GetContactIds(ctx context.Context, uid int) []int {
 
 	filter := bson.M{
 		"user_id": uid,
-		"status":  model.ContactStatusNormal,
+		"status":  consts.ContactStatusNormal,
 	}
 
 	contactList, err := d.Find(ctx, filter)

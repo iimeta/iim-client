@@ -1,12 +1,12 @@
 // =================================================================================
-// Code generated and maintained by GoFrame CLI tool. DO NOT EDIT.
+// Code generated and maintained by GoFrame CLI tool. DO NOT EDIT. 
 // =================================================================================
 
 package group
 
 import (
 	"context"
-
+	
 	"github.com/iimeta/iim-client/api/group/v1"
 )
 
@@ -28,14 +28,16 @@ type IGroupV1 interface {
 	GroupNoSpeak(ctx context.Context, req *v1.GroupNoSpeakReq) (res *v1.GroupNoSpeakRes, err error)
 	GroupMute(ctx context.Context, req *v1.GroupMuteReq) (res *v1.GroupMuteRes, err error)
 	GroupOvert(ctx context.Context, req *v1.GroupOvertReq) (res *v1.GroupOvertRes, err error)
-	GroupApplyCreate(ctx context.Context, req *v1.GroupApplyCreateReq) (res *v1.GroupApplyCreateRes, err error)
-	GroupApplyDelete(ctx context.Context, req *v1.GroupApplyDeleteReq) (res *v1.GroupApplyDeleteRes, err error)
-	GroupApplyAgree(ctx context.Context, req *v1.GroupApplyAgreeReq) (res *v1.GroupApplyAgreeRes, err error)
-	GroupApplyDecline(ctx context.Context, req *v1.GroupApplyDeclineReq) (res *v1.GroupApplyDeclineRes, err error)
-	GroupApplyList(ctx context.Context, req *v1.GroupApplyListReq) (res *v1.GroupApplyListRes, err error)
-	GroupApplyAll(ctx context.Context, req *v1.GroupApplyAllReq) (res *v1.GroupApplyAllRes, err error)
-	GroupApplyUnread(ctx context.Context, req *v1.GroupApplyUnreadReq) (res *v1.GroupApplyUnreadRes, err error)
-	GroupNoticeDelete(ctx context.Context, req *v1.GroupNoticeDeleteReq) (res *v1.GroupNoticeDeleteRes, err error)
-	GroupNoticeEdit(ctx context.Context, req *v1.GroupNoticeEditReq) (res *v1.GroupNoticeEditRes, err error)
-	GroupNoticeList(ctx context.Context, req *v1.GroupNoticeListReq) (res *v1.GroupNoticeListRes, err error)
+	ApplyCreate(ctx context.Context, req *v1.ApplyCreateReq) (res *v1.ApplyCreateRes, err error)
+	ApplyDelete(ctx context.Context, req *v1.ApplyDeleteReq) (res *v1.ApplyDeleteRes, err error)
+	ApplyAgree(ctx context.Context, req *v1.ApplyAgreeReq) (res *v1.ApplyAgreeRes, err error)
+	ApplyDecline(ctx context.Context, req *v1.ApplyDeclineReq) (res *v1.ApplyDeclineRes, err error)
+	ApplyList(ctx context.Context, req *v1.ApplyListReq) (res *v1.ApplyListRes, err error)
+	ApplyAll(ctx context.Context, req *v1.ApplyAllReq) (res *v1.ApplyAllRes, err error)
+	ApplyUnread(ctx context.Context, req *v1.ApplyUnreadReq) (res *v1.ApplyUnreadRes, err error)
+	NoticeDelete(ctx context.Context, req *v1.NoticeDeleteReq) (res *v1.NoticeDeleteRes, err error)
+	NoticeEdit(ctx context.Context, req *v1.NoticeEditReq) (res *v1.NoticeEditRes, err error)
+	NoticeList(ctx context.Context, req *v1.NoticeListReq) (res *v1.NoticeListRes, err error)
 }
+
+

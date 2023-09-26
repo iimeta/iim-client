@@ -7,7 +7,7 @@ import (
 	"github.com/iimeta/iim-client/api/group/v1"
 )
 
-func (c *ControllerV1) GroupApplyDecline(ctx context.Context, req *v1.GroupApplyDeclineReq) (res *v1.GroupApplyDeclineRes, err error) {
+func (c *ControllerV1) ApplyDecline(ctx context.Context, req *v1.ApplyDeclineReq) (res *v1.ApplyDeclineRes, err error) {
 
 	err = service.GroupApply().Decline(ctx, req.GroupApplyDeclineReq)
 

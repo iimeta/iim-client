@@ -74,8 +74,8 @@ type TalkSessionClearUnreadNumRes struct {
 
 // 清空上下文接口请求参数
 type TalkClearContextReq struct {
-	g.Meta     `path:"/clear/context" tags:"talk" method:"post" summary:"清空上下文接口"`
-	ReceiverId int `json:"receiver_id"`
+	g.Meta `path:"/clear/context" tags:"talk" method:"post" summary:"清空上下文接口"`
+	model.TalkClearContextReq
 }
 
 // 清空上下文接口响应参数

@@ -11,23 +11,20 @@ type LoginMessageReq struct {
 
 // 表情消息
 type EmoticonMessageReq struct {
-	Type string `json:"type,omitempty"`
-	//EmoticonId        string            `json:"emoticon_id,omitempty" v:"required"` // 投票模式
-	Receiver *MessageReceiver `json:"receiver,omitempty"` // 消息接收者
-
-	TalkType   int    `json:"talk_type" v:"required|in:1,2"`
-	ReceiverId int    `json:"receiver_id" v:"required"`
-	EmoticonId string `json:"emoticon_id" v:"required"`
+	Type       string           `json:"type,omitempty"`
+	Receiver   *MessageReceiver `json:"receiver,omitempty"` // 消息接收者
+	TalkType   int              `json:"talk_type" v:"required|in:1,2"`
+	ReceiverId int              `json:"receiver_id" v:"required"`
+	EmoticonId string           `json:"emoticon_id" v:"required"`
 }
 
 // 位置消息
 type CardMessageReq struct {
-	Type     string           `json:"type,omitempty"`
-	UserId   int              `json:"user_id,omitempty" v:"required"`
-	Receiver *MessageReceiver `json:"receiver,omitempty"`
-
-	TalkType   int `json:"talk_type" v:"required|in:1,2"`
-	ReceiverId int `json:"receiver_id" v:"required"`
+	Type       string           `json:"type,omitempty"`
+	UserId     int              `json:"user_id,omitempty" v:"required"`
+	Receiver   *MessageReceiver `json:"receiver,omitempty"`
+	TalkType   int              `json:"talk_type" v:"required|in:1,2"`
+	ReceiverId int              `json:"receiver_id" v:"required"`
 }
 
 // 图文消息
@@ -45,35 +42,32 @@ type MixedMessageRequest_Item struct {
 
 // 发送文件消息接口请求参数
 type FileMessageReq struct {
-	Type     string           `json:"type,omitempty"`
-	Receiver *MessageReceiver `json:"receiver,omitempty"` // 消息接收者
-
-	TalkType   int    `json:"talk_type" v:"required|in:1,2"`
-	ReceiverId int    `json:"receiver_id" v:"required"`
-	UploadId   string `json:"upload_id" v:"required"`
+	Type       string           `json:"type,omitempty"`
+	Receiver   *MessageReceiver `json:"receiver,omitempty"` // 消息接收者
+	TalkType   int              `json:"talk_type" v:"required|in:1,2"`
+	ReceiverId int              `json:"receiver_id" v:"required"`
+	UploadId   string           `json:"upload_id" v:"required"`
 }
 
 // 代码消息
 type CodeMessageReq struct {
-	Type     string           `json:"type,omitempty"`
-	Receiver *MessageReceiver `json:"receiver,omitempty"` // 消息接收者
-
-	TalkType   int    `json:"talk_type" v:"required|in:1,2"`
-	ReceiverId int    `json:"receiver_id" v:"required"`
-	Lang       string `json:"lang" v:"required"`
-	Code       string `json:"code" v:"required|max-length:65535"`
+	Type       string           `json:"type,omitempty"`
+	Receiver   *MessageReceiver `json:"receiver,omitempty"` // 消息接收者
+	TalkType   int              `json:"talk_type" v:"required|in:1,2"`
+	ReceiverId int              `json:"receiver_id" v:"required"`
+	Lang       string           `json:"lang" v:"required"`
+	Code       string           `json:"code" v:"required|max-length:65535"`
 }
 
 // 投票消息接口请求参数
 type VoteMessageReq struct {
-	Type     string           `json:"type,omitempty"`
-	Receiver *MessageReceiver `json:"receiver,omitempty"` // 消息接收者
-
-	ReceiverId int      `json:"receiver_id" v:"required"`
-	Mode       int      `json:"mode" v:"in:0,1"`
-	Anonymous  int      `json:"anonymous" v:"in:0,1"`
-	Title      string   `json:"title" v:"required"`
-	Options    []string `json:"options"`
+	Type       string           `json:"type,omitempty"`
+	Receiver   *MessageReceiver `json:"receiver,omitempty"` // 消息接收者
+	ReceiverId int              `json:"receiver_id" v:"required"`
+	Mode       int              `json:"mode" v:"in:0,1"`
+	Anonymous  int              `json:"anonymous" v:"in:0,1"`
+	Title      string           `json:"title" v:"required"`
+	Options    []string         `json:"options"`
 }
 
 // 位置消息
@@ -83,30 +77,27 @@ type LocationMessageReq struct {
 	Latitude    string           `json:"latitude,omitempty" v:"required"`    // 地理位置 纬度
 	Description string           `json:"description,omitempty" v:"required"` // 位置描述
 	Receiver    *MessageReceiver `json:"receiver,omitempty"`                 // 消息接收者
-
-	TalkType   int `json:"talk_type" v:"required|in:1,2"`
-	ReceiverId int `json:"receiver_id" v:"required"`
+	TalkType    int              `json:"talk_type" v:"required|in:1,2"`
+	ReceiverId  int              `json:"receiver_id" v:"required"`
 }
 
 // // 转发消息
 type ForwardMessageReq struct {
-	Type       string           `json:"type,omitempty"`
-	Mode       int              `json:"mode,omitempty" v:"required"`        // 转发模式
-	MessageIds []int            `json:"message_ids,omitempty" v:"required"` // 消息ID
-	Gids       []int            `json:"gids,omitempty"`                     // 群ID列表
-	Uids       []int            `json:"uids,omitempty"`                     // 好友ID列表
-	Receiver   *MessageReceiver `json:"receiver,omitempty"`                 // 消息接收者
-
-	TalkType   int `json:"talk_type" v:"required|in:1,2"` // 对话类型
-	ReceiverId int `json:"receiver_id" v:"required"`      // 接收者ID
-	MsgType    int `json:"msg_type"`                      // 消息类型
-	RecordId   int `json:"record_id" v:"min:0"`           // 上次查询的最小消息ID
-	Limit      int `json:"limit" v:"required|max:100"`    // 数据行数
-
-	ForwardMode     int    `json:"forward_mode" v:"required|in:1,2"`
-	RecordsIds      string `json:"records_ids" v:"required"`
-	ReceiveUserIds  string `json:"receive_user_ids"`
-	ReceiveGroupIds string `json:"receive_group_ids"`
+	Type            string           `json:"type,omitempty"`
+	Mode            int              `json:"mode,omitempty" v:"required"`        // 转发模式
+	MessageIds      []int            `json:"message_ids,omitempty" v:"required"` // 消息ID
+	Gids            []int            `json:"gids,omitempty"`                     // 群ID列表
+	Uids            []int            `json:"uids,omitempty"`                     // 好友ID列表
+	Receiver        *MessageReceiver `json:"receiver,omitempty"`                 // 消息接收者
+	TalkType        int              `json:"talk_type" v:"required|in:1,2"`      // 对话类型
+	ReceiverId      int              `json:"receiver_id" v:"required"`           // 接收者ID
+	MsgType         int              `json:"msg_type"`                           // 消息类型
+	RecordId        int              `json:"record_id" v:"min:0"`                // 上次查询的最小消息ID
+	Limit           int              `json:"limit" v:"required|max:100"`         // 数据行数
+	ForwardMode     int              `json:"forward_mode" v:"required|in:1,2"`
+	RecordsIds      string           `json:"records_ids" v:"required"`
+	ReceiveUserIds  string           `json:"receive_user_ids"`
+	ReceiveGroupIds string           `json:"receive_group_ids"`
 }
 
 type MessageReceiver struct {
@@ -116,15 +107,14 @@ type MessageReceiver struct {
 
 // 文本消息
 type TextMessageReq struct {
-	Type     string                      `json:"type,omitempty"` // 消息类型
-	Content  string                      `json:"content,omitempty" v:"required"`
-	Mention  *TextMessageRequest_Mention `json:"mention,omitempty"`
-	QuoteId  string                      `json:"quote_id,omitempty"` // 引用的消息ID
-	Receiver *MessageReceiver            `json:"receiver,omitempty"` // 消息接收者
-
-	TalkType   int    `json:"talk_type" v:"required|in:1,2"`
-	ReceiverId int    `json:"receiver_id" v:"required"`
-	Text       string `json:"text" v:"required|max-length:3000"`
+	Type       string                      `json:"type,omitempty"` // 消息类型
+	Content    string                      `json:"content,omitempty" v:"required"`
+	Mention    *TextMessageRequest_Mention `json:"mention,omitempty"`
+	QuoteId    string                      `json:"quote_id,omitempty"` // 引用的消息ID
+	Receiver   *MessageReceiver            `json:"receiver,omitempty"` // 消息接收者
+	TalkType   int                         `json:"talk_type" v:"required|in:1,2"`
+	ReceiverId int                         `json:"receiver_id" v:"required"`
+	Text       string                      `json:"text" v:"required|max-length:3000"`
 }
 
 type TextMessageRequest_Mention struct {
@@ -134,16 +124,15 @@ type TextMessageRequest_Mention struct {
 
 // 图片消息
 type ImageMessageReq struct {
-	Type     string           `json:"type,omitempty"`
-	Url      string           `json:"url,omitempty" v:"required"`    // 图片地址
-	Width    int              `json:"width,omitempty" v:"required"`  // 图片宽度
-	Height   int              `json:"height,omitempty" v:"required"` // 图片高度
-	Size     int              `json:"size,omitempty" v:"required"`   // 图片大小
-	Receiver *MessageReceiver `json:"receiver,omitempty"`            // 消息接收者
-	QuoteId  string           `json:"quote_id,omitempty"`            // 引用的消息ID
-
-	TalkType   int `json:"talk_type" v:"required|in:1,2"`
-	ReceiverId int `json:"receiver_id" v:"required"`
+	Type       string           `json:"type,omitempty"`
+	Url        string           `json:"url,omitempty" v:"required"`    // 图片地址
+	Width      int              `json:"width,omitempty" v:"required"`  // 图片宽度
+	Height     int              `json:"height,omitempty" v:"required"` // 图片高度
+	Size       int              `json:"size,omitempty" v:"required"`   // 图片大小
+	Receiver   *MessageReceiver `json:"receiver,omitempty"`            // 消息接收者
+	QuoteId    string           `json:"quote_id,omitempty"`            // 引用的消息ID
+	TalkType   int              `json:"talk_type" v:"required|in:1,2"`
+	ReceiverId int              `json:"receiver_id" v:"required"`
 }
 
 // 语音消息

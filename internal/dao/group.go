@@ -86,7 +86,7 @@ func (d *GroupDao) Create(ctx context.Context, create *do.GroupCreate) (int, err
 		Name:      create.Name,
 		Profile:   create.Profile,
 		Avatar:    create.Avatar,
-		MaxNum:    model.GroupMemberMaxNum,
+		MaxNum:    consts.GroupMemberMaxNum,
 	}
 
 	if _, err := d.Insert(ctx, &group); err != nil {
@@ -365,7 +365,7 @@ func (d *GroupDao) Invite(ctx context.Context, invite *do.GroupInvite) error {
 	})
 
 	// 删除已存在成员记录
-	if _, err = GroupMember.DeleteMany(ctx, bson.M{"group_id": invite.GroupId, "user_id": bson.M{"$in": invite.MemberIds}, "is_quit": model.GroupMemberQuitStatusYes}); err != nil {
+	if _, err = GroupMember.DeleteMany(ctx, bson.M{"group_id": invite.GroupId, "user_id": bson.M{"$in": invite.MemberIds}, "is_quit": consts.GroupMemberQuitStatusYes}); err != nil {
 		return err
 	}
 

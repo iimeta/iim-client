@@ -1,10 +1,5 @@
 package model
 
-const (
-	TalkRecordTalkTypePrivate = 1
-	TalkRecordTalkTypeGroup   = 2
-)
-
 type TalkRecords struct {
 	Id         string `json:"id"`          // ID
 	RecordId   int    `json:"record_id"`   // 记录ID
@@ -35,11 +30,6 @@ type Reply struct {
 	MsgType  int    `json:"msg_type,omitempty"` // 1:文字 2:图片
 	Content  string `json:"content,omitempty"`  // 文字或图片连接
 	MsgId    string `json:"msg_id,omitempty"`
-}
-
-// TalkRecordExtraText 文本消息
-type TalkRecordExtraText struct {
-	Content string `json:"content"` // 文本消息
 }
 
 type TalkRecordExtraCode struct {
@@ -108,21 +98,21 @@ type TalkRecordExtraVideo struct {
 	Duration int    `json:"duration"` // 视频时长
 }
 
-// TalkRecordExtraGroupCreate 创建群消息
+// 创建群消息
 type TalkRecordExtraGroupCreate struct {
 	OwnerId   int                            `json:"owner_id"`   // 操作人ID
 	OwnerName string                         `json:"owner_name"` // 操作人昵称
 	Members   []*TalkRecordExtraGroupMembers `json:"members"`    // 成员列表
 }
 
-// TalkRecordExtraGroupJoin 群主邀请加入群消息
+// 群主邀请加入群消息
 type TalkRecordExtraGroupJoin struct {
 	OwnerId   int                            `json:"owner_id"`   // 操作人ID
 	OwnerName string                         `json:"owner_name"` // 操作人昵称
 	Members   []*TalkRecordExtraGroupMembers `json:"members"`    // 成员列表
 }
 
-// TalkRecordExtraGroupTransfer 群主转让群消息
+// 群主转让群消息
 type TalkRecordExtraGroupTransfer struct {
 	OldOwnerId   int    `json:"old_owner_id"`   // 老群主ID
 	OldOwnerName string `json:"old_owner_name"` // 老群主昵称
@@ -130,59 +120,59 @@ type TalkRecordExtraGroupTransfer struct {
 	NewOwnerName string `json:"new_owner_name"` // 新群主昵称
 }
 
-// TalkRecordExtraGroupMuted 管理员设置群禁言消息
+// 管理员设置群禁言消息
 type TalkRecordExtraGroupMuted struct {
 	OwnerId   int    `json:"owner_id"`   // 操作人ID
 	OwnerName string `json:"owner_name"` // 操作人昵称
 }
 
-// TalkRecordExtraGroupCancelMuted 管理员解除群禁言消息
+// 管理员解除群禁言消息
 type TalkRecordExtraGroupCancelMuted struct {
 	OwnerId   int    `json:"owner_id"`   // 操作人ID
 	OwnerName string `json:"owner_name"` // 操作人昵称
 }
 
-// TalkRecordExtraGroupMemberMuted 管理员设置群成员禁言消息
+// 管理员设置群成员禁言消息
 type TalkRecordExtraGroupMemberMuted struct {
 	OwnerId   int                            `json:"owner_id"`   // 操作人ID
 	OwnerName string                         `json:"owner_name"` // 操作人昵称
 	Members   []*TalkRecordExtraGroupMembers `json:"members"`    // 成员列表
 }
 
-// TalkRecordExtraGroupMemberCancelMuted 管理员解除群成员禁言消息
+// 管理员解除群成员禁言消息
 type TalkRecordExtraGroupMemberCancelMuted struct {
 	OwnerId   int                            `json:"owner_id"`   // 操作人ID
 	OwnerName string                         `json:"owner_name"` // 操作人昵称
 	Members   []*TalkRecordExtraGroupMembers `json:"members"`    // 成员列表
 }
 
-// TalkRecordExtraGroupDismissed 群主解散群消息
+// 群主解散群消息
 type TalkRecordExtraGroupDismissed struct {
 	OwnerId   int    `json:"owner_id"`   // 操作人ID
 	OwnerName string `json:"owner_name"` // 操作人昵称
 }
 
-// TalkRecordExtraGroupMemberQuit 群成员退出群消息
+// 群成员退出群消息
 type TalkRecordExtraGroupMemberQuit struct {
 	OwnerId   int    `json:"owner_id"`   // 操作人ID
 	OwnerName string `json:"owner_name"` // 操作人昵称
 }
 
-// TalkRecordExtraGroupMemberKicked 踢出群成员消息
+// 踢出群成员消息
 type TalkRecordExtraGroupMemberKicked struct {
 	OwnerId   int                            `json:"owner_id"`   // 操作人ID
 	OwnerName string                         `json:"owner_name"` // 操作人昵称
 	Members   []*TalkRecordExtraGroupMembers `json:"members"`    // 成员列表
 }
 
-// TalkRecordExtraGroupMessageRevoke 管理员撤回成员消息
+// 管理员撤回成员消息
 type TalkRecordExtraGroupMessageRevoke struct {
 	OwnerId         int    `json:"owner_id"`          // 操作人ID
 	OwnerName       string `json:"owner_name"`        // 操作人昵称
 	RevokeMessageId string `json:"revoke_message_id"` // 被撤回消息ID
 }
 
-// TalkRecordExtraGroupNotice 发布群公告
+// 发布群公告
 type TalkRecordExtraGroupNotice struct {
 	OwnerId   int    `json:"owner_id"`   // 操作人ID
 	OwnerName string `json:"owner_name"` // 操作人昵称
@@ -207,6 +197,7 @@ type RemoveRecordListOpt struct {
 	ReceiverId int
 	RecordIds  string
 }
+
 type TalkRecordsItem struct {
 	Id         int    `json:"id"`
 	Sequence   int    `json:"sequence"`
@@ -234,21 +225,140 @@ type QueryTalkRecordsOpt struct {
 	Limit      int   // 数据行数
 }
 
-type QueryTalkRecordsItem struct {
-	Id         int    `json:"id"`
-	MsgId      string `json:"msg_id"`
-	Sequence   int64  `json:"sequence"`
-	TalkType   int    `json:"talk_type"`
-	MsgType    int    `json:"msg_type"`
-	UserId     int    `json:"user_id"`
-	ReceiverId int    `json:"receiver_id"`
-	IsRevoke   int    `json:"is_revoke"`
-	IsMark     int    `json:"is_mark"`
-	IsRead     int    `json:"is_read"`
-	QuoteId    string `json:"quote_id"`
-	Content    string `json:"content"`
-	CreatedAt  int64  `json:"created_at"`
-	Nickname   string `json:"nickname"`
-	Avatar     string `json:"avatar"`
-	Extra      string `json:"extra"`
+type GetTalkRecordsReq struct {
+	TalkType   int `json:"talk_type" v:"required|in:1,2"`  // 对话类型
+	MsgType    int `json:"msg_type"`                       // 消息类型
+	ReceiverId int `json:"receiver_id" v:"required|min:1"` // 接收者ID
+	RecordId   int `json:"record_id"`                      // 上次查询的最小消息ID
+	Limit      int `json:"limit" v:"required|max:100"`     // 数据行数
+}
+
+type GetTalkRecordsRes struct {
+	Limit    int                `json:"limit"`
+	RecordId int                `json:"record_id"`
+	Items    []*TalkRecordsItem `json:"items"`
+}
+
+type GetForwardTalkRecordReq struct {
+	RecordId int `json:"record_id"` // 上次查询的最小消息ID
+}
+
+type DownloadChatFileReq struct {
+	RecordId int `json:"cr_id" v:"cr_id@required|min:1"`
+}
+
+type QueryVoteModel struct {
+	RecordId     int    `json:"record_id"`
+	ReceiverId   int    `json:"receiver_id"`
+	TalkType     int    `json:"talk_type"`
+	MsgType      int    `json:"msg_type"`
+	VoteId       string `json:"vote_id"`
+	AnswerMode   int    `json:"answer_mode"`
+	AnswerOption string `json:"answer_option"`
+	AnswerNum    int    `json:"answer_num"`
+	VoteStatus   int    `json:"vote_status"`
+}
+
+type VoteStatistics struct {
+	Count   int            `json:"count"`
+	Options map[string]int `json:"options"`
+}
+
+// 会话创建接口请求参数
+type TalkSessionCreateReq struct {
+	TalkType   int `json:"talk_type,omitempty" v:"required|in:1,2"`
+	ReceiverId int `json:"receiver_id,omitempty" v:"required"`
+}
+
+// 会话创建接口响应参数
+type TalkSessionCreateRes struct {
+	Id         string `json:"id,omitempty"`
+	TalkType   int    `json:"talk_type,omitempty"`
+	ReceiverId int    `json:"receiver_id,omitempty"`
+	IsTop      int    `json:"is_top,omitempty"`
+	IsDisturb  int    `json:"is_disturb,omitempty"`
+	IsOnline   int    `json:"is_online,omitempty"`
+	IsRobot    int    `json:"is_robot,omitempty"`
+	Name       string `json:"name,omitempty"`
+	Avatar     string `json:"avatar,omitempty"`
+	Remark     string `json:"remark,omitempty"`
+	UnreadNum  int    `json:"unread_num,omitempty"`
+	MsgText    string `json:"msg_text,omitempty"`
+	UpdatedAt  string `json:"updated_at,omitempty"`
+	IsTalk     int    `json:"is_talk,omitempty"`
+}
+
+// 会话删除接口请求参数
+type TalkSessionDeleteReq struct {
+	ListId string `json:"list_id,omitempty" v:"required"`
+}
+
+// 会话置顶接口请求参数
+type TalkSessionTopReq struct {
+	ListId string `json:"list_id,omitempty" v:"required"`
+	Type   int    `json:"type,omitempty" v:"required|in:1,2"`
+}
+
+// 会话免打扰接口请求参数
+type TalkSessionDisturbReq struct {
+	TalkType   int `json:"talk_type,omitempty" v:"required|in:1,2"`
+	ReceiverId int `json:"receiver_id,omitempty" v:"required"`
+	IsDisturb  int `json:"is_disturb,omitempty" v:"required|in:0,1"`
+}
+
+// 会话列表接口响应参数
+type TalkSessionListRes struct {
+	Items []*TalkSessionItem `json:"items"`
+}
+
+// 会话列表
+type TalkSessionItem struct {
+	Id            string `json:"id,omitempty"`
+	TalkType      int    `json:"talk_type,omitempty"`
+	ReceiverId    int    `json:"receiver_id,omitempty"`
+	IsTop         int    `json:"is_top,omitempty"`
+	IsDisturb     int    `json:"is_disturb,omitempty"`
+	IsOnline      int    `json:"is_online,omitempty"`
+	IsRobot       int    `json:"is_robot,omitempty"`
+	Name          string `json:"name,omitempty"`
+	Avatar        string `json:"avatar,omitempty"`
+	Remark        string `json:"remark,omitempty"`
+	UnreadNum     int    `json:"unread_num,omitempty"`
+	MsgText       string `json:"msg_text,omitempty"`
+	UpdatedAt     string `json:"updated_at,omitempty"`
+	IsTalk        int    `json:"is_talk,omitempty"`
+	IsOpenContext int    `json:"is_open_context"`
+}
+
+// 会话未读数清除接口请求参数
+type TalkSessionClearUnreadNumReq struct {
+	TalkType   int `json:"talk_type,omitempty" v:"required|in:1,2"`
+	ReceiverId int `json:"receiver_id,omitempty" v:"required"`
+}
+
+type SearchTalkSession struct {
+	Id            string `json:"id" `
+	TalkType      int    `json:"talk_type" `
+	ReceiverId    int    `json:"receiver_id" `
+	IsDelete      int    `json:"is_delete"`
+	IsTop         int    `json:"is_top"`
+	IsRobot       int    `json:"is_robot"`
+	IsDisturb     int    `json:"is_disturb"`
+	UserAvatar    string `json:"user_avatar"`
+	Nickname      string `json:"nickname"`
+	GroupName     string `json:"group_name"`
+	GroupAvatar   string `json:"group_avatar"`
+	UpdatedAt     int64  `json:"updated_at"`
+	IsTalk        int    `json:"is_talk"`
+	IsOpenContext int    `json:"is_open_context"`
+}
+
+type TalkClearContextReq struct {
+	ReceiverId int `json:"receiver_id"`
+}
+
+type TalkOpenContextReq struct {
+	ReceiverId    int `json:"receiver_id"`
+	IsOpenContext int `json:"is_open_context"`
+	TalkType      int `json:"talk_type,omitempty" v:"required|in:1,2"`
 }

@@ -3,26 +3,7 @@ package v1
 import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/iimeta/iim-client/internal/model"
-	"google.golang.org/protobuf/types/known/anypb"
 )
-
-// 会话记录
-type TalkRecordItem struct {
-	Id         int32      `json:"id,omitempty"`
-	TalkType   int32      `json:"talk_type,omitempty"`
-	ReceiverId int32      `json:"receiver_id,omitempty"`
-	IsTop      int32      `json:"is_top,omitempty"`
-	IsDisturb  int32      `json:"is_disturb,omitempty"`
-	IsOnline   int32      `json:"is_online,omitempty"`
-	IsRobot    int32      `json:"is_robot,omitempty"`
-	Name       string     `json:"name,omitempty"`
-	Avatar     string     `json:"avatar,omitempty"`
-	RemarkName string     `json:"remark_name,omitempty"`
-	UnreadNum  int32      `json:"unread_num,omitempty"`
-	MsgText    string     `json:"msg_text,omitempty"`
-	UpdatedAt  string     `json:"updated_at,omitempty"`
-	Extra      *anypb.Any `json:"extra,omitempty"`
-}
 
 // 会话面板记录接口请求参数
 type GetRecordsReq struct {

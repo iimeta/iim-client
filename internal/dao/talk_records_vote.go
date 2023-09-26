@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/model/do"
 	"github.com/iimeta/iim-client/internal/model/entity"
 	"github.com/iimeta/iim-client/utility/cache"
@@ -61,26 +62,21 @@ func (d *TalkRecordsVoteDao) SetVoteAnswerUser(ctx context.Context, vid string) 
 	return uids, nil
 }
 
-type VoteStatistics struct {
-	Count   int            `json:"count"`
-	Options map[string]int `json:"options"`
-}
-
-func (d *TalkRecordsVoteDao) GetVoteStatistics(ctx context.Context, vid string) (*VoteStatistics, error) {
+func (d *TalkRecordsVoteDao) GetVoteStatistics(ctx context.Context, vid string) (*model.VoteStatistics, error) {
 
 	value, err := d.cache.GetVoteStatistics(ctx, vid)
 	if err != nil {
 		return d.SetVoteStatistics(ctx, vid)
 	}
 
-	statistic := &VoteStatistics{}
+	statistic := &model.VoteStatistics{}
 
 	_ = gjson.Unmarshal([]byte(value), statistic)
 
 	return statistic, nil
 }
 
-func (d *TalkRecordsVoteDao) SetVoteStatistics(ctx context.Context, vid string) (*VoteStatistics, error) {
+func (d *TalkRecordsVoteDao) SetVoteStatistics(ctx context.Context, vid string) (*model.VoteStatistics, error) {
 
 	vote, err := d.FindById(ctx, vid)
 	if err != nil {
@@ -111,7 +107,7 @@ func (d *TalkRecordsVoteDao) SetVoteStatistics(ctx context.Context, vid string) 
 		opts[option] += 1
 	}
 
-	statistic := &VoteStatistics{
+	statistic := &model.VoteStatistics{
 		Options: opts,
 		Count:   len(options),
 	}

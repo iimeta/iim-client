@@ -3,7 +3,7 @@ package dao
 import (
 	"context"
 	"errors"
-	"github.com/iimeta/iim-client/internal/model"
+	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/model/do"
 	"github.com/iimeta/iim-client/internal/model/entity"
 	"github.com/iimeta/iim-client/utility/db"
@@ -30,7 +30,7 @@ func NewGroupApplyDao(database ...string) *GroupApplyDao {
 
 func (d *GroupApplyDao) List(ctx context.Context, groupIds []int) ([]*entity.GroupApply, []*entity.User, error) {
 
-	groupApplyList, err := d.Find(ctx, bson.M{"group_id": bson.M{"$in": groupIds}, "status": model.GroupApplyStatusWait}, "-updated_at")
+	groupApplyList, err := d.Find(ctx, bson.M{"group_id": bson.M{"$in": groupIds}, "status": consts.GroupApplyStatusWait}, "-updated_at")
 	if err != nil {
 		return nil, nil, err
 	}

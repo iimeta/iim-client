@@ -15,7 +15,6 @@ import (
 	_ "github.com/iimeta/iim-client/internal/logic/file"
 	_ "github.com/iimeta/iim-client/internal/logic/group"
 	_ "github.com/iimeta/iim-client/internal/logic/group_apply"
-	_ "github.com/iimeta/iim-client/internal/logic/group_member"
 	_ "github.com/iimeta/iim-client/internal/logic/group_notice"
 	_ "github.com/iimeta/iim-client/internal/logic/ip_address"
 	_ "github.com/iimeta/iim-client/internal/logic/message"

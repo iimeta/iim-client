@@ -14,16 +14,16 @@ import (
 type (
 	IGroupNotice interface {
 		// 创建群公告
-		GroupNoticeCreate(ctx context.Context, edit *model.GroupNoticeEdit) error
+		GroupNoticeCreate(ctx context.Context, edit *model.NoticeEdit) error
 		// 更新群公告
-		GroupNoticeUpdate(ctx context.Context, edit *model.GroupNoticeEdit) error
+		GroupNoticeUpdate(ctx context.Context, edit *model.NoticeEdit) error
 		GroupNoticeDelete(ctx context.Context, groupId int, noticeId string) error
 		// 添加或编辑群公告
-		CreateAndUpdate(ctx context.Context, params model.GroupNoticeEditReq) (string, error)
+		CreateAndUpdate(ctx context.Context, params model.NoticeEditReq) (string, error)
 		// 删除群公告
-		Delete(ctx context.Context, params model.GroupNoticeDeleteReq) (string, error)
+		Delete(ctx context.Context, params model.NoticeDeleteReq) (string, error)
 		// 获取群公告列表(所有)
-		List(ctx context.Context, params model.GroupNoticeListReq) (*model.GroupNoticeListRes, error)
+		List(ctx context.Context, params model.NoticeListReq) (*model.NoticeListRes, error)
 	}
 )
 

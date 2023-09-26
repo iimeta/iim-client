@@ -7,7 +7,6 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/iimeta/iim-client/internal/config"
 	"github.com/iimeta/iim-client/internal/consts"
-	"github.com/iimeta/iim-client/internal/dao"
 	"github.com/iimeta/iim-client/internal/errors"
 	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/service"
@@ -361,7 +360,7 @@ func (s *sMessage) Delete(ctx context.Context, params model.DeleteMessageReq) er
 }
 
 // 投票处理
-func (s *sMessage) HandleVote(ctx context.Context, params model.VoteMessageHandleReq) (*dao.VoteStatistics, error) {
+func (s *sMessage) HandleVote(ctx context.Context, params model.VoteMessageHandleReq) (*model.VoteStatistics, error) {
 
 	data, err := service.TalkMessage().Vote(ctx, service.Session().GetUid(ctx), params.RecordId, params.Options)
 	if err != nil {

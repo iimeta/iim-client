@@ -3,7 +3,7 @@ package dao
 import (
 	"context"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/iimeta/iim-client/internal/model"
+	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/model/do"
 	"github.com/iimeta/iim-client/internal/model/entity"
 	relation "github.com/iimeta/iim-client/utility/cache"
@@ -32,7 +32,7 @@ func NewGroupMemberDao(database ...string) *GroupMemberDao {
 // 判断是否是群主
 func (d *GroupMemberDao) IsMaster(ctx context.Context, gid, uid int) bool {
 
-	count, err := d.CountDocuments(ctx, bson.M{"group_id": gid, "user_id": uid, "leader": 2, "is_quit": bson.M{"$ne": model.GroupMemberQuitStatusYes}})
+	count, err := d.CountDocuments(ctx, bson.M{"group_id": gid, "user_id": uid, "leader": 2, "is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes}})
 	if err != nil {
 		logger.Error(ctx, err)
 		return false
@@ -44,7 +44,7 @@ func (d *GroupMemberDao) IsMaster(ctx context.Context, gid, uid int) bool {
 // 判断是否是群主或管理员
 func (d *GroupMemberDao) IsLeader(ctx context.Context, gid, uid int) bool {
 
-	count, err := d.CountDocuments(ctx, bson.M{"group_id": gid, "user_id": uid, "leader": bson.M{"$in": []int{1, 2}}, "is_quit": bson.M{"$ne": model.GroupMemberQuitStatusYes}})
+	count, err := d.CountDocuments(ctx, bson.M{"group_id": gid, "user_id": uid, "leader": bson.M{"$in": []int{1, 2}}, "is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes}})
 	if err != nil {
 		logger.Error(ctx, err)
 		return false
@@ -60,7 +60,7 @@ func (d *GroupMemberDao) IsMember(ctx context.Context, gid, uid int, cache bool)
 		return true
 	}
 
-	count, err := d.CountDocuments(ctx, bson.M{"group_id": gid, "user_id": uid, "is_quit": bson.M{"$ne": model.GroupMemberQuitStatusYes}})
+	count, err := d.CountDocuments(ctx, bson.M{"group_id": gid, "user_id": uid, "is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes}})
 	if err != nil {
 		logger.Error(ctx, err)
 		return false
@@ -75,7 +75,7 @@ func (d *GroupMemberDao) IsMember(ctx context.Context, gid, uid int, cache bool)
 
 func (d *GroupMemberDao) FindByUserId(ctx context.Context, gid, uid int) (*entity.GroupMember, error) {
 
-	groupMember, err := d.FindOne(ctx, bson.M{"group_id": gid, "user_id": uid, "is_quit": bson.M{"$ne": model.GroupMemberQuitStatusYes}})
+	groupMember, err := d.FindOne(ctx, bson.M{"group_id": gid, "user_id": uid, "is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes}})
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (d *GroupMemberDao) FindByUserId(ctx context.Context, gid, uid int) (*entit
 // 获取所有群成员用户ID
 func (d *GroupMemberDao) GetMemberIds(ctx context.Context, groupId int) []int {
 
-	groupMemberList, err := d.Find(ctx, bson.M{"group_id": groupId, "is_quit": bson.M{"$ne": model.GroupMemberQuitStatusYes}})
+	groupMemberList, err := d.Find(ctx, bson.M{"group_id": groupId, "is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes}})
 	if err != nil {
 		logger.Error(ctx, err)
 		return nil
@@ -103,7 +103,7 @@ func (d *GroupMemberDao) GetMemberIds(ctx context.Context, groupId int) []int {
 // 获取所有群成员ID
 func (d *GroupMemberDao) GetUserGroupIds(ctx context.Context, uid int) []int {
 
-	groupMemberList, err := d.Find(ctx, bson.M{"user_id": uid, "is_quit": bson.M{"$ne": model.GroupMemberQuitStatusYes}})
+	groupMemberList, err := d.Find(ctx, bson.M{"user_id": uid, "is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes}})
 	if err != nil {
 		logger.Error(ctx, err)
 		return nil
@@ -120,7 +120,7 @@ func (d *GroupMemberDao) GetUserGroupIds(ctx context.Context, uid int) []int {
 // 统计群成员总数
 func (d *GroupMemberDao) CountMemberTotal(ctx context.Context, gid int) int64 {
 
-	count, err := d.CountDocuments(ctx, bson.M{"group_id": gid, "is_quit": bson.M{"$ne": model.GroupMemberQuitStatusYes}})
+	count, err := d.CountDocuments(ctx, bson.M{"group_id": gid, "is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes}})
 	if err != nil {
 		logger.Error(ctx, err)
 		return 0
@@ -144,7 +144,7 @@ func (d *GroupMemberDao) GetMemberRemark(ctx context.Context, groupId int, userI
 // 获取群聊成员列表
 func (d *GroupMemberDao) GetMembers(ctx context.Context, groupId int) ([]*entity.GroupMember, []*entity.User, error) {
 
-	groupMemberList, err := d.Find(ctx, bson.M{"group_id": groupId, "is_quit": bson.M{"$ne": model.GroupMemberQuitStatusYes}}, "-leader")
+	groupMemberList, err := d.Find(ctx, bson.M{"group_id": groupId, "is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes}}, "-leader")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -170,7 +170,7 @@ func (d *GroupMemberDao) CountGroupMemberNum(ctx context.Context, ids []int) ([]
 				"group_id": bson.M{
 					"$in": ids,
 				},
-				"is_quit": bson.M{"$ne": model.GroupMemberQuitStatusYes},
+				"is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes},
 			},
 		},
 		{
@@ -201,7 +201,7 @@ func (d *GroupMemberDao) CountGroupMemberNum(ctx context.Context, ids []int) ([]
 
 func (d *GroupMemberDao) CheckUserGroup(ctx context.Context, ids []int, userId int) ([]int, error) {
 
-	groupMemberList, err := d.Find(ctx, bson.M{"group_id": bson.M{"$in": ids}, "user_id": userId, "is_quit": bson.M{"$ne": model.GroupMemberQuitStatusYes}})
+	groupMemberList, err := d.Find(ctx, bson.M{"group_id": bson.M{"$in": ids}, "user_id": userId, "is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes}})
 	if err != nil {
 		return nil, err
 	}
@@ -257,7 +257,7 @@ func (d *GroupMemberDao) SetMuteStatus(ctx context.Context, groupId int, userId 
 
 func (d *GroupMemberDao) FindGroupIds(ctx context.Context, userId int) ([]int, error) {
 
-	groupMemberList, err := d.Find(ctx, bson.M{"user_id": userId, "is_quit": bson.M{"$ne": model.GroupMemberQuitStatusYes}})
+	groupMemberList, err := d.Find(ctx, bson.M{"user_id": userId, "is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes}})
 	if err != nil {
 		return nil, err
 	}
@@ -272,7 +272,7 @@ func (d *GroupMemberDao) FindGroupIds(ctx context.Context, userId int) ([]int, e
 
 func (d *GroupMemberDao) FindGroupMemberListByUserId(ctx context.Context, userId int) ([]*entity.GroupMember, error) {
 
-	groupMemberList, err := d.Find(ctx, bson.M{"user_id": userId, "is_quit": bson.M{"$ne": model.GroupMemberQuitStatusYes}})
+	groupMemberList, err := d.Find(ctx, bson.M{"user_id": userId, "is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes}})
 	if err != nil {
 		return nil, err
 	}

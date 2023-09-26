@@ -27,7 +27,7 @@ func New() service.IGroupNotice {
 }
 
 // 创建群公告
-func (s *sGroupNotice) GroupNoticeCreate(ctx context.Context, edit *model.GroupNoticeEdit) error {
+func (s *sGroupNotice) GroupNoticeCreate(ctx context.Context, edit *model.NoticeEdit) error {
 
 	if _, err := dao.GroupNotice.Insert(ctx, &do.GroupNotice{
 		GroupId:      edit.GroupId,
@@ -46,7 +46,7 @@ func (s *sGroupNotice) GroupNoticeCreate(ctx context.Context, edit *model.GroupN
 }
 
 // 更新群公告
-func (s *sGroupNotice) GroupNoticeUpdate(ctx context.Context, edit *model.GroupNoticeEdit) error {
+func (s *sGroupNotice) GroupNoticeUpdate(ctx context.Context, edit *model.NoticeEdit) error {
 
 	if err := dao.GroupNotice.UpdateOne(ctx, bson.M{"_id": edit.NoticeId, "group_id": edit.GroupId}, bson.M{
 		"title":      edit.Title,
@@ -77,7 +77,7 @@ func (s *sGroupNotice) GroupNoticeDelete(ctx context.Context, groupId int, notic
 }
 
 // 添加或编辑群公告
-func (s *sGroupNotice) CreateAndUpdate(ctx context.Context, params model.GroupNoticeEditReq) (string, error) {
+func (s *sGroupNotice) CreateAndUpdate(ctx context.Context, params model.NoticeEditReq) (string, error) {
 
 	uid := service.Session().GetUid(ctx)
 
@@ -91,7 +91,7 @@ func (s *sGroupNotice) CreateAndUpdate(ctx context.Context, params model.GroupNo
 	)
 
 	if params.NoticeId == "" || params.NoticeId == "0" { // todo
-		err = s.GroupNoticeCreate(ctx, &model.GroupNoticeEdit{
+		err = s.GroupNoticeCreate(ctx, &model.NoticeEdit{
 			UserId:    uid,
 			GroupId:   params.GroupId,
 			NoticeId:  params.NoticeId,
@@ -102,7 +102,7 @@ func (s *sGroupNotice) CreateAndUpdate(ctx context.Context, params model.GroupNo
 		})
 		msg = "添加群公告成功"
 	} else {
-		err = s.GroupNoticeUpdate(ctx, &model.GroupNoticeEdit{
+		err = s.GroupNoticeUpdate(ctx, &model.NoticeEdit{
 			GroupId:   params.GroupId,
 			NoticeId:  params.NoticeId,
 			Title:     params.Title,
@@ -119,7 +119,7 @@ func (s *sGroupNotice) CreateAndUpdate(ctx context.Context, params model.GroupNo
 	}
 
 	_ = service.TalkMessage().SendSysOther(ctx, &model.TalkRecords{
-		TalkType:   model.TalkRecordTalkTypeGroup,
+		TalkType:   consts.TalkRecordTalkTypeGroup,
 		MsgType:    consts.ChatMsgSysGroupNotice,
 		UserId:     uid,
 		ReceiverId: params.GroupId,
@@ -135,7 +135,7 @@ func (s *sGroupNotice) CreateAndUpdate(ctx context.Context, params model.GroupNo
 }
 
 // 删除群公告
-func (s *sGroupNotice) Delete(ctx context.Context, params model.GroupNoticeDeleteReq) (string, error) {
+func (s *sGroupNotice) Delete(ctx context.Context, params model.NoticeDeleteReq) (string, error) {
 
 	if err := s.GroupNoticeDelete(ctx, params.GroupId, params.NoticeId); err != nil {
 		logger.Error(ctx, err)
@@ -146,7 +146,7 @@ func (s *sGroupNotice) Delete(ctx context.Context, params model.GroupNoticeDelet
 }
 
 // 获取群公告列表(所有)
-func (s *sGroupNotice) List(ctx context.Context, params model.GroupNoticeListReq) (*model.GroupNoticeListRes, error) {
+func (s *sGroupNotice) List(ctx context.Context, params model.NoticeListReq) (*model.NoticeListRes, error) {
 
 	// 判断是否是群成员
 	if !dao.GroupMember.IsMember(ctx, params.GroupId, service.Session().GetUid(ctx), true) {
@@ -180,9 +180,9 @@ func (s *sGroupNotice) List(ctx context.Context, params model.GroupNoticeListReq
 		})
 	}
 
-	items := make([]*model.GroupNoticeListResponse_Item, 0)
+	items := make([]*model.NoticeListResponse_Item, 0)
 	for i := 0; i < len(all); i++ {
-		items = append(items, &model.GroupNoticeListResponse_Item{
+		items = append(items, &model.NoticeListResponse_Item{
 			Id:           all[i].Id,
 			Title:        all[i].Title,
 			Content:      all[i].Content,
@@ -196,7 +196,7 @@ func (s *sGroupNotice) List(ctx context.Context, params model.GroupNoticeListReq
 		})
 	}
 
-	return &model.GroupNoticeListRes{
+	return &model.NoticeListRes{
 		Items: items,
 	}, nil
 }

@@ -36,23 +36,6 @@ type NoteDetailInfo struct {
 	Content    string `json:"content"`     // Markdown 解析HTML内容
 }
 
-type NoteEditOpt struct {
-	UserId    int
-	NoteId    string
-	ClassId   string
-	Title     string
-	Content   string
-	MdContent string
-}
-
-type NoteListOpt struct {
-	UserId   int
-	Keyword  string
-	FindType int
-	Cid      int
-	Page     int
-}
-
 // 笔记编辑接口请求参数
 type NoteEditReq struct {
 	NoteId    string `json:"note_id,omitempty"`
@@ -77,18 +60,16 @@ type NoteDetailReq struct {
 
 // 笔记详情接口响应参数
 type NoteDetailRes struct {
-	Id         string `json:"id,omitempty"`
-	ClassId    string `json:"class_id,omitempty"`
-	Title      string `json:"title,omitempty"`
-	Content    string `json:"content,omitempty"`
-	MdContent  string `json:"md_content,omitempty"`
-	IsAsterisk int    `json:"is_asterisk,omitempty"`
-	CreatedAt  string `json:"created_at,omitempty"`
-	UpdatedAt  string `json:"updated_at,omitempty"`
-	// 标签列表
-	Tags []*DetailResponse_Tag `json:"tags,omitempty"`
-	// 附件列表
-	Files []*DetailResponse_File `json:"files,omitempty"`
+	Id         string                 `json:"id,omitempty"`
+	ClassId    string                 `json:"class_id,omitempty"`
+	Title      string                 `json:"title,omitempty"`
+	Content    string                 `json:"content,omitempty"`
+	MdContent  string                 `json:"md_content,omitempty"`
+	IsAsterisk int                    `json:"is_asterisk,omitempty"`
+	CreatedAt  string                 `json:"created_at,omitempty"`
+	UpdatedAt  string                 `json:"updated_at,omitempty"`
+	Tags       []*DetailResponse_Tag  `json:"tags,omitempty"`  // 标签列表
+	Files      []*DetailResponse_File `json:"files,omitempty"` // 附件列表
 }
 
 // 笔记列表接口请求参数

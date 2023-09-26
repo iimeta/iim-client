@@ -1,11 +1,5 @@
 package model
 
-const (
-	RootStatusDeleted = -1
-	RootStatusNormal  = 0
-	RootStatusDisable = 1
-)
-
 type Robot struct {
 	UserId    int    `json:"user_id,omitempty"`    // 关联用户ID
 	RobotName string `json:"robot_name,omitempty"` // 机器人名称

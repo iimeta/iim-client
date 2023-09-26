@@ -1,13 +1,5 @@
 package model
 
-import (
-	"github.com/gogf/gf/v2/frame/g"
-)
-
-const (
-	GroupMemberMaxNum = 200 // 最大成员数量
-)
-
 type GroupItem struct {
 	Id        int    `json:"id"`
 	GroupName string `json:"group_name"`
@@ -99,8 +91,7 @@ type GetInviteFriendsReq struct {
 
 // 群列表接口响应参数
 type GroupListRes struct {
-	g.Meta `mime:"application/json" example:"json"`
-	Items  []*GroupListResponse_Item `json:"items"`
+	Items []*GroupListResponse_Item `json:"items"`
 }
 
 type GroupListResponse_Item struct {
@@ -180,13 +171,146 @@ type GroupNoSpeakReq struct {
 // 全员禁言接口请求参数
 type GroupMuteReq struct {
 	GroupId int `json:"group_id,omitempty" v:"required"`
-	// 操作方式  1:开启全员禁言  2:解除全员禁言
-	Mode int `json:"mode,omitempty" v:"required|in:1,2"`
+	Mode    int `json:"mode,omitempty" v:"required|in:1,2"` // 操作方式  1:开启全员禁言  2:解除全员禁言
 }
 
 // 群公开修改接口请求参数
 type GroupOvertReq struct {
 	GroupId int `json:"group_id,omitempty" v:"required"`
-	// 操作方式  1:开启公开可见  2:关闭公开可见
-	Mode int `json:"mode,omitempty" v:"required|in:1,2"`
+	Mode    int `json:"mode,omitempty" v:"required|in:1,2"` // 操作方式  1:开启公开可见  2:关闭公开可见
+}
+
+type ApplyList struct {
+	Id        string `json:"id"`         // 自增ID
+	GroupId   int    `json:"group_id"`   // 群聊ID
+	UserId    int    `json:"user_id"`    // 用户ID
+	Remark    string `json:"remark"`     // 备注信息
+	CreatedAt int64  `json:"created_at"` // 创建时间
+	Nickname  string `json:"nickname"`   // 用户昵称
+	Avatar    string `json:"avatar"`     // 用户头像地址
+}
+
+// 提交入群申请接口请求参数
+type GroupApplyCreateReq struct {
+	GroupId int    `json:"group_id,omitempty" v:"required"`
+	Remark  string `json:"remark,omitempty" v:"required"`
+}
+
+// 拒绝入群申请接口请求参数
+type ApplyDeleteReq struct {
+	ApplyId string `json:"apply_id,omitempty" v:"required"`
+}
+
+// 同意入群申请接口请求参数
+type ApplyAgreeReq struct {
+	ApplyId string `json:"apply_id,omitempty" v:"required"`
+}
+
+// 拒绝入群申请接口请求参数
+type GroupApplyDeclineReq struct {
+	ApplyId string `json:"apply_id,omitempty" v:"required"`
+	Remark  string `json:"remark,omitempty" v:"required"`
+}
+
+// 入群申请列表接口请求参数
+type ApplyListReq struct {
+	GroupId int `json:"group_id,omitempty" v:"required"`
+}
+
+// 入群申请列表接口响应参数
+type GroupApplyListRes struct {
+	Items []*GroupApplyListResponse_Item `json:"items"`
+}
+
+// 申请管理-所有入群申请列表接口响应参数
+type ApplyAllRes struct {
+	Items []*ApplyAllResponse_Item `json:"items"`
+}
+
+type GroupApplyListResponse_Item struct {
+	Id        string `json:"id,omitempty"`
+	UserId    int    `json:"user_id,omitempty"`
+	GroupId   int    `json:"group_id,omitempty"`
+	Remark    string `json:"remark,omitempty"`
+	Avatar    string `json:"avatar,omitempty"`
+	Nickname  string `json:"nickname,omitempty"`
+	CreatedAt string `json:"created_at,omitempty"`
+}
+
+type ApplyAllResponse_Item struct {
+	Id        string `json:"id,omitempty"`
+	UserId    int    `json:"user_id,omitempty"`
+	GroupId   int    `json:"group_id,omitempty"`
+	GroupName string `json:"group_name,omitempty"`
+	Remark    string `json:"remark,omitempty"`
+	Avatar    string `json:"avatar,omitempty"`
+	Nickname  string `json:"nickname,omitempty"`
+	CreatedAt string `json:"created_at,omitempty"`
+}
+
+type GroupApplyUnreadNumRes struct {
+	UnreadNum int `json:"unread_num"`
+}
+
+type SearchNoticeItem struct {
+	Id           string `json:"id"`
+	CreatorId    int    `json:"creator_id"`
+	Title        string `json:"title"`
+	Content      string `json:"content"`
+	IsTop        int    `json:"is_top"`
+	IsConfirm    int    `json:"is_confirm"`
+	ConfirmUsers string `json:"confirm_users"`
+	CreatedAt    int64  `json:"created_at"`
+	UpdatedAt    int64  `json:"updated_at"`
+	Avatar       string `json:"avatar"`
+	Nickname     string `json:"nickname"`
+}
+
+type NoticeEdit struct {
+	UserId    int
+	GroupId   int
+	NoticeId  string
+	Title     string
+	Content   string
+	IsTop     int
+	IsConfirm int
+}
+
+// 添加或编辑群公告接口请求参数
+type NoticeEditReq struct {
+	GroupId   int    `json:"group_id,omitempty" v:"required"`
+	NoticeId  string `json:"notice_id,omitempty"`
+	Title     string `json:"title,omitempty" v:"required"`
+	Content   string `json:"content,omitempty" v:"required"`
+	IsTop     int    `json:"is_top,omitempty" v:"in:0,1"`
+	IsConfirm int    `json:"is_confirm,omitempty" v:"in:0,1"`
+}
+
+// 删除群公告接口请求参数
+type NoticeDeleteReq struct {
+	GroupId  int    `json:"group_id,omitempty" v:"required"`
+	NoticeId string `json:"notice_id,omitempty" v:"required"`
+}
+
+// 群公告列表接口请求参数
+type NoticeListReq struct {
+	GroupId int `json:"group_id,omitempty" v:"required"`
+}
+
+// 群公告列表接口响应参数
+type NoticeListRes struct {
+	Items []*NoticeListResponse_Item `json:"items"`
+}
+
+type NoticeListResponse_Item struct {
+	Id           string `json:"id,omitempty"`
+	Title        string `json:"title,omitempty"`
+	Content      string `json:"content,omitempty"`
+	IsTop        int    `json:"is_top,omitempty"`
+	IsConfirm    int    `json:"is_confirm,omitempty"`
+	ConfirmUsers string `json:"confirm_users,omitempty"`
+	Avatar       string `json:"avatar,omitempty"`
+	CreatorId    int    `json:"creator_id,omitempty"`
+	CreatedAt    string `json:"created_at,omitempty"`
+	UpdatedAt    string `json:"updated_at,omitempty"`
 }

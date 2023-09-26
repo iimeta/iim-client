@@ -110,7 +110,7 @@ func (s *sUser) Login(ctx context.Context, account string, password string) (*mo
 }
 
 // 找回密码
-func (s *sUser) Forget(ctx context.Context, forget *model.UserForget) (bool, error) {
+func (s *sUser) Forget(ctx context.Context, forget model.ForgetReq) (bool, error) {
 
 	account, err := dao.User.FindAccount(ctx, forget.Account)
 	if err != nil || account.Id == "" {

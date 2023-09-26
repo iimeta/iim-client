@@ -18,7 +18,7 @@ type (
 		// 登录
 		Login(ctx context.Context, account string, password string) (*model.User, error)
 		// 找回密码
-		Forget(ctx context.Context, forget *model.UserForget) (bool, error)
+		Forget(ctx context.Context, forget model.ForgetReq) (bool, error)
 		// 修改密码
 		UpdatePassword(ctx context.Context, uid int, oldPassword string, password string) error
 		// 用户详情
@@ -29,9 +29,9 @@ type (
 		ChangeDetail(ctx context.Context, params model.UserDetailUpdateReq) error
 		// 修改密码接口
 		ChangePassword(ctx context.Context, params model.UserPasswordUpdateReq) error
-		// 修改手机号
+		// 换绑手机号
 		ChangeMobile(ctx context.Context, params model.UserMobileUpdateReq) error
-		// 修改邮箱
+		// 换绑邮箱
 		ChangeEmail(ctx context.Context, params model.UserEmailUpdateReq) error
 		// 根据userId获取用户信息
 		GetUserById(ctx context.Context, userId int) (*model.User, error)

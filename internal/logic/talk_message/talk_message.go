@@ -494,7 +494,7 @@ func (s *sTalkMessage) Revoke(ctx context.Context, uid int, recordId int) error 
 }
 
 // 投票
-func (s *sTalkMessage) Vote(ctx context.Context, uid int, recordId int, optionsValue string) (*dao.VoteStatistics, error) {
+func (s *sTalkMessage) Vote(ctx context.Context, uid int, recordId int, optionsValue string) (*model.VoteStatistics, error) {
 
 	talkRecords, err := dao.TalkRecords.FindByRecordId(ctx, recordId)
 	if err != nil {
@@ -561,7 +561,7 @@ func (s *sTalkMessage) Vote(ctx context.Context, uid int, recordId int, optionsV
 		}
 	}
 
-	if vote.AnswerMode == model.VoteAnswerModeSingleChoice {
+	if vote.AnswerMode == consts.VoteAnswerModeSingleChoice {
 		options = options[:1]
 	}
 

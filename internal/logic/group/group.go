@@ -69,11 +69,11 @@ func (s *sGroup) IsAuth(ctx context.Context, opt *model.AuthOption) error {
 		return errors.New("系统繁忙, 请稍后再试")
 	}
 
-	if memberInfo.IsQuit == model.GroupMemberQuitStatusYes {
+	if memberInfo.IsQuit == consts.GroupMemberQuitStatusYes {
 		return errors.New("暂无权限发送消息")
 	}
 
-	if memberInfo.IsMute == model.GroupMemberMuteStatusYes {
+	if memberInfo.IsMute == consts.GroupMemberMuteStatusYes {
 		return errors.New("已被群主或管理员禁言")
 	}
 
@@ -515,7 +515,7 @@ func (s *sGroup) Handover(ctx context.Context, params model.GroupHandoverReq) er
 		return errors.New("暂无权限")
 	}
 
-	err := service.GroupMember().Handover(ctx, params.GroupId, uid, params.UserId)
+	err := s.GroupMemberHandover(ctx, params.GroupId, uid, params.UserId)
 	if err != nil {
 		logger.Error(ctx, err)
 		return errors.New("转让群主失败")
@@ -540,7 +540,7 @@ func (s *sGroup) Handover(ctx context.Context, params model.GroupHandoverReq) er
 
 	_ = service.TalkMessage().SendSysOther(ctx, &model.TalkRecords{
 		MsgType:    consts.ChatMsgSysGroupTransfer,
-		TalkType:   model.TalkRecordTalkTypeGroup,
+		TalkType:   consts.TalkRecordTalkTypeGroup,
 		UserId:     uid,
 		ReceiverId: params.GroupId,
 		Extra:      gjson.MustEncodeString(extra),
@@ -561,7 +561,7 @@ func (s *sGroup) AssignAdmin(ctx context.Context, params model.GroupAssignAdminR
 		leader = 1
 	}
 
-	err := service.GroupMember().SetLeaderStatus(ctx, params.GroupId, params.UserId, leader)
+	err := s.SetLeaderStatus(ctx, params.GroupId, params.UserId, leader)
 	if err != nil {
 		logger.Error(ctx, "设置管理员信息失败 err:", err.Error())
 		return errors.New("设置管理员信息失败")
@@ -583,14 +583,14 @@ func (s *sGroup) NoSpeak(ctx context.Context, params model.GroupNoSpeakReq) erro
 		status = 0
 	}
 
-	err := service.GroupMember().SetMuteStatus(ctx, params.GroupId, params.UserId, status)
+	err := s.SetMuteStatus(ctx, params.GroupId, params.UserId, status)
 	if err != nil {
 		logger.Error(ctx, err)
 		return errors.New("设置群成员禁言状态失败")
 	}
 
 	data := &model.TalkRecords{
-		TalkType:   model.TalkRecordTalkTypeGroup,
+		TalkType:   consts.TalkRecordTalkTypeGroup,
 		UserId:     uid,
 		ReceiverId: params.GroupId,
 	}
@@ -688,7 +688,7 @@ func (s *sGroup) Mute(ctx context.Context, params model.GroupMuteReq) error {
 
 	_ = service.TalkMessage().SendSysOther(ctx, &model.TalkRecords{
 		MsgType:    msgType,
-		TalkType:   model.TalkRecordTalkTypeGroup,
+		TalkType:   consts.TalkRecordTalkTypeGroup,
 		UserId:     uid,
 		ReceiverId: params.GroupId,
 		Extra:      gjson.MustEncodeString(extra),
@@ -735,6 +735,37 @@ func (s *sGroup) Overt(ctx context.Context, params model.GroupOvertReq) error {
 func (s *sGroup) Secede(ctx context.Context, groupId int, uid int) error {
 
 	if err := dao.Group.Secede(ctx, groupId, uid); err != nil {
+		logger.Error(ctx)
+		return err
+	}
+
+	return nil
+}
+
+// 交接群主权限
+func (s *sGroup) GroupMemberHandover(ctx context.Context, groupId int, userId int, memberId int) error {
+
+	if err := dao.GroupMember.Handover(ctx, groupId, userId, memberId); err != nil {
+		logger.Error(ctx)
+		return err
+	}
+
+	return nil
+}
+
+func (s *sGroup) SetLeaderStatus(ctx context.Context, groupId int, userId int, leader int) error {
+
+	if err := dao.GroupMember.SetLeaderStatus(ctx, groupId, userId, leader); err != nil {
+		logger.Error(ctx)
+		return err
+	}
+
+	return nil
+}
+
+func (s *sGroup) SetMuteStatus(ctx context.Context, groupId int, userId int, status int) error {
+
+	if err := dao.GroupMember.SetMuteStatus(ctx, groupId, userId, status); err != nil {
 		logger.Error(ctx)
 		return err
 	}

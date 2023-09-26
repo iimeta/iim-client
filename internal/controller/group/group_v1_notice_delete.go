@@ -9,9 +9,9 @@ import (
 	"github.com/iimeta/iim-client/api/group/v1"
 )
 
-func (c *ControllerV1) GroupNoticeEdit(ctx context.Context, req *v1.GroupNoticeEditReq) (res *v1.GroupNoticeEditRes, err error) {
+func (c *ControllerV1) NoticeDelete(ctx context.Context, req *v1.NoticeDeleteReq) (res *v1.NoticeDeleteRes, err error) {
 
-	msg, err := service.GroupNotice().CreateAndUpdate(ctx, req.GroupNoticeEditReq)
+	msg, err := service.GroupNotice().Delete(ctx, req.NoticeDeleteReq)
 	if err != nil {
 		return nil, err
 	}

@@ -7,47 +7,44 @@ import (
 
 // 添加好友分组接口请求参数
 type GroupCreateReq struct {
-	g.Meta `path:"/group/create" tags:"contact" method:"post" summary:"添加好友分组接口"`
-	Name   string `json:"name,omitempty" v:"required"`
-	Sort   int32  `json:"sort,omitempty" v:"required"`
+	g.Meta `path:"/group/create" tags:"contact_group" method:"post" summary:"添加好友分组接口"`
+	model.ContactGroupCreateReq
 }
 
 // 添加好友分组接口响应参数
 type GroupCreateRes struct {
 	g.Meta `mime:"application/json" example:"json"`
-	Id     int32 `json:"id,omitempty"`
+	*model.ContactGroupCreateRes
 }
 
 // 更新好友分组接口请求参数
 type GroupUpdateReq struct {
-	g.Meta `path:"/group/update" tags:"contact" method:"post" summary:"更新好友分组接口"`
-	Id     int32  `json:"id,omitempty" v:"required"`
-	Name   string `json:"name,omitempty" v:"required"`
-	Sort   int32  `json:"sort,omitempty" v:"required"`
+	g.Meta `path:"/group/update" tags:"contact_group" method:"post" summary:"更新好友分组接口"`
+	model.GroupUpdateReq
 }
 
 // 更新好友分组接口响应参数
 type GroupUpdateRes struct {
 	g.Meta `mime:"application/json" example:"json"`
-	Id     int32 `json:"id,omitempty"`
+	*model.GroupUpdateRes
 }
 
 // 删除好友分组接口请求参数
 type GroupDeleteReq struct {
-	g.Meta `path:"/group/delete" tags:"contact" method:"post" summary:"删除好友分组接口"`
-	Id     int32 `json:"id,omitempty" v:"required"`
+	g.Meta `path:"/group/delete" tags:"contact_group" method:"post" summary:"删除好友分组接口"`
+	model.GroupDeleteReq
 }
 
 // 删除好友分组接口响应参数
 type GroupDeleteRes struct {
 	g.Meta `mime:"application/json" example:"json"`
-	Id     int32 `json:"id,omitempty"`
+	*model.GroupDeleteRes
 }
 
 // 排序好友分组接口请求参数
 type GroupSortReq struct {
-	g.Meta `path:"/group/sort" tags:"contact" method:"post" summary:"排序好友分组接口"`
-	Items  []*model.GroupSortRequest_Item `json:"items" v:"required"`
+	g.Meta `path:"/group/sort" tags:"contact_group" method:"post" summary:"排序好友分组接口"`
+	model.GroupSortReq
 }
 
 // 排序好友分组接口响应参数
@@ -57,7 +54,7 @@ type GroupSortRes struct {
 
 // 好友分组列表接口请求参数
 type GroupListReq struct {
-	g.Meta `path:"/group/list" tags:"contact" method:"get" summary:"好友分组列表接口"`
+	g.Meta `path:"/group/list" tags:"contact_group" method:"get" summary:"好友分组列表接口"`
 }
 
 // 好友分组列表接口响应参数
@@ -68,7 +65,7 @@ type GroupListRes struct {
 
 // 保存好友分组列表接口请求参数
 type GroupSaveReq struct {
-	g.Meta `path:"/group/save" tags:"contact" method:"post" summary:"保存好友分组列表接口"`
+	g.Meta `path:"/group/save" tags:"contact_group" method:"post" summary:"保存好友分组列表接口"`
 	model.GroupSaveReq
 }
 
