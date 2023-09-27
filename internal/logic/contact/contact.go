@@ -44,9 +44,9 @@ func (s *sContact) List(ctx context.Context) (*model.ContactListRes, error) {
 		return t.UserId
 	})
 
-	items := make([]*model.ContactListResponse_Item, 0)
+	items := make([]*model.Contact, 0)
 	for _, contact := range contactList {
-		items = append(items, &model.ContactListResponse_Item{
+		items = append(items, &model.Contact{
 			Id:       contact.FriendId,
 			Nickname: userMap[contact.FriendId].Nickname,
 			Gender:   userMap[contact.FriendId].Gender,

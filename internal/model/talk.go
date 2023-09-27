@@ -225,7 +225,7 @@ type QueryTalkRecordsOpt struct {
 	Limit      int   // 数据行数
 }
 
-type GetTalkRecordsReq struct {
+type TalkRecordsReq struct {
 	TalkType   int `json:"talk_type" v:"required|in:1,2"`  // 对话类型
 	MsgType    int `json:"msg_type"`                       // 消息类型
 	ReceiverId int `json:"receiver_id" v:"required|min:1"` // 接收者ID
@@ -233,17 +233,17 @@ type GetTalkRecordsReq struct {
 	Limit      int `json:"limit" v:"required|max:100"`     // 数据行数
 }
 
-type GetTalkRecordsRes struct {
+type TalkRecordsRes struct {
 	Limit    int                `json:"limit"`
 	RecordId int                `json:"record_id"`
 	Items    []*TalkRecordsItem `json:"items"`
 }
 
-type GetForwardTalkRecordReq struct {
+type RecordsForwardReq struct {
 	RecordId int `json:"record_id"` // 上次查询的最小消息ID
 }
 
-type DownloadChatFileReq struct {
+type RecordsFileDownloadReq struct {
 	RecordId int `json:"cr_id" v:"cr_id@required|min:1"`
 }
 
@@ -265,13 +265,13 @@ type VoteStatistics struct {
 }
 
 // 会话创建接口请求参数
-type TalkSessionCreateReq struct {
+type SessionCreateReq struct {
 	TalkType   int `json:"talk_type,omitempty" v:"required|in:1,2"`
 	ReceiverId int `json:"receiver_id,omitempty" v:"required"`
 }
 
 // 会话创建接口响应参数
-type TalkSessionCreateRes struct {
+type SessionCreateRes struct {
 	Id         string `json:"id,omitempty"`
 	TalkType   int    `json:"talk_type,omitempty"`
 	ReceiverId int    `json:"receiver_id,omitempty"`
@@ -289,30 +289,30 @@ type TalkSessionCreateRes struct {
 }
 
 // 会话删除接口请求参数
-type TalkSessionDeleteReq struct {
+type SessionDeleteReq struct {
 	ListId string `json:"list_id,omitempty" v:"required"`
 }
 
 // 会话置顶接口请求参数
-type TalkSessionTopReq struct {
+type SessionTopReq struct {
 	ListId string `json:"list_id,omitempty" v:"required"`
 	Type   int    `json:"type,omitempty" v:"required|in:1,2"`
 }
 
 // 会话免打扰接口请求参数
-type TalkSessionDisturbReq struct {
+type SessionDisturbReq struct {
 	TalkType   int `json:"talk_type,omitempty" v:"required|in:1,2"`
 	ReceiverId int `json:"receiver_id,omitempty" v:"required"`
 	IsDisturb  int `json:"is_disturb,omitempty" v:"required|in:0,1"`
 }
 
 // 会话列表接口响应参数
-type TalkSessionListRes struct {
-	Items []*TalkSessionItem `json:"items"`
+type SessionListRes struct {
+	Items []*SessionItem `json:"items"`
 }
 
 // 会话列表
-type TalkSessionItem struct {
+type SessionItem struct {
 	Id            string `json:"id,omitempty"`
 	TalkType      int    `json:"talk_type,omitempty"`
 	ReceiverId    int    `json:"receiver_id,omitempty"`
@@ -331,7 +331,7 @@ type TalkSessionItem struct {
 }
 
 // 会话未读数清除接口请求参数
-type TalkSessionClearUnreadNumReq struct {
+type SessionClearUnreadNumReq struct {
 	TalkType   int `json:"talk_type,omitempty" v:"required|in:1,2"`
 	ReceiverId int `json:"receiver_id,omitempty" v:"required"`
 }
@@ -353,11 +353,11 @@ type SearchTalkSession struct {
 	IsOpenContext int    `json:"is_open_context"`
 }
 
-type TalkClearContextReq struct {
+type SessionClearContextReq struct {
 	ReceiverId int `json:"receiver_id"`
 }
 
-type TalkOpenContextReq struct {
+type SessionOpenContextReq struct {
 	ReceiverId    int `json:"receiver_id"`
 	IsOpenContext int `json:"is_open_context"`
 	TalkType      int `json:"talk_type,omitempty" v:"required|in:1,2"`

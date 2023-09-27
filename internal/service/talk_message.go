@@ -24,11 +24,11 @@ type (
 		// 视频文件消息
 		SendVideo(ctx context.Context, uid int, req *model.VideoMessageReq) error
 		// 文件消息
-		SendFile(ctx context.Context, uid int, req *model.FileMessageReq) error
+		SendFile(ctx context.Context, uid int, req *model.MessageFileReq) error
 		// 代码消息
 		SendCode(ctx context.Context, uid int, req *model.CodeMessageReq) error
 		// 投票消息
-		SendVote(ctx context.Context, uid int, req *model.VoteMessageReq) error
+		SendVote(ctx context.Context, uid int, req *model.MessageVoteReq) error
 		// 表情消息
 		SendEmoticon(ctx context.Context, uid int, req *model.EmoticonMessageReq) error
 		// 转发消息
@@ -44,9 +44,41 @@ type (
 		// 推送其它消息
 		SendSysOther(ctx context.Context, data *model.TalkRecords) error
 		// 撤回消息
-		Revoke(ctx context.Context, uid int, recordId int) error
-		// 投票
-		Vote(ctx context.Context, uid int, recordId int, optionsValue string) (*model.VoteStatistics, error)
+		Revoke(ctx context.Context, params model.MessageRevokeReq) error
+		// 投票处理
+		HandleVote(ctx context.Context, params model.MessageVoteHandleReq) (*model.VoteStatistics, error)
+		// 发送文本消息
+		Text(ctx context.Context, params model.TextMessageReq) error
+		// 发送代码块消息
+		Code(ctx context.Context, params model.CodeMessageReq) error
+		// 发送图片消息
+		Image(ctx context.Context, params model.ImageMessageReq) error
+		// 发送文件消息
+		File(ctx context.Context, params model.MessageFileReq) error
+		// 发送投票消息
+		Vote(ctx context.Context, params model.MessageVoteReq) error
+		// 发送表情包消息
+		Emoticon(ctx context.Context, params model.EmoticonMessageReq) error
+		// 发送转发消息
+		Forward(ctx context.Context, params model.ForwardMessageReq) error
+		// 发送用户名片消息
+		Card(ctx context.Context, params model.CardMessageReq) error
+		// 删除聊天记录
+		Delete(ctx context.Context, params model.MessageDeleteReq) error
+		// 发送位置消息
+		Location(ctx context.Context, params model.LocationMessageReq) error
+		// 验证转发消息合法性
+		Verify(ctx context.Context, uid int, params *model.ForwardMessageReq) error
+		// 批量合并转发
+		MultiMergeForward(ctx context.Context, uid int, params *model.ForwardMessageReq) ([]*model.ForwardRecord, error)
+		// 批量逐条转发
+		MultiSplitForward(ctx context.Context, uid int, params *model.ForwardMessageReq) ([]*model.ForwardRecord, error)
+		// 删除消息记录
+		DeleteRecordList(ctx context.Context, opt *model.RemoveRecordListOpt) error
+		// 收藏表情包
+		Collect(ctx context.Context, params model.MessageCollectReq) error
+		// 发送消息接口
+		Publish(ctx context.Context, params model.MessagePublishReq) error
 	}
 )
 

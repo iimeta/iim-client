@@ -9,14 +9,13 @@ import (
 
 func (c *ControllerV1) ApplyList(ctx context.Context, req *v1.ApplyListReq) (res *v1.ApplyListRes, err error) {
 
-	applyListRes, err := service.ContactApply().ApplyList(ctx)
+	applyItems, err := service.ContactApply().List(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	res = &v1.ApplyListRes{
-		ApplyListRes: applyListRes,
-	}
+	res = &v1.ApplyListRes{}
+	res.Items = applyItems
 
 	return
 }

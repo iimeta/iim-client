@@ -163,9 +163,9 @@ func (s *sGroupNotice) List(ctx context.Context, params model.NoticeListReq) (*m
 		return t.UserId
 	})
 
-	all := make([]*model.SearchNoticeItem, 0)
+	items := make([]*model.Notice, 0)
 	for _, notice := range groupNoticeList {
-		all = append(all, &model.SearchNoticeItem{
+		items = append(items, &model.Notice{
 			Id:           notice.Id,
 			CreatorId:    notice.CreatorId,
 			Title:        notice.Title,
@@ -173,26 +173,10 @@ func (s *sGroupNotice) List(ctx context.Context, params model.NoticeListReq) (*m
 			IsTop:        notice.IsTop,
 			IsConfirm:    notice.IsConfirm,
 			ConfirmUsers: notice.ConfirmUsers,
-			CreatedAt:    notice.CreatedAt,
-			UpdatedAt:    notice.UpdatedAt,
-			Avatar:       userMap[notice.CreatorId].Avatar,
 			Nickname:     userMap[notice.CreatorId].Nickname,
-		})
-	}
-
-	items := make([]*model.NoticeListResponse_Item, 0)
-	for i := 0; i < len(all); i++ {
-		items = append(items, &model.NoticeListResponse_Item{
-			Id:           all[i].Id,
-			Title:        all[i].Title,
-			Content:      all[i].Content,
-			IsTop:        all[i].IsTop,
-			IsConfirm:    all[i].IsConfirm,
-			ConfirmUsers: all[i].ConfirmUsers,
-			Avatar:       all[i].Avatar,
-			CreatorId:    all[i].CreatorId,
-			CreatedAt:    util.FormatDatetime(all[i].CreatedAt),
-			UpdatedAt:    util.FormatDatetime(all[i].UpdatedAt),
+			Avatar:       userMap[notice.CreatorId].Avatar,
+			CreatedAt:    util.FormatDatetime(notice.CreatedAt),
+			UpdatedAt:    util.FormatDatetime(notice.UpdatedAt),
 		})
 	}
 

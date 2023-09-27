@@ -15,7 +15,6 @@ import (
 	"github.com/iimeta/iim-client/internal/controller/emoticon"
 	"github.com/iimeta/iim-client/internal/controller/file"
 	"github.com/iimeta/iim-client/internal/controller/group"
-	"github.com/iimeta/iim-client/internal/controller/message"
 	"github.com/iimeta/iim-client/internal/controller/note"
 	"github.com/iimeta/iim-client/internal/controller/talk"
 	"github.com/iimeta/iim-client/internal/controller/user"
@@ -115,20 +114,6 @@ var (
 					g.Middleware(MiddlewareAuth)
 					g.Bind(
 						talk.NewV1(),
-					)
-				})
-
-				v1.Group("/talk/message", func(g *ghttp.RouterGroup) {
-					g.Middleware(MiddlewareAuth)
-					g.Bind(
-						message.NewV1(),
-					)
-				})
-
-				v1.Group("/talk/message_forward", func(g *ghttp.RouterGroup) {
-					g.Middleware(MiddlewareAuth)
-					g.Bind(
-						message.NewV1(),
 					)
 				})
 

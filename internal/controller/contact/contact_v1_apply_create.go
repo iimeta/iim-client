@@ -9,7 +9,7 @@ import (
 
 func (c *ControllerV1) ApplyCreate(ctx context.Context, req *v1.ApplyCreateReq) (res *v1.ApplyCreateRes, err error) {
 
-	err = service.ContactApply().ApplyCreate(ctx, req.ApplyCreateReq)
+	_, err = service.ContactApply().Create(ctx, req.ApplyCreateReq)
 
 	return
 }

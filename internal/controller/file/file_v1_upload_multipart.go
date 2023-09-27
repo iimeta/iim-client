@@ -9,7 +9,7 @@ import (
 
 func (c *ControllerV1) UploadMultipart(ctx context.Context, req *v1.UploadMultipartReq) (res *v1.UploadMultipartRes, err error) {
 
-	uploadMultipartRes, err := service.File().MultipartUpload(ctx, req.UploadMultipartReq)
+	uploadMultipartRes, err := service.File().MultipartSplitUpload(ctx, req.UploadMultipartReq)
 	if err != nil {
 		return nil, err
 	}

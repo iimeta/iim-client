@@ -9,11 +9,10 @@ import (
 
 func (c *ControllerV1) List(ctx context.Context, req *v1.ListReq) (res *v1.ListRes, err error) {
 
-	listRes, err := service.Emoticon().CollectList(ctx)
+	collectEmoticons, err := service.Emoticon().CollectList(ctx)
 
-	res = &v1.ListRes{
-		ListRes: listRes,
-	}
+	res = &v1.ListRes{}
+	res.CollectEmoticons = collectEmoticons
 
 	return
 }

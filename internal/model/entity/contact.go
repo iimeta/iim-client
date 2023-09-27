@@ -24,8 +24,8 @@ type ContactApply struct {
 type ContactGroup struct {
 	Id        string `bson:"_id"`        // ID
 	UserId    int    `bson:"user_id"`    // 用户ID
-	Name      string `bson:"remark"`     // 分组名称
-	Num       int    `bson:"num"`        // 成员总数
+	Name      string `bson:"name"`       // 分组名称
+	Count     int    `json:"count"`      // 成员总数
 	Sort      int    `bson:"sort"`       // 分组名称
 	CreatedAt int64  `bson:"created_at"` // 创建时间
 	UpdatedAt int64  `bson:"updated_at"` // 更新时间

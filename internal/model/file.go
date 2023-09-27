@@ -1,7 +1,5 @@
 package model
 
-import "mime/multipart"
-
 // 头像上传接口响应参数
 type UploadAvatarRes struct {
 	Avatar string `json:"avatar,omitempty"`
@@ -36,18 +34,4 @@ type UploadMultipartReq struct {
 type UploadMultipartRes struct {
 	UploadId string `json:"upload_id,omitempty"`
 	IsMerge  bool   `json:"is_merge,omitempty"`
-}
-
-type MultipartInitiateOpt struct {
-	UserId int
-	Name   string
-	Size   int64
-}
-
-type MultipartUploadOpt struct {
-	UserId     int
-	UploadId   string
-	SplitIndex int
-	SplitNum   int
-	File       *multipart.FileHeader
 }

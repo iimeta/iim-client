@@ -13,7 +13,7 @@ import (
 
 type (
 	IGroup interface {
-		IsAuth(ctx context.Context, opt *model.AuthOption) error
+		GroupAuth(ctx context.Context, auth *model.GroupAuth) error
 		// 创建群聊分组
 		Create(ctx context.Context, params model.GroupCreateReq) (*model.GroupCreateRes, error)
 		// 解散群聊

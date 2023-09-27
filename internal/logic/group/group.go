@@ -35,21 +35,21 @@ func New() service.IGroup {
 	}
 }
 
-func (s *sGroup) IsAuth(ctx context.Context, opt *model.AuthOption) error {
+func (s *sGroup) GroupAuth(ctx context.Context, auth *model.GroupAuth) error {
 
 	// 判断对方是否是自己
-	if opt.TalkType == consts.ChatPrivateMode && opt.ReceiverId == service.Session().GetUid(ctx) {
+	if auth.TalkType == consts.ChatPrivateMode && auth.ReceiverId == service.Session().GetUid(ctx) {
 		return nil
 	}
 
-	if opt.TalkType == consts.ChatPrivateMode {
-		if dao.Contact.IsFriend(ctx, opt.UserId, opt.ReceiverId, false) {
+	if auth.TalkType == consts.ChatPrivateMode {
+		if dao.Contact.IsFriend(ctx, auth.UserId, auth.ReceiverId, false) {
 			return nil
 		}
 		return errors.New("暂无权限发送消息")
 	}
 
-	groupInfo, err := dao.Group.FindGroupByGroupId(ctx, opt.ReceiverId)
+	groupInfo, err := dao.Group.FindGroupByGroupId(ctx, auth.ReceiverId)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -59,7 +59,7 @@ func (s *sGroup) IsAuth(ctx context.Context, opt *model.AuthOption) error {
 		return errors.New("此群聊已解散")
 	}
 
-	memberInfo, err := dao.GroupMember.FindByUserId(ctx, opt.ReceiverId, opt.UserId)
+	memberInfo, err := dao.GroupMember.FindByUserId(ctx, auth.ReceiverId, auth.UserId)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return errors.New("暂无权限发送消息")
@@ -77,7 +77,7 @@ func (s *sGroup) IsAuth(ctx context.Context, opt *model.AuthOption) error {
 		return errors.New("已被群主或管理员禁言")
 	}
 
-	if opt.IsVerifyGroupMute && groupInfo.IsMute == 1 && memberInfo.Leader == 0 {
+	if auth.IsVerifyGroupMute && groupInfo.IsMute == 1 && memberInfo.Leader == 0 {
 		return errors.New("此群聊已开启全员禁言")
 	}
 
@@ -360,10 +360,10 @@ func (s *sGroup) List(ctx context.Context) (*model.GroupListRes, error) {
 		talkSessionMap[session.ReceiverId] = session
 	}
 
-	items := make([]*model.GroupItem, 0)
+	items := make([]*model.Group, 0)
 	for _, group := range groupList {
 
-		groupItem := &model.GroupItem{
+		groupItem := &model.Group{
 			Id:        group.GroupId,
 			GroupName: group.GroupName,
 			Avatar:    group.Avatar,
@@ -384,7 +384,7 @@ func (s *sGroup) List(ctx context.Context) (*model.GroupListRes, error) {
 
 	resp := &model.GroupListRes{}
 	for _, item := range items {
-		resp.Items = append(resp.Items, &model.GroupListResponse_Item{
+		resp.Items = append(resp.Items, &model.Group{
 			Id:        item.Id,
 			GroupName: item.GroupName,
 			Avatar:    item.Avatar,
@@ -426,9 +426,9 @@ func (s *sGroup) Members(ctx context.Context, params model.GroupMemberListReq) (
 		userMap[user.UserId] = user
 	}
 
-	items := make([]*model.GroupMemberListResponse_Item, 0)
+	items := make([]*model.GroupMember, 0)
 	for _, member := range groupMemberList {
-		items = append(items, &model.GroupMemberListResponse_Item{
+		items = append(items, &model.GroupMember{
 			UserId:   member.UserId,
 			Leader:   member.Leader,
 			IsMute:   member.IsMute,
@@ -459,7 +459,7 @@ func (s *sGroup) OvertList(ctx context.Context, params model.GroupOvertListReq) 
 	}
 
 	resp := &model.GroupOvertListRes{}
-	resp.Items = make([]*model.GroupOvertListResponse_Item, 0)
+	resp.Items = make([]*model.GroupOvert, 0)
 
 	if len(list) == 0 {
 		return resp, nil
@@ -486,7 +486,7 @@ func (s *sGroup) OvertList(ctx context.Context, params model.GroupOvertListReq) 
 			break
 		}
 
-		resp.Items = append(resp.Items, &model.GroupOvertListResponse_Item{
+		resp.Items = append(resp.Items, &model.GroupOvert{
 			Id:        value.GroupId,
 			Type:      value.Type,
 			Name:      value.GroupName,

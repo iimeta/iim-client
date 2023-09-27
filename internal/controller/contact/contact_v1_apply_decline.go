@@ -9,7 +9,7 @@ import (
 
 func (c *ControllerV1) ApplyDecline(ctx context.Context, req *v1.ApplyDeclineReq) (res *v1.ApplyDeclineRes, err error) {
 
-	err = service.ContactApply().ApplyDecline(ctx, req.ApplyDeclineReq)
+	err = service.ContactApply().Decline(ctx, req.ApplyDeclineReq)
 
 	return
 }

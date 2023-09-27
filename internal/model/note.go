@@ -1,41 +1,5 @@
 package model
 
-import (
-	"database/sql"
-	"time"
-)
-
-type NoteListItem struct {
-	Id         string `json:"id"`          // 笔记ID
-	UserId     int    `json:"user_id"`     // 用户ID
-	ClassId    string `json:"class_id"`    // 分类ID
-	TagsId     string `json:"tags_id"`     // 笔记关联标签
-	Title      string `json:"title"`       // 笔记标题
-	Abstract   string `json:"abstract"`    // 笔记摘要
-	Image      string `json:"image"`       // 笔记首图
-	IsAsterisk int    `json:"is_asterisk"` // 是否星标笔记[0:否;1:是;]
-	Status     int    `json:"status"`      // 笔记状态[1:正常;2:已删除;]
-	CreatedAt  int64  `json:"created_at"`  // 创建时间
-	UpdatedAt  int64  `json:"updated_at"`  // 更新时间
-	ClassName  string `json:"class_name"`  // 分类名
-}
-
-type NoteDetailInfo struct {
-	Id         string `json:"id"`          // 笔记ID
-	UserId     int    `json:"user_id"`     // 用户ID
-	ClassId    string `json:"class_id"`    // 分类ID
-	TagsId     string `json:"tags_id"`     // 笔记关联标签
-	Title      string `json:"title"`       // 笔记标题
-	Abstract   string `json:"abstract"`    // 笔记摘要
-	Image      string `json:"image"`       // 笔记首图
-	IsAsterisk int    `json:"is_asterisk"` // 是否星标笔记(0:否  1:是)
-	Status     int    `json:"status"`      // 笔记状态 1:正常 2:已删除
-	CreatedAt  int64  `json:"created_at"`  // 添加时间
-	UpdatedAt  int64  `json:"updated_at"`  // 最后一次更新时间
-	MdContent  string `json:"md_content"`  // Markdown 内容
-	Content    string `json:"content"`     // Markdown 解析HTML内容
-}
-
 // 笔记编辑接口请求参数
 type NoteEditReq struct {
 	NoteId    string `json:"note_id,omitempty"`
@@ -82,8 +46,8 @@ type NoteListReq struct {
 
 // 笔记列表请求接口响应参数
 type NoteListRes struct {
-	Items    []*ListResponse_Item   `json:"items"`
-	Paginate *ListResponse_Paginate `json:"paginate"`
+	Items    []*Note   `json:"items"`
+	Paginate *Paginate `json:"paginate"`
 }
 
 // 笔记删除接口请求参数
@@ -136,39 +100,33 @@ type DetailResponse_File struct {
 	CreatedAt    string `json:"created_at,omitempty"`
 }
 
-type ListResponse_Item struct {
-	Id         string `json:"id,omitempty"`
-	ClassId    string `json:"class_id,omitempty"`
-	TagsId     string `json:"tags_id,omitempty"`
-	Title      string `json:"title,omitempty"`
-	ClassName  string `json:"class_name,omitempty"`
-	Image      string `json:"image,omitempty"`
-	IsAsterisk int    `json:"is_asterisk,omitempty"`
-	Status     int    `json:"status,omitempty"`
-	CreatedAt  string `json:"created_at,omitempty"`
-	UpdatedAt  string `json:"updated_at,omitempty"`
-	Abstract   string `json:"abstract,omitempty"`
-}
-
-type ListResponse_Paginate struct {
-	Page  int `json:"page,omitempty"`
-	Size  int `json:"size,omitempty"`
-	Total int `json:"total,omitempty"`
+type Note struct {
+	Id         string `json:"id"`          // 笔记ID
+	UserId     int    `json:"user_id"`     // 用户ID
+	ClassId    string `json:"class_id"`    // 分类ID
+	TagsId     string `json:"tags_id"`     // 笔记关联标签
+	Title      string `json:"title"`       // 笔记标题
+	Abstract   string `json:"abstract"`    // 笔记摘要
+	Image      string `json:"image"`       // 笔记首图
+	IsAsterisk int    `json:"is_asterisk"` // 是否星标笔记[0:否;1:是;]
+	Status     int    `json:"status"`      // 笔记状态[1:正常;2:已删除;]
+	CreatedAt  string `json:"created_at"`  // 创建时间
+	UpdatedAt  string `json:"updated_at"`  // 更新时间
+	MdContent  string `json:"md_content"`  // Markdown 内容
+	Content    string `json:"content"`     // Markdown 解析HTML内容
+	ClassName  string `json:"class_name"`  // 分类名
 }
 
 type Annex struct {
-	Id           string       `json:"id"`            // 文件ID
-	UserId       int          `json:"user_id"`       // 上传文件的用户ID
-	NoteId       string       `json:"note_id"`       // 笔记ID
-	Drive        int          `json:"drive"`         // 文件驱动[1:local;2:cos;]
-	Suffix       string       `json:"suffix"`        // 文件后缀名
-	Size         int          `json:"size"`          // 文件大小
-	Path         string       `json:"path"`          // 文件地址(相对地址)
-	OriginalName string       `json:"original_name"` // 原文件名
-	Status       int          `json:"status"`        // 附件状态[1:正常;2:已删除;]
-	CreatedAt    time.Time    `json:"created_at"`    // 创建时间
-	UpdatedAt    time.Time    `json:"updated_at"`    // 更新时间
-	DeletedAt    sql.NullTime `json:"deleted_at"`    // 删除时间
+	Id           string `json:"id"`            // 文件ID
+	UserId       int    `json:"user_id"`       // 上传文件的用户ID
+	NoteId       string `json:"note_id"`       // 笔记ID
+	Drive        int    `json:"drive"`         // 文件驱动[1:local;2:cos;]
+	Suffix       string `json:"suffix"`        // 文件后缀名
+	Size         int    `json:"size"`          // 文件大小
+	Path         string `json:"path"`          // 文件地址(相对地址)
+	OriginalName string `json:"original_name"` // 原文件名
+	Status       int    `json:"status"`        // 附件状态[1:正常;2:已删除;]
 }
 
 type RecoverAnnexItem struct {

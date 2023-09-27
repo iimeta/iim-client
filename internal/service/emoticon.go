@@ -14,15 +14,11 @@ import (
 type (
 	IEmoticon interface {
 		// 收藏列表
-		CollectList(ctx context.Context) (*model.ListRes, error)
+		CollectList(ctx context.Context) ([]*model.CollectEmoticon, error)
 		// 删除收藏表情包
 		DeleteCollect(ctx context.Context, params model.DeleteReq) error
 		// 上传自定义表情包
 		Upload(ctx context.Context) (*model.UploadRes, error)
-		// 系统表情包列表
-		SystemList(ctx context.Context) ([]*model.SysListResponse_Item, error)
-		// 添加或移除系统表情包
-		SetSystemEmoticon(ctx context.Context, params model.SetSystemReq) (*model.SetSystemRes, error)
 	}
 )
 

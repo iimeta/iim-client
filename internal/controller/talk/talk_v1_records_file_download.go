@@ -8,7 +8,7 @@ import (
 
 func (c *ControllerV1) RecordsFileDownload(ctx context.Context, req *v1.RecordsFileDownloadReq) (res *v1.RecordsFileDownloadRes, err error) {
 
-	err = service.Records().Download(ctx, req.RecordId)
+	err = service.TalkRecords().Download(ctx, req.RecordId)
 
 	return
 }

@@ -185,29 +185,16 @@ func (s *sGroupApply) List(ctx context.Context, params model.ApplyListReq) (*mod
 		return t.UserId
 	})
 
-	list := make([]*model.ApplyList, 0)
+	items := make([]*model.GroupApply, 0)
 	for _, apply := range groupApplyList {
-		list = append(list, &model.ApplyList{
+		items = append(items, &model.GroupApply{
 			Id:        apply.Id,
-			GroupId:   apply.GroupId,
 			UserId:    apply.UserId,
+			GroupId:   apply.GroupId,
 			Remark:    apply.Remark,
-			CreatedAt: apply.CreatedAt,
 			Nickname:  userMap[apply.UserId].Nickname,
 			Avatar:    userMap[apply.UserId].Avatar,
-		})
-	}
-
-	items := make([]*model.GroupApplyListResponse_Item, 0)
-	for _, item := range list {
-		items = append(items, &model.GroupApplyListResponse_Item{
-			Id:        item.Id,
-			UserId:    item.UserId,
-			GroupId:   item.GroupId,
-			Remark:    item.Remark,
-			Avatar:    item.Avatar,
-			Nickname:  item.Nickname,
-			CreatedAt: util.FormatDatetime(item.CreatedAt),
+			CreatedAt: util.FormatDatetime(apply.CreatedAt),
 		})
 	}
 
@@ -234,7 +221,7 @@ func (s *sGroupApply) All(ctx context.Context) (*model.ApplyAllRes, error) {
 		groupIds = append(groupIds, m.GroupId)
 	}
 
-	resp := &model.ApplyAllRes{Items: make([]*model.ApplyAllResponse_Item, 0)}
+	resp := &model.ApplyAllRes{Items: make([]*model.GroupApply, 0)}
 
 	if len(groupIds) == 0 {
 		return resp, nil
@@ -250,19 +237,6 @@ func (s *sGroupApply) All(ctx context.Context) (*model.ApplyAllRes, error) {
 		return t.UserId
 	})
 
-	list := make([]*model.ApplyList, 0)
-	for _, apply := range groupApplyList {
-		list = append(list, &model.ApplyList{
-			Id:        apply.Id,
-			GroupId:   apply.GroupId,
-			UserId:    apply.UserId,
-			Remark:    apply.Remark,
-			CreatedAt: apply.CreatedAt,
-			Nickname:  userMap[apply.UserId].Nickname,
-			Avatar:    userMap[apply.UserId].Avatar,
-		})
-	}
-
 	groups, err := dao.Group.Find(ctx, bson.M{"group_id": bson.M{"$in": groupIds}})
 	if err != nil {
 		logger.Error(ctx, err)
@@ -273,16 +247,16 @@ func (s *sGroupApply) All(ctx context.Context) (*model.ApplyAllRes, error) {
 		return t.GroupId
 	})
 
-	for _, item := range list {
-		resp.Items = append(resp.Items, &model.ApplyAllResponse_Item{
-			Id:        item.Id,
-			UserId:    item.UserId,
-			GroupName: groupMap[item.GroupId].GroupName,
-			GroupId:   item.GroupId,
-			Remark:    item.Remark,
-			Avatar:    item.Avatar,
-			Nickname:  item.Nickname,
-			CreatedAt: util.FormatDatetime(item.CreatedAt),
+	for _, apply := range groupApplyList {
+		resp.Items = append(resp.Items, &model.GroupApply{
+			Id:        apply.Id,
+			UserId:    apply.UserId,
+			GroupName: groupMap[apply.GroupId].GroupName,
+			GroupId:   apply.GroupId,
+			Remark:    apply.Remark,
+			Nickname:  userMap[apply.UserId].Nickname,
+			Avatar:    userMap[apply.UserId].Avatar,
+			CreatedAt: util.FormatDatetime(apply.CreatedAt),
 		})
 	}
 

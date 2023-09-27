@@ -19,7 +19,6 @@ require (
 	github.com/tjfoc/gmsm v1.4.1
 	go.mongodb.org/mongo-driver v1.12.1
 	golang.org/x/sync v0.3.0
-	google.golang.org/protobuf v1.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
 

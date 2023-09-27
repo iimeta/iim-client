@@ -6,45 +6,45 @@ import (
 )
 
 // 会话面板记录接口请求参数
-type GetRecordsReq struct {
-	g.Meta `path:"/records" tags:"talk" method:"get" summary:"会话面板记录接口"`
-	model.GetTalkRecordsReq
+type RecordsReq struct {
+	g.Meta `path:"/records" tags:"talk_records" method:"get" summary:"会话面板记录接口"`
+	model.TalkRecordsReq
 }
 
 // 会话面板记录接口响应参数
-type GetRecordsRes struct {
+type RecordsRes struct {
 	g.Meta `mime:"application/json" example:"json"`
-	*model.GetTalkRecordsRes
+	*model.TalkRecordsRes
 }
 
 // 历史会话记录接口请求参数
-type SearchHistoryRecordsReq struct {
-	g.Meta `path:"/records/history" tags:"talk" method:"get" summary:"历史会话记录接口"`
-	model.GetTalkRecordsReq
+type RecordsSearchHistoryReq struct {
+	g.Meta `path:"/records/history" tags:"talk_records" method:"get" summary:"历史会话记录接口"`
+	model.TalkRecordsReq
 }
 
 // 历史会话记录接口响应参数
-type SearchHistoryRecordsRes struct {
+type RecordsSearchHistoryRes struct {
 	g.Meta `mime:"application/json" example:"json"`
-	*model.GetTalkRecordsRes
+	*model.TalkRecordsRes
 }
 
 // 会话转发记录接口请求参数
-type GetForwardRecordsReq struct {
-	g.Meta `path:"/records/forward" tags:"talk" method:"get" summary:"会话转发记录接口"`
-	model.GetForwardTalkRecordReq
+type RecordsForwardReq struct {
+	g.Meta `path:"/records/forward" tags:"talk_records" method:"get" summary:"会话转发记录接口"`
+	model.RecordsForwardReq
 }
 
 // 会话转发记录接口响应参数
-type GetForwardRecordsRes struct {
+type RecordsForwardRes struct {
 	g.Meta `mime:"application/json" example:"json"`
-	*model.GetTalkRecordsRes
+	*model.TalkRecordsRes
 }
 
 // 会话文件下载接口请求参数
 type RecordsFileDownloadReq struct {
-	g.Meta `path:"/records/file/download" tags:"talk" method:"get" summary:"会话文件下载接口"`
-	model.DownloadChatFileReq
+	g.Meta `path:"/records/file/download" tags:"talk_records" method:"get" summary:"会话文件下载接口"`
+	model.RecordsFileDownloadReq
 }
 
 // 会话文件下载接口响应参数

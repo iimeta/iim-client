@@ -52,11 +52,12 @@ func (s *sNote) List(ctx context.Context, params model.NoteListReq) (*model.Note
 		return t.Id
 	})
 
-	items := make([]*model.NoteListItem, 0)
+	items := make([]*model.Note, 0)
 	for _, note := range noteList {
 
-		noteListItem := &model.NoteListItem{
+		noteListItem := &model.Note{
 			Id:         note.Id,
+			ClassId:    note.ClassId,
 			UserId:     note.UserId,
 			TagsId:     note.TagsId,
 			Title:      note.Title,
@@ -64,8 +65,8 @@ func (s *sNote) List(ctx context.Context, params model.NoteListReq) (*model.Note
 			Image:      note.Image,
 			IsAsterisk: note.IsAsterisk,
 			Status:     note.Status,
-			CreatedAt:  note.CreatedAt,
-			UpdatedAt:  note.UpdatedAt,
+			CreatedAt:  util.FormatDatetime(note.CreatedAt),
+			UpdatedAt:  util.FormatDatetime(note.UpdatedAt),
 		}
 
 		if noteClassMap[note.ClassId] != nil {
@@ -76,29 +77,12 @@ func (s *sNote) List(ctx context.Context, params model.NoteListReq) (*model.Note
 		items = append(items, noteListItem)
 	}
 
-	list := make([]*model.ListResponse_Item, 0)
-	for _, item := range items {
-		list = append(list, &model.ListResponse_Item{
-			Id:         item.Id,
-			ClassId:    item.ClassId,
-			TagsId:     item.TagsId,
-			Title:      item.Title,
-			ClassName:  item.ClassName,
-			Image:      item.Image,
-			IsAsterisk: item.IsAsterisk,
-			Status:     item.Status,
-			CreatedAt:  util.FormatDatetime(item.CreatedAt),
-			UpdatedAt:  util.FormatDatetime(item.UpdatedAt),
-			Abstract:   item.Abstract,
-		})
-	}
-
 	return &model.NoteListRes{
-		Items: list,
-		Paginate: &model.ListResponse_Paginate{
+		Items: items,
+		Paginate: &model.Paginate{
 			Page:  1,
 			Size:  1000,
-			Total: len(list),
+			Total: len(items),
 		},
 	}, nil
 }
@@ -114,24 +98,8 @@ func (s *sNote) Detail(ctx context.Context, params model.NoteDetailReq) (*model.
 		return nil, errors.New("笔记不存在")
 	}
 
-	detail := &model.NoteDetailInfo{
-		Id:         note.Id,
-		UserId:     note.UserId,
-		ClassId:    note.ClassId,
-		TagsId:     note.TagsId,
-		Title:      note.Title,
-		Abstract:   note.Abstract,
-		Image:      note.Image,
-		IsAsterisk: note.IsAsterisk,
-		Status:     note.Status,
-		CreatedAt:  note.CreatedAt,
-		UpdatedAt:  note.UpdatedAt,
-		MdContent:  html.UnescapeString(noteDetail.MdContent),
-		Content:    html.UnescapeString(noteDetail.Content),
-	}
-
 	tags := make([]*model.DetailResponse_Tag, 0)
-	for _, id := range gstr.Split(detail.TagsId, ",") {
+	for _, id := range gstr.Split(note.TagsId, ",") {
 		tags = append(tags, &model.DetailResponse_Tag{Id: id})
 	}
 
@@ -150,14 +118,14 @@ func (s *sNote) Detail(ctx context.Context, params model.NoteDetailReq) (*model.
 	}
 
 	return &model.NoteDetailRes{
-		Id:         detail.Id,
-		ClassId:    detail.ClassId,
-		Title:      detail.Title,
-		Content:    detail.Content,
-		MdContent:  detail.MdContent,
-		IsAsterisk: detail.IsAsterisk,
-		CreatedAt:  util.FormatDatetime(detail.CreatedAt),
-		UpdatedAt:  util.FormatDatetime(detail.UpdatedAt),
+		Id:         note.Id,
+		ClassId:    note.ClassId,
+		Title:      note.Title,
+		Content:    html.UnescapeString(noteDetail.Content),
+		MdContent:  html.UnescapeString(noteDetail.MdContent),
+		IsAsterisk: note.IsAsterisk,
+		CreatedAt:  util.FormatDatetime(note.CreatedAt),
+		UpdatedAt:  util.FormatDatetime(note.UpdatedAt),
 		Tags:       tags,
 		Files:      files,
 	}, nil

@@ -19,8 +19,8 @@ type (
 		Image(ctx context.Context) (*model.UploadImageRes, error)
 		// 批量上传初始化
 		InitiateMultipart(ctx context.Context, params model.UploadInitiateMultipartReq) (*model.UploadInitiateMultipartRes, error)
-		// MultipartUpload 批量分片上传
-		MultipartUpload(ctx context.Context, params model.UploadMultipartReq) (*model.UploadMultipartRes, error)
+		// 批量分片上传
+		MultipartSplitUpload(ctx context.Context, params model.UploadMultipartReq) (*model.UploadMultipartRes, error)
 	}
 )
 

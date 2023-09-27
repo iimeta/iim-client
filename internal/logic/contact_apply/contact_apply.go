@@ -29,17 +29,70 @@ func New() service.IContactApply {
 	return &sContactApply{}
 }
 
+// 好友申请列表
+func (s *sContactApply) List(ctx context.Context) ([]*model.Apply, error) {
+
+	uid := service.Session().GetUid(ctx)
+
+	contactApplyList := make([]*entity.ContactApply, 0)
+	if err := dao.Find(ctx, dao.Contact.Database, do.CONTACT_APPLY_COLLECTION, bson.M{"friend_id": uid}, &contactApplyList); err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	userIds := make([]int, 0)
+	for _, contactApply := range contactApplyList {
+		userIds = append(userIds, contactApply.UserId)
+	}
+
+	userList, err := dao.User.FindUserListByUserIds(ctx, userIds)
+	if err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	userMap := make(map[int]*entity.User)
+	for _, user := range userList {
+		userMap[user.UserId] = user
+	}
+
+	items := make([]*model.Apply, 0)
+	for _, contactApply := range contactApplyList {
+
+		item := &model.Apply{
+			Id:        contactApply.Id,
+			UserId:    contactApply.UserId,
+			FriendId:  contactApply.FriendId,
+			Remark:    contactApply.Remark,
+			Nickname:  contactApply.Nickname,
+			Avatar:    contactApply.Avatar,
+			CreatedAt: gtime.NewFromTimeStamp(contactApply.CreatedAt).Format(time.DateTime),
+		}
+
+		items = append(items, item)
+	}
+
+	s.ClearApplyUnreadNum(ctx, service.Session().GetUid(ctx))
+
+	return items, nil
+}
+
 // 创建好友申请
-func (s *sContactApply) Create(ctx context.Context, apply *model.Apply) (string, error) {
+func (s *sContactApply) Create(ctx context.Context, params model.ApplyCreateReq) (string, error) {
+
+	uid := service.Session().GetUid(ctx)
+	if dao.Contact.IsFriend(ctx, uid, params.FriendId, false) {
+		return "", nil
+	}
 
 	user := service.Session().GetUser(ctx)
 
 	contactApply := do.ContactApply{
-		UserId:   apply.UserId,
+		UserId:   uid,
 		Nickname: user.Nickname,
 		Avatar:   user.Avatar,
-		FriendId: apply.FriendId,
-		Remark:   apply.Remarks,
+		FriendId: params.FriendId,
+		Remark:   params.Remark,
 	}
 
 	id, err := dao.Insert(ctx, dao.Contact.Database, contactApply)
@@ -57,7 +110,7 @@ func (s *sContactApply) Create(ctx context.Context, apply *model.Apply) (string,
 	}
 
 	pipe := redis.Pipeline(ctx)
-	pipe.Incr(ctx, fmt.Sprintf("im:contact:apply:%d", apply.FriendId))
+	pipe.Incr(ctx, fmt.Sprintf("im:contact:apply:%d", params.FriendId))
 	pipe.Publish(ctx, consts.ImTopicChat, gjson.MustEncodeString(body))
 	_, _ = redis.Pipelined(ctx, pipe)
 
@@ -65,10 +118,12 @@ func (s *sContactApply) Create(ctx context.Context, apply *model.Apply) (string,
 }
 
 // 同意好友申请
-func (s *sContactApply) Accept(ctx context.Context, apply *model.Apply) (*model.Apply, error) {
+func (s *sContactApply) Accept(ctx context.Context, params model.ApplyAcceptReq) (*model.ContactApply, error) {
+
+	uid := service.Session().GetUid(ctx)
 
 	applyInfo := new(entity.ContactApply)
-	if err := dao.FindOne(ctx, dao.Contact.Database, do.CONTACT_APPLY_COLLECTION, bson.M{"_id": apply.ApplyId, "friend_id": apply.UserId}, &applyInfo); err != nil {
+	if err := dao.FindOne(ctx, dao.Contact.Database, do.CONTACT_APPLY_COLLECTION, bson.M{"_id": params.ApplyId, "friend_id": uid}, &applyInfo); err != nil {
 		logger.Error(ctx, err)
 		return nil, err
 	}
@@ -113,7 +168,7 @@ func (s *sContactApply) Accept(ctx context.Context, apply *model.Apply) (*model.
 		return nil, err
 	}
 
-	if err = addFriendFunc(applyInfo.FriendId, applyInfo.UserId, apply.Remarks); err != nil {
+	if err = addFriendFunc(applyInfo.FriendId, applyInfo.UserId, params.Remark); err != nil {
 		logger.Error(ctx, err)
 		return nil, err
 	}
@@ -123,16 +178,35 @@ func (s *sContactApply) Accept(ctx context.Context, apply *model.Apply) (*model.
 		return nil, err
 	}
 
-	return &model.Apply{
+	if err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	err = service.TalkMessage().SendSystemText(ctx, applyInfo.UserId, &model.TextMessageReq{
+		Content: "你们已成为好友, 可以开始聊天咯",
+		Receiver: &model.MessageReceiver{
+			TalkType:   consts.ChatPrivateMode,
+			ReceiverId: applyInfo.FriendId,
+		},
+	})
+
+	if err != nil {
+		logger.Error(ctx, "ContactApply Accept Err", err)
+	}
+
+	return &model.ContactApply{
 		UserId:   applyInfo.UserId,
 		FriendId: applyInfo.FriendId,
 	}, nil
 }
 
 // 拒绝好友申请
-func (s *sContactApply) Decline(ctx context.Context, apply *model.Apply) error {
+func (s *sContactApply) Decline(ctx context.Context, params model.ApplyDeclineReq) error {
 
-	if _, err := dao.DeleteOne(ctx, dao.Contact.Database, do.CONTACT_APPLY_COLLECTION, bson.M{"_id": apply.ApplyId, "friend_id": apply.UserId}); err != nil {
+	uid := service.Session().GetUid(ctx)
+
+	if _, err := dao.DeleteOne(ctx, dao.Contact.Database, do.CONTACT_APPLY_COLLECTION, bson.M{"_id": params.ApplyId, "friend_id": uid}); err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
@@ -140,7 +214,7 @@ func (s *sContactApply) Decline(ctx context.Context, apply *model.Apply) error {
 	body := map[string]any{
 		"event": consts.SubEventContactApply,
 		"data": gjson.MustEncodeString(map[string]any{
-			"apply_id": apply.ApplyId,
+			"apply_id": params.ApplyId,
 			"type":     2,
 		}),
 	}
@@ -153,160 +227,19 @@ func (s *sContactApply) Decline(ctx context.Context, apply *model.Apply) error {
 	return nil
 }
 
-// 好友申请列表
-func (s *sContactApply) List(ctx context.Context, uid int) ([]*model.ApplyItem, error) {
+// 获取好友申请未读数
+func (s *sContactApply) ApplyUnreadNum(ctx context.Context) (int, error) {
 
-	contactApplyList := make([]*entity.ContactApply, 0)
-	if err := dao.Find(ctx, dao.Contact.Database, do.CONTACT_APPLY_COLLECTION, bson.M{"friend_id": uid}, &contactApplyList); err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	userIds := make([]int, 0)
-	for _, contactApply := range contactApplyList {
-		userIds = append(userIds, contactApply.UserId)
-	}
-
-	userList, err := dao.User.FindUserListByUserIds(ctx, userIds)
+	num, err := redis.GetInt(ctx, fmt.Sprintf("im:contact:apply:%d", service.Session().GetUid(ctx)))
 	if err != nil {
 		logger.Error(ctx, err)
-		return nil, err
+		return 0, err
 	}
 
-	userMap := make(map[int]*entity.User)
-	for _, user := range userList {
-		userMap[user.UserId] = user
-	}
-
-	items := make([]*model.ApplyItem, 0)
-	for _, contactApply := range contactApplyList {
-
-		item := &model.ApplyItem{
-			Id:        contactApply.Id,
-			UserId:    contactApply.UserId,
-			FriendId:  contactApply.FriendId,
-			Remark:    contactApply.Remark,
-			Nickname:  contactApply.Nickname,
-			Avatar:    contactApply.Avatar,
-			CreatedAt: contactApply.CreatedAt,
-		}
-
-		items = append(items, item)
-	}
-
-	return items, nil
-}
-
-// 获取申请未读数
-func (s *sContactApply) GetApplyUnreadNum(ctx context.Context, uid int) int {
-
-	num, err := redis.GetInt(ctx, fmt.Sprintf("im:contact:apply:%d", uid))
-	if err != nil {
-		logger.Error(ctx, err)
-		return 0
-	}
-
-	return num
+	return num, nil
 }
 
 // 清除申请未读数
 func (s *sContactApply) ClearApplyUnreadNum(ctx context.Context, uid int) {
 	_, _ = redis.Del(ctx, fmt.Sprintf("im:contact:apply:%d", uid))
-}
-
-// 获取好友申请未读数
-func (s *sContactApply) ApplyUnreadNum(ctx context.Context) (int, error) {
-	return s.GetApplyUnreadNum(ctx, service.Session().GetUid(ctx)), nil
-}
-
-// 创建好友申请
-func (s *sContactApply) ApplyCreate(ctx context.Context, params model.ApplyCreateReq) error {
-
-	uid := service.Session().GetUid(ctx)
-	if dao.Contact.IsFriend(ctx, uid, params.FriendId, false) {
-		return nil
-	}
-
-	if _, err := s.Create(ctx, &model.Apply{
-		UserId:   service.Session().GetUid(ctx),
-		Remarks:  params.Remark,
-		FriendId: params.FriendId,
-	}); err != nil {
-		logger.Error(ctx, err)
-		return err
-	}
-
-	return nil
-}
-
-// 同意好友添加申请
-func (s *sContactApply) ApplyAccept(ctx context.Context, params model.ApplyAcceptReq) error {
-
-	uid := service.Session().GetUid(ctx)
-	applyInfo, err := s.Accept(ctx, &model.Apply{
-		Remarks: params.Remark,
-		ApplyId: params.ApplyId,
-		UserId:  uid,
-	})
-
-	if err != nil {
-		logger.Error(ctx, err)
-		return err
-	}
-
-	err = service.TalkMessage().SendSystemText(ctx, applyInfo.UserId, &model.TextMessageReq{
-		Content: "你们已成为好友, 可以开始聊天咯",
-		Receiver: &model.MessageReceiver{
-			TalkType:   consts.ChatPrivateMode,
-			ReceiverId: applyInfo.FriendId,
-		},
-	})
-
-	if err != nil {
-		logger.Error(ctx, "Apply Accept Err", err.Error())
-	}
-
-	return nil
-}
-
-// 拒绝好友添加申请
-func (s *sContactApply) ApplyDecline(ctx context.Context, params model.ApplyDeclineReq) error {
-
-	if err := s.Decline(ctx, &model.Apply{
-		UserId:  service.Session().GetUid(ctx),
-		Remarks: params.Remark,
-		ApplyId: params.ApplyId,
-	}); err != nil {
-		logger.Error(ctx, err)
-		return err
-	}
-
-	return nil
-}
-
-// 获取好友申请列表
-func (s *sContactApply) ApplyList(ctx context.Context) (*model.ApplyListRes, error) {
-
-	list, err := s.List(ctx, service.Session().GetUid(ctx))
-	if err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	items := make([]*model.ApplyListResponse_Item, 0, len(list))
-	for _, item := range list {
-		items = append(items, &model.ApplyListResponse_Item{
-			Id:        item.Id,
-			UserId:    item.UserId,
-			FriendId:  item.FriendId,
-			Remark:    item.Remark,
-			Nickname:  item.Nickname,
-			Avatar:    item.Avatar,
-			CreatedAt: gtime.NewFromTimeStamp(item.CreatedAt).Format(time.DateTime),
-		})
-	}
-
-	s.ClearApplyUnreadNum(ctx, service.Session().GetUid(ctx))
-
-	return &model.ApplyListRes{Items: items}, nil
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/iimeta/iim-client/utility/logger"
 	"github.com/iimeta/iim-client/utility/middleware"
 	"github.com/iimeta/iim-client/utility/redis"
+	"github.com/iimeta/iim-client/utility/util"
 	"strconv"
 	"time"
 )
@@ -43,7 +44,7 @@ func (s *sAuth) Login(ctx context.Context, params model.LoginReq) (*model.LoginR
 	if loginRobot != nil {
 
 		ip := g.RequestFromCtx(ctx).GetClientIp()
-		address, _ := service.IpAddress().FindAddress(ctx, ip)
+		address, _ := util.FindAddress(ctx, ip)
 
 		_, _ = dao.TalkSession.Create(ctx, &do.TalkSessionCreate{
 			UserId:     user.UserId,
@@ -100,20 +101,24 @@ func (s *sAuth) Register(ctx context.Context, params model.RegisterReq) error {
 
 		for _, uid := range value.Ints() {
 
-			applyId, err := service.ContactApply().Create(ctx, &model.Apply{
-				UserId:   user.UserId,
-				Remarks:  user.Email,
-				FriendId: uid,
+			applyId, err := service.ContactApply().Create(ctx, model.ApplyCreateReq{
+				ContactApply: model.ContactApply{
+					UserId:   user.UserId,
+					Remark:   user.Email,
+					FriendId: uid,
+				},
 			})
 
 			if err != nil {
 				logger.Error(ctx, err)
 			} else {
 
-				applyInfo, err := service.ContactApply().Accept(ctx, &model.Apply{
-					Remarks: user.Nickname,
-					ApplyId: applyId,
-					UserId:  uid,
+				applyInfo, err := service.ContactApply().Accept(ctx, model.ApplyAcceptReq{
+					ContactApply: model.ContactApply{
+						Remark:  user.Nickname,
+						ApplyId: applyId,
+						UserId:  uid,
+					},
 				})
 
 				if err != nil {

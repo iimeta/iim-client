@@ -14,8 +14,6 @@ import (
 type (
 	IContactGroup interface {
 		Delete(ctx context.Context, id int, uid int) error
-		// 用户好友分组列表
-		GetUserGroup(ctx context.Context, uid int) ([]*model.Group, error)
 		// 好友分组列表
 		List(ctx context.Context) (*model.ContactGroupListRes, error)
 		Save(ctx context.Context, params model.GroupSaveReq) error

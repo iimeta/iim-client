@@ -9,7 +9,7 @@ import (
 
 func (c *ControllerV1) ApplyAccept(ctx context.Context, req *v1.ApplyAcceptReq) (res *v1.ApplyAcceptRes, err error) {
 
-	err = service.ContactApply().ApplyAccept(ctx, req.ApplyAcceptReq)
+	_, err = service.ContactApply().Accept(ctx, req.ApplyAcceptReq)
 
 	return
 }

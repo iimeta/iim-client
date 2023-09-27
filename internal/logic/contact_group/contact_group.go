@@ -43,37 +43,12 @@ func (s *sContactGroup) Delete(ctx context.Context, id int, uid int) error {
 	return nil
 }
 
-// 用户好友分组列表
-func (s *sContactGroup) GetUserGroup(ctx context.Context, uid int) ([]*model.Group, error) {
-
-	contactGroupList, err := dao.ContactGroup.FindContactGroupList(ctx, uid)
-	if err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	items := make([]*model.Group, 0)
-	for _, contactGroup := range contactGroupList {
-		items = append(items, &model.Group{
-			Id:        contactGroup.Id,
-			UserId:    contactGroup.UserId,
-			Name:      contactGroup.Name,
-			Num:       contactGroup.Num,
-			Sort:      contactGroup.Sort,
-			CreatedAt: contactGroup.CreatedAt,
-			UpdatedAt: contactGroup.UpdatedAt,
-		})
-	}
-
-	return items, nil
-}
-
 // 好友分组列表
 func (s *sContactGroup) List(ctx context.Context) (*model.ContactGroupListRes, error) {
 
 	uid := service.Session().GetUid(ctx)
 
-	items := make([]*model.ContactGroupListResponse_Item, 0)
+	items := make([]*model.ContactGroup, 0)
 
 	count, err := dao.Contact.CountDocuments(ctx, bson.M{"user_id": uid, "status": 1})
 	if err != nil {
@@ -81,22 +56,22 @@ func (s *sContactGroup) List(ctx context.Context) (*model.ContactGroupListRes, e
 		return nil, err
 	}
 
-	items = append(items, &model.ContactGroupListResponse_Item{
+	items = append(items, &model.ContactGroup{
 		Name:  "全部",
 		Count: int(count),
 	})
 
-	group, err := s.GetUserGroup(ctx, uid)
+	contactGroupList, err := dao.ContactGroup.FindContactGroupList(ctx, uid)
 	if err != nil {
 		logger.Error(ctx, err)
 		return nil, err
 	}
 
-	for _, v := range group {
-		items = append(items, &model.ContactGroupListResponse_Item{
+	for _, v := range contactGroupList {
+		items = append(items, &model.ContactGroup{
 			Id:    v.Id,
 			Name:  v.Name,
-			Count: v.Num,
+			Count: v.Count,
 			Sort:  v.Sort,
 		})
 	}

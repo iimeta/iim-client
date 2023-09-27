@@ -19,8 +19,14 @@ type (
 		SearchTalkRecords()
 		GetTalkRecord(ctx context.Context, recordId int) (*model.TalkRecordsItem, error)
 		// 获取转发消息记录
-		GetForwardRecords(ctx context.Context, uid, recordId int) ([]*model.TalkRecordsItem, error)
+		GetForwardRecords(ctx context.Context, params model.RecordsForwardReq) ([]*model.TalkRecordsItem, error)
 		HandleTalkRecords(ctx context.Context, items []*model.TalkRecordsItem) ([]*model.TalkRecordsItem, error)
+		// 获取会话记录
+		GetRecords(ctx context.Context, params model.TalkRecordsReq) (*model.TalkRecordsRes, error)
+		// 查询下会话记录
+		SearchHistoryRecords(ctx context.Context, params model.TalkRecordsReq) (*model.TalkRecordsRes, error)
+		// 聊天文件下载
+		Download(ctx context.Context, recordId int) error
 	}
 )
 
