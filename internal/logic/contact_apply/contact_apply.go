@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gogf/gf/v2/encoding/gjson"
-	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/dao"
 	"github.com/iimeta/iim-client/internal/model"
@@ -14,9 +13,9 @@ import (
 	"github.com/iimeta/iim-client/internal/service"
 	"github.com/iimeta/iim-client/utility/logger"
 	"github.com/iimeta/iim-client/utility/redis"
+	"github.com/iimeta/iim-client/utility/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"time"
 )
 
 type sContactApply struct{}
@@ -66,7 +65,7 @@ func (s *sContactApply) List(ctx context.Context) ([]*model.Apply, error) {
 			Remark:    contactApply.Remark,
 			Nickname:  contactApply.Nickname,
 			Avatar:    contactApply.Avatar,
-			CreatedAt: gtime.NewFromTimeStamp(contactApply.CreatedAt).Format(time.DateTime),
+			CreatedAt: util.FormatDatetime(contactApply.CreatedAt),
 		}
 
 		items = append(items, item)
@@ -185,7 +184,7 @@ func (s *sContactApply) Accept(ctx context.Context, params model.ApplyAcceptReq)
 
 	err = service.TalkMessage().SendSystemText(ctx, applyInfo.UserId, &model.TextMessageReq{
 		Content: "你们已成为好友, 可以开始聊天咯",
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   consts.ChatPrivateMode,
 			ReceiverId: applyInfo.FriendId,
 		},

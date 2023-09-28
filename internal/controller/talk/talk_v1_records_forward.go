@@ -2,6 +2,7 @@ package talk
 
 import (
 	"context"
+	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/service"
 
 	"github.com/iimeta/iim-client/api/talk/v1"
@@ -14,9 +15,11 @@ func (c *ControllerV1) RecordsForward(ctx context.Context, req *v1.RecordsForwar
 		return nil, err
 	}
 
-	res = &v1.RecordsForwardRes{}
-
-	res.Items = records
+	res = &v1.RecordsForwardRes{
+		TalkRecordsRes: &model.TalkRecordsRes{
+			Items: records,
+		},
+	}
 
 	return
 }

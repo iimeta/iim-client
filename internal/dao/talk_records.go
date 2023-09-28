@@ -33,7 +33,7 @@ func NewTalkRecordsDao(database ...string) *TalkRecordsDao {
 }
 
 // 删除消息记录
-func (d *TalkRecordsDao) DeleteRecordList(ctx context.Context, remove *do.RemoveRecord) error {
+func (d *TalkRecordsDao) DeleteRecord(ctx context.Context, remove *do.RemoveRecord) error {
 
 	var err error
 	ids := util.Unique(util.ParseIds(remove.RecordIds))

@@ -13,6 +13,10 @@ redis:
     minIdle: 2
     maxIdle: 5
     maxActive: 100
+    waitTimeout: 60
+    dialTimeout: 60
+    readTimeout: 60
+    writeTimeout: 60
 #  slave:
 #    address: 127.0.0.1:6379
 #    db: 1
@@ -20,6 +24,10 @@ redis:
 #    minIdle: 2
 #    maxIdle: 5
 #    maxActive: 100
+#    waitTimeout: 60
+#    dialTimeout: 60
+#    readTimeout: 60
+#    writeTimeout: 60
 
 mongodb:
   uri: mongodb://admin:iim666!@127.0.0.1:27017/?authSource=admin

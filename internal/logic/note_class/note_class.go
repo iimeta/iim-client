@@ -34,14 +34,14 @@ func (s *sNoteClass) List(ctx context.Context) (*model.ClassListRes, error) {
 		return nil, err
 	}
 
-	list := make([]*model.ClassItem, 0)
-	list = append(list, &model.ClassItem{
+	items := make([]*model.NoteClass, 0)
+	items = append(items, &model.NoteClass{
 		ClassName: "默认分类",
 	})
 
 	for _, noteClass := range noteClassList {
 
-		classItem := &model.ClassItem{
+		classItem := &model.NoteClass{
 			Id:        noteClass.Id,
 			ClassName: noteClass.ClassName,
 			IsDefault: noteClass.IsDefault,
@@ -51,17 +51,7 @@ func (s *sNoteClass) List(ctx context.Context) (*model.ClassListRes, error) {
 			classItem.Count = num
 		}
 
-		list = append(list, classItem)
-	}
-
-	items := make([]*model.ClassListResponse_Item, 0, len(list))
-	for _, item := range list {
-		items = append(items, &model.ClassListResponse_Item{
-			Id:        item.Id,
-			ClassName: item.ClassName,
-			IsDefault: item.IsDefault,
-			Count:     item.Count,
-		})
+		items = append(items, classItem)
 	}
 
 	return &model.ClassListRes{

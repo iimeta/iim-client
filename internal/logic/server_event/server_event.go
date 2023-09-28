@@ -200,7 +200,7 @@ func (s *sServerEvent) onTextMessage(ctx context.Context, client socket.IClient,
 
 	err := service.TalkMessage().SendText(ctx, client.Uid(), &model.TextMessageReq{
 		Content: in.Content.Content,
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   in.Content.Receiver.TalkType,
 			ReceiverId: in.Content.Receiver.ReceiverId,
 		},
@@ -236,7 +236,7 @@ func (s *sServerEvent) onCodeMessage(ctx context.Context, client socket.IClient,
 	err := service.TalkMessage().SendCode(ctx, client.Uid(), &model.CodeMessageReq{
 		Lang: m.Content.Lang,
 		Code: m.Content.Code,
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   m.Content.Receiver.TalkType,
 			ReceiverId: m.Content.Receiver.ReceiverId,
 		},

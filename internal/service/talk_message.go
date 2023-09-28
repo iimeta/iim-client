@@ -42,7 +42,7 @@ type (
 		// 图文消息
 		SendMixedMessage(ctx context.Context, uid int, req *model.MixedMessageReq) error
 		// 推送其它消息
-		SendSysOther(ctx context.Context, data *model.TalkRecords) error
+		SendSysOther(ctx context.Context, data *model.TalkRecord) error
 		// 撤回消息
 		Revoke(ctx context.Context, params model.MessageRevokeReq) error
 		// 投票处理
@@ -63,7 +63,7 @@ type (
 		Forward(ctx context.Context, params model.ForwardMessageReq) error
 		// 发送用户名片消息
 		Card(ctx context.Context, params model.CardMessageReq) error
-		// 删除聊天记录
+		// 删除消息记录
 		Delete(ctx context.Context, params model.MessageDeleteReq) error
 		// 发送位置消息
 		Location(ctx context.Context, params model.LocationMessageReq) error
@@ -73,8 +73,6 @@ type (
 		MultiMergeForward(ctx context.Context, uid int, params *model.ForwardMessageReq) ([]*model.ForwardRecord, error)
 		// 批量逐条转发
 		MultiSplitForward(ctx context.Context, uid int, params *model.ForwardMessageReq) ([]*model.ForwardRecord, error)
-		// 删除消息记录
-		DeleteRecordList(ctx context.Context, opt *model.RemoveRecordListOpt) error
 		// 收藏表情包
 		Collect(ctx context.Context, params model.MessageCollectReq) error
 		// 发送消息接口

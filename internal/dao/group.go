@@ -98,9 +98,9 @@ func (d *GroupDao) Create(ctx context.Context, create *do.GroupCreate) (int, err
 		return 0, err
 	}
 
-	addMembers := make([]*model.TalkRecordExtraGroupMembers, 0, len(create.MemberIds))
+	addMembers := make([]*model.TalkGroupMember, 0, len(create.MemberIds))
 	for _, user := range userList {
-		addMembers = append(addMembers, &model.TalkRecordExtraGroupMembers{
+		addMembers = append(addMembers, &model.TalkGroupMember{
 			UserId:   user.UserId,
 			Nickname: user.Nickname,
 		})
@@ -151,7 +151,7 @@ func (d *GroupDao) Create(ctx context.Context, create *do.GroupCreate) (int, err
 		ReceiverId: group.GroupId,
 		MsgType:    consts.ChatMsgSysGroupCreate,
 		Sequence:   Sequence.Get(ctx, 0, group.GroupId),
-		Extra: gjson.MustEncodeString(model.TalkRecordExtraGroupCreate{
+		Extra: gjson.MustEncodeString(model.TalkRecordGroupCreate{
 			OwnerId:   user.UserId,
 			OwnerName: user.Nickname,
 			Members:   addMembers,
@@ -217,7 +217,7 @@ func (d *GroupDao) Secede(ctx context.Context, groupId int, uid int) error {
 	groupMember, err := GroupMember.FindByUserId(ctx, groupId, uid)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return errors.New("数据不存在")
+			return errors.New("群聊不存在或已被解散")
 		}
 		return err
 	}
@@ -238,7 +238,7 @@ func (d *GroupDao) Secede(ctx context.Context, groupId int, uid int) error {
 		ReceiverId: groupId,
 		MsgType:    consts.ChatMsgSysGroupMemberQuit,
 		Sequence:   Sequence.Get(ctx, 0, groupId),
-		Extra: gjson.MustEncodeString(&model.TalkRecordExtraGroupMemberQuit{
+		Extra: gjson.MustEncodeString(&model.TalkRecordGroupMemberQuit{
 			OwnerId:   user.UserId,
 			OwnerName: user.Nickname,
 		}),
@@ -319,9 +319,9 @@ func (d *GroupDao) Invite(ctx context.Context, invite *do.GroupInvite) error {
 		memberMaps[item.UserId] = item
 	}
 
-	members := make([]*model.TalkRecordExtraGroupMembers, 0)
+	members := make([]*model.TalkGroupMember, 0)
 	for _, value := range invite.MemberIds {
-		members = append(members, &model.TalkRecordExtraGroupMembers{
+		members = append(members, &model.TalkGroupMember{
 			UserId:   value,
 			Nickname: memberMaps[value].Nickname,
 		})
@@ -358,7 +358,7 @@ func (d *GroupDao) Invite(ctx context.Context, invite *do.GroupInvite) error {
 		Sequence:   Sequence.Get(ctx, 0, invite.GroupId),
 	}
 
-	record.Extra = gjson.MustEncodeString(&model.TalkRecordExtraGroupJoin{
+	record.Extra = gjson.MustEncodeString(&model.TalkRecordGroupJoin{
 		OwnerId:   memberMaps[invite.UserId].UserId,
 		OwnerName: memberMaps[invite.UserId].Nickname,
 		Members:   members,
@@ -448,9 +448,9 @@ func (d *GroupDao) RemoveMember(ctx context.Context, remove *do.GroupMemberRemov
 		memberMaps[item.UserId] = item
 	}
 
-	members := make([]*model.TalkRecordExtraGroupMembers, 0)
+	members := make([]*model.TalkGroupMember, 0)
 	for _, value := range remove.MemberIds {
-		members = append(members, &model.TalkRecordExtraGroupMembers{
+		members = append(members, &model.TalkGroupMember{
 			UserId:   value,
 			Nickname: memberMaps[value].Nickname,
 		})
@@ -463,7 +463,7 @@ func (d *GroupDao) RemoveMember(ctx context.Context, remove *do.GroupMemberRemov
 		TalkType:   consts.ChatGroupMode,
 		ReceiverId: remove.GroupId,
 		MsgType:    consts.ChatMsgSysGroupMemberKicked,
-		Extra: gjson.MustEncodeString(&model.TalkRecordExtraGroupMemberKicked{
+		Extra: gjson.MustEncodeString(&model.TalkRecordGroupMemberKicked{
 			OwnerId:   memberMaps[remove.UserId].UserId,
 			OwnerName: memberMaps[remove.UserId].Nickname,
 			Members:   members,

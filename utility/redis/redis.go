@@ -95,12 +95,13 @@ func init() {
 
 	master = g.Redis()
 	if slave = gredis.Instance("slave"); slave == nil {
-		master = slave
+		slave = master
 	}
 
 	if cmd := Client.Ping(ctx); cmd.Err() != nil {
-		panic(fmt.Sprint("Redis ", cmd.Err()))
+		panic(fmt.Sprint("Redis Client ", cmd.Err()))
 	}
+
 	logger.Info(ctx, "Redis Successfully connected and pinged.")
 }
 

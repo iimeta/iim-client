@@ -32,6 +32,11 @@ func (o *openAI) Chat(ctx context.Context, senderId, receiverId, talkType int, t
 		content := gstr.Split(text, " ")
 		if len(content) > 1 {
 			text = content[1]
+		} else {
+			content = gstr.Split(text, " ")
+			if len(content) > 1 {
+				text = content[1]
+			}
 		}
 	}
 
@@ -123,7 +128,7 @@ func (o *openAI) Chat(ctx context.Context, senderId, receiverId, talkType int, t
 
 		if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
 			Content: err.Error(),
-			Receiver: &model2.MessageReceiver{
+			Receiver: &model2.Receiver{
 				TalkType:   talkType,
 				ReceiverId: receiverId,
 			},
@@ -169,7 +174,7 @@ func (o *openAI) Chat(ctx context.Context, senderId, receiverId, talkType int, t
 
 	if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
 		Content: content,
-		Receiver: &model2.MessageReceiver{
+		Receiver: &model2.Receiver{
 			TalkType:   talkType,
 			ReceiverId: receiverId,
 		},
@@ -199,7 +204,7 @@ func (o *openAI) Image(ctx context.Context, senderId, receiverId, talkType int, 
 		logger.Error(ctx, err)
 		if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
 			Content: err.Error(),
-			Receiver: &model2.MessageReceiver{
+			Receiver: &model2.Receiver{
 				TalkType:   talkType,
 				ReceiverId: receiverId,
 			},
@@ -235,7 +240,7 @@ func (o *openAI) Image(ctx context.Context, senderId, receiverId, talkType int, 
 		Width:  imageInfo.Width,
 		Height: imageInfo.Height,
 		Size:   imageInfo.Size,
-		Receiver: &model2.MessageReceiver{
+		Receiver: &model2.Receiver{
 			TalkType:   talkType,
 			ReceiverId: receiverId,
 		},

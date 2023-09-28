@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/model/do"
 	"github.com/iimeta/iim-client/internal/model/entity"
 	"github.com/iimeta/iim-client/utility/db"
@@ -69,11 +68,11 @@ func (d *NoteTagDao) Delete(ctx context.Context, uid int, tagId string) error {
 	return nil
 }
 
-func (d *NoteTagDao) List(ctx context.Context, uid int) ([]*model.TagItem, error) {
+func (d *NoteTagDao) List(ctx context.Context, uid int) ([]*entity.NoteTag, map[string]int, error) {
 
 	noteTagList, err := d.Find(ctx, bson.M{"user_id": uid})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	tagsIds := make([]string, 0)
@@ -102,22 +101,13 @@ func (d *NoteTagDao) List(ctx context.Context, uid int) ([]*model.TagItem, error
 
 	results := make([]map[string]interface{}, 0)
 	if err := Note.Aggregate(ctx, pipeline, &results); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	maps := make(map[string]int)
+	countResults := make(map[string]int)
 	for _, result := range results {
-		maps[gconv.String(result["tags_id"])] = gconv.Int(result["count"])
+		countResults[gconv.String(result["tags_id"])] = gconv.Int(result["count"])
 	}
 
-	items := make([]*model.TagItem, 0)
-	for _, noteTag := range noteTagList {
-		items = append(items, &model.TagItem{
-			Id:      noteTag.Id,
-			TagName: noteTag.TagName,
-			Count:   maps[noteTag.Id],
-		})
-	}
-
-	return items, nil
+	return noteTagList, countResults, nil
 }

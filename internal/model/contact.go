@@ -166,10 +166,10 @@ type Apply struct {
 
 // 用户添加好友申请
 type ContactApply struct {
-	FriendId int    `json:"friend_id,omitempty" v:"required"`
-	Remark   string `json:"remark,omitempty" v:"required"`
-	ApplyId  string `json:"apply_id,omitempty" v:"required"`
-	UserId   int    `json:"user_id"`
+	FriendId int    `json:"friend_id,omitempty"`
+	Remark   string `json:"remark,omitempty"`
+	ApplyId  string `json:"apply_id,omitempty"`
+	UserId   int    `json:"user_id,omitempty"`
 }
 
 // 好友分组

@@ -22,18 +22,18 @@ func New() service.INoteTag {
 // 标签列表
 func (s *sNoteTag) List(ctx context.Context) (*model.TagListRes, error) {
 
-	list, err := dao.NoteTag.List(ctx, service.Session().GetUid(ctx))
+	noteTagList, countResults, err := dao.NoteTag.List(ctx, service.Session().GetUid(ctx))
 	if err != nil {
 		logger.Error(ctx, err)
 		return nil, err
 	}
 
-	items := make([]*model.TagListResponse_Item, 0, len(list))
-	for _, item := range list {
-		items = append(items, &model.TagListResponse_Item{
-			Id:      item.Id,
-			TagName: item.TagName,
-			Count:   item.Count,
+	items := make([]*model.NoteTag, 0)
+	for _, noteTag := range noteTagList {
+		items = append(items, &model.NoteTag{
+			Id:      noteTag.Id,
+			TagName: noteTag.TagName,
+			Count:   countResults[noteTag.Id],
 		})
 	}
 
@@ -45,7 +45,7 @@ func (s *sNoteTag) Edit(ctx context.Context, params model.TagEditReq) (*model.Ta
 
 	uid := service.Session().GetUid(ctx)
 
-	if params.TagId == "" || params.TagId == "0" { // todo
+	if params.TagId == "" {
 
 		id, err := dao.NoteTag.Create(ctx, uid, params.TagName)
 		if err != nil {

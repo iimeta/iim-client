@@ -27,6 +27,11 @@ func (o *aliyun) Chat(ctx context.Context, senderId, receiverId, talkType int, t
 		content := gstr.Split(text, " ")
 		if len(content) > 1 {
 			text = content[1]
+		} else {
+			content = gstr.Split(text, " ")
+			if len(content) > 1 {
+				text = content[1]
+			}
 		}
 	}
 
@@ -72,7 +77,7 @@ func (o *aliyun) Chat(ctx context.Context, senderId, receiverId, talkType int, t
 		logger.Error(ctx, err)
 		if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
 			Content: err.Error(),
-			Receiver: &model2.MessageReceiver{
+			Receiver: &model2.Receiver{
 				TalkType:   talkType,
 				ReceiverId: receiverId,
 			},
@@ -110,7 +115,7 @@ func (o *aliyun) Chat(ctx context.Context, senderId, receiverId, talkType int, t
 
 	if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
 		Content: content,
-		Receiver: &model2.MessageReceiver{
+		Receiver: &model2.Receiver{
 			TalkType:   talkType,
 			ReceiverId: receiverId,
 		},

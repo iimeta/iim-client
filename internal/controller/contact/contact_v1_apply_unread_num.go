@@ -2,6 +2,7 @@ package contact
 
 import (
 	"context"
+	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/service"
 
 	"github.com/iimeta/iim-client/api/contact/v1"
@@ -14,8 +15,11 @@ func (c *ControllerV1) ApplyUnreadNum(ctx context.Context, req *v1.ApplyUnreadNu
 		return nil, err
 	}
 
-	res = &v1.ApplyUnreadNumRes{}
-	res.UnreadNum = applyUnreadNum
+	res = &v1.ApplyUnreadNumRes{
+		ApplyUnreadNumRes: &model.ApplyUnreadNumRes{
+			UnreadNum: applyUnreadNum,
+		},
+	}
 
 	return
 }

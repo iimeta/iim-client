@@ -28,6 +28,11 @@ func (o *ernieBot) Chat(ctx context.Context, senderId, receiverId, talkType int,
 		content := gstr.Split(text, " ")
 		if len(content) > 1 {
 			text = content[1]
+		} else {
+			content = gstr.Split(text, " ")
+			if len(content) > 1 {
+				text = content[1]
+			}
 		}
 	}
 
@@ -76,7 +81,7 @@ func (o *ernieBot) Chat(ctx context.Context, senderId, receiverId, talkType int,
 		logger.Error(ctx, err)
 		if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
 			Content: err.Error() + ", 发生错误, 请联系作者处理...",
-			Receiver: &model2.MessageReceiver{
+			Receiver: &model2.Receiver{
 				TalkType:   talkType,
 				ReceiverId: receiverId,
 			},
@@ -122,7 +127,7 @@ func (o *ernieBot) Chat(ctx context.Context, senderId, receiverId, talkType int,
 
 	if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
 		Content: content,
-		Receiver: &model2.MessageReceiver{
+		Receiver: &model2.Receiver{
 			TalkType:   talkType,
 			ReceiverId: receiverId,
 		},

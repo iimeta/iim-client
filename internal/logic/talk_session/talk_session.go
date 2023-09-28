@@ -93,7 +93,7 @@ func (s *sTalkSession) Create(ctx context.Context, params model.SessionCreateReq
 		return nil, err
 	}
 
-	item := &model.SessionItem{
+	item := &model.TalkSession{
 		Id:         result.Id,
 		TalkType:   result.TalkType,
 		ReceiverId: result.ReceiverId,
@@ -248,10 +248,10 @@ func (s *sTalkSession) List(ctx context.Context) (*model.SessionListRes, error) 
 	// 获取好友备注
 	remarks, _ := dao.Contact.Remarks(ctx, uid, friends)
 
-	items := make([]*model.SessionItem, 0)
+	items := make([]*model.TalkSession, 0)
 	for _, item := range data {
 
-		value := &model.SessionItem{
+		value := &model.TalkSession{
 			Id:            item.Id,
 			TalkType:      item.TalkType,
 			ReceiverId:    item.ReceiverId,
@@ -316,7 +316,7 @@ func (s *sTalkSession) OpenContext(ctx context.Context, params model.SessionOpen
 }
 
 // 获取会话
-func (s *sTalkSession) FindBySession(ctx context.Context, uid int, receiverId int, talkType int) (*model.SessionItem, error) {
+func (s *sTalkSession) FindBySession(ctx context.Context, uid int, receiverId int, talkType int) (*model.TalkSession, error) {
 
 	talkSession, err := dao.TalkSession.FindOne(ctx, bson.M{"user_id": uid, "receiver_id": receiverId, "talk_type": talkType})
 	if err != nil {
@@ -324,7 +324,7 @@ func (s *sTalkSession) FindBySession(ctx context.Context, uid int, receiverId in
 		return nil, err
 	}
 
-	return &model.SessionItem{
+	return &model.TalkSession{
 		Id:            talkSession.Id,
 		TalkType:      talkSession.TalkType,
 		ReceiverId:    talkSession.ReceiverId,

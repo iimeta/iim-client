@@ -244,7 +244,7 @@ func (s *sTalkRecords) GetRecords(ctx context.Context, params model.TalkRecordsR
 		}
 	}
 
-	records, err := service.TalkRecords().GetTalkRecords(ctx, &model.QueryTalkRecordsOpt{
+	records, err := s.GetTalkRecords(ctx, &model.QueryTalkRecordsOpt{
 		TalkType:   params.TalkType,
 		UserId:     service.Session().GetUid(ctx),
 		ReceiverId: params.ReceiverId,
@@ -306,7 +306,7 @@ func (s *sTalkRecords) SearchHistoryRecords(ctx context.Context, params model.Ta
 		m = []int{params.MsgType}
 	}
 
-	records, err := service.TalkRecords().GetTalkRecords(ctx, &model.QueryTalkRecordsOpt{
+	records, err := s.GetTalkRecords(ctx, &model.QueryTalkRecordsOpt{
 		TalkType:   params.TalkType,
 		MsgType:    m,
 		UserId:     service.Session().GetUid(ctx),
@@ -356,7 +356,7 @@ func (s *sTalkRecords) Download(ctx context.Context, recordId int) error {
 		}
 	}
 
-	var fileInfo model.TalkRecordExtraFile
+	var fileInfo model.TalkRecordFile
 	if err := gjson.Unmarshal([]byte(record.Extra), &fileInfo); err != nil {
 		logger.Error(ctx, err)
 		return err

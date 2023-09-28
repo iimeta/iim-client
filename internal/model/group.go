@@ -33,7 +33,7 @@ type GroupSettingReq struct {
 	GroupId   int    `json:"group_id,omitempty" v:"required"`
 	GroupName string `json:"group_name,omitempty" v:"required"`
 	Avatar    string `json:"avatar,omitempty"`
-	Profile   string `json:"profile,omitempty" v:"max-length:255"`
+	Profile   string `json:"profile,omitempty"`
 }
 
 // 移出群成员接口请求参数
@@ -172,7 +172,7 @@ type GroupApplyUnreadNumRes struct {
 	UnreadNum int `json:"unread_num"`
 }
 
-// 添加或编辑群公告接口请求参数
+// 发布或更新群公告接口请求参数
 type NoticeEditReq struct {
 	GroupId   int    `json:"group_id,omitempty" v:"required"`
 	NoticeId  string `json:"notice_id,omitempty"`

@@ -30,6 +30,11 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 		content := gstr.Split(text, " ")
 		if len(content) > 1 {
 			text = content[1]
+		} else {
+			content = gstr.Split(text, " ")
+			if len(content) > 1 {
+				text = content[1]
+			}
 		}
 	}
 
@@ -47,7 +52,7 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 
 	if err := service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
 		Content: "您的请求已收到, 请耐心等待1-5分钟, 精彩马上为您呈献...",
-		Receiver: &model2.MessageReceiver{
+		Receiver: &model2.Receiver{
 			TalkType:   talkType,
 			ReceiverId: receiverId,
 		},
@@ -76,7 +81,7 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 		logger.Error(ctx, err)
 		if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
 			Content: err.Error(),
-			Receiver: &model2.MessageReceiver{
+			Receiver: &model2.Receiver{
 				TalkType:   talkType,
 				ReceiverId: receiverId,
 			},
@@ -123,7 +128,7 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 				logger.Error(ctx, err)
 				if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
 					Content: err.Error(),
-					Receiver: &model2.MessageReceiver{
+					Receiver: &model2.Receiver{
 						TalkType:   talkType,
 						ReceiverId: receiverId,
 					},
@@ -144,7 +149,7 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 			if len(imgBytes) == 0 {
 				if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
 					Content: err.Error(),
-					Receiver: &model2.MessageReceiver{
+					Receiver: &model2.Receiver{
 						TalkType:   talkType,
 						ReceiverId: receiverId,
 					},
@@ -178,7 +183,7 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 		Width:  imageInfo.Width,
 		Height: imageInfo.Height,
 		Size:   imageInfo.Size,
-		Receiver: &model2.MessageReceiver{
+		Receiver: &model2.Receiver{
 			TalkType:   talkType,
 			ReceiverId: receiverId,
 		},
@@ -199,7 +204,7 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 
 		if err := service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
 			Content: content,
-			Receiver: &model2.MessageReceiver{
+			Receiver: &model2.Receiver{
 				TalkType:   talkType,
 				ReceiverId: receiverId,
 			},

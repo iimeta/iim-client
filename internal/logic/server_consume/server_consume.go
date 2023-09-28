@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/iimeta/iim-client/internal/config"
 	"github.com/iimeta/iim-client/internal/consts"
@@ -21,7 +20,6 @@ import (
 	"github.com/iimeta/iim-client/utility/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"strconv"
-	"time"
 )
 
 type sServerConsume struct {
@@ -130,7 +128,7 @@ func (s *sServerConsume) onConsumeContactApply(ctx context.Context, body []byte)
 	data["friend"] = g.Map{
 		"nickname":   user.Nickname,
 		"remark":     apply.Remark,
-		"created_at": gtime.NewFromTimeStamp(apply.CreatedAt).Format(time.DateTime),
+		"created_at": util.FormatDatetime(apply.CreatedAt),
 	}
 
 	c := socket.NewSenderContent()

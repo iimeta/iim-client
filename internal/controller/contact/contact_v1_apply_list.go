@@ -2,6 +2,7 @@ package contact
 
 import (
 	"context"
+	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/service"
 
 	"github.com/iimeta/iim-client/api/contact/v1"
@@ -14,8 +15,11 @@ func (c *ControllerV1) ApplyList(ctx context.Context, req *v1.ApplyListReq) (res
 		return nil, err
 	}
 
-	res = &v1.ApplyListRes{}
-	res.Items = applyItems
+	res = &v1.ApplyListRes{
+		ApplyListRes: &model.ApplyListRes{
+			Items: applyItems,
+		},
+	}
 
 	return
 }

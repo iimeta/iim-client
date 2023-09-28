@@ -3,10 +3,7 @@ package user
 import (
 	"context"
 	"errors"
-	"github.com/gogf/gf/v2/os/gtime"
-	"github.com/gogf/gf/v2/util/grand"
 	"github.com/iimeta/iim-client/internal/consts"
-	"github.com/iimeta/iim-client/internal/core"
 	"github.com/iimeta/iim-client/internal/dao"
 	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/model/do"
@@ -29,128 +26,6 @@ func New() service.IUser {
 	return &sUser{}
 }
 
-// 注册
-func (s *sUser) Register(ctx context.Context, register *model.UserRegister) (*model.User, error) {
-
-	if dao.User.IsAccountExist(ctx, register.Account) {
-		return nil, errors.New(register.Account + " 账号已存在")
-	}
-
-	salt := grand.Letters(8)
-
-	user := &do.User{
-		UserId:    core.IncrUserId(ctx),
-		Email:     register.Account,
-		Nickname:  register.Nickname,
-		CreatedAt: gtime.Timestamp(),
-	}
-
-	uid, err := dao.User.Insert(ctx, user)
-	if err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	if _, err = dao.User.CreateAccount(ctx, &do.Account{
-		Uid:      uid,
-		UserId:   user.UserId,
-		Account:  register.Account,
-		Password: crypto.EncryptPassword(register.Password + salt),
-		Salt:     salt,
-		Status:   1,
-	}); err != nil {
-		return nil, err
-	}
-
-	return &model.User{
-		UserId:    user.UserId,
-		Email:     user.Email,
-		Nickname:  user.Nickname,
-		CreatedAt: user.CreatedAt,
-	}, nil
-}
-
-// 登录
-func (s *sUser) Login(ctx context.Context, account string, password string) (*model.User, error) {
-
-	accountInfo, err := dao.User.FindAccount(ctx, account)
-	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return nil, errors.New("账号或密码不正确")
-		}
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	if !crypto.VerifyPassword(accountInfo.Password, password+accountInfo.Salt) {
-		return nil, errors.New("账号或密码不正确")
-	}
-
-	user, err := dao.User.FindById(ctx, accountInfo.Uid)
-	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return nil, errors.New("用户不存在或已被禁用") // todo
-		}
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	return &model.User{
-		UserId:    user.UserId,
-		Mobile:    user.Mobile,
-		Email:     user.Email,
-		Nickname:  user.Nickname,
-		Avatar:    user.Avatar,
-		Gender:    user.Gender,
-		Motto:     user.Motto,
-		Birthday:  user.Birthday,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}, nil
-}
-
-// 找回密码
-func (s *sUser) Forget(ctx context.Context, forget model.ForgetReq) (bool, error) {
-
-	account, err := dao.User.FindAccount(ctx, forget.Account)
-	if err != nil || account.Id == "" {
-		return false, errors.New(forget.Account + " 账号不存在")
-	}
-
-	if err = dao.User.ChangePasswordByUserId(ctx, account.UserId, forget.Password); err != nil {
-		logger.Error(ctx, err)
-		return false, errors.New("找回密码失败")
-	}
-
-	return true, nil
-}
-
-// 修改密码
-func (s *sUser) UpdatePassword(ctx context.Context, uid int, oldPassword string, password string) error {
-
-	user, err := dao.User.FindUserByUserId(ctx, uid)
-	if err != nil || user.Id == "" {
-		return errors.New("用户不存在")
-	}
-
-	account, err := dao.User.FindAccountByUserId(ctx, user.UserId)
-	if err != nil {
-		logger.Error(ctx, err)
-		return errors.New("账号信息有误")
-	}
-
-	if !crypto.VerifyPassword(account.Password, oldPassword+account.Salt) {
-		return errors.New("登录密码有误, 请重新输入")
-	}
-
-	if err = dao.User.ChangePasswordByUserId(ctx, uid, password); err != nil {
-		logger.Error(ctx, err)
-		return errors.New("修改密码失败")
-	}
-
-	return nil
-}
-
 // 用户详情
 func (s *sUser) Detail(ctx context.Context) (*model.UserDetailRes, error) {
 
@@ -169,29 +44,6 @@ func (s *sUser) Detail(ctx context.Context) (*model.UserDetailRes, error) {
 		Motto:    user.Motto,
 		Email:    user.Email,
 		Birthday: user.Birthday,
-	}, nil
-}
-
-// 用户设置
-func (s *sUser) Setting(ctx context.Context) (*model.UserSettingRes, error) {
-
-	user, err := dao.User.FindUserByUserId(ctx, service.Session().GetUid(ctx))
-	if err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	return &model.UserSettingRes{
-		UserInfo: &model.UserSettingResponse_UserInfo{
-			Uid:      user.UserId,
-			Nickname: user.Nickname,
-			Avatar:   user.Avatar,
-			Motto:    user.Motto,
-			Gender:   user.Gender,
-			Mobile:   user.Mobile,
-			Email:    user.Email,
-		},
-		Setting: &model.UserSettingResponse_ConfigInfo{},
 	}, nil
 }
 
@@ -221,12 +73,52 @@ func (s *sUser) ChangeDetail(ctx context.Context, params model.UserDetailUpdateR
 // 修改密码接口
 func (s *sUser) ChangePassword(ctx context.Context, params model.UserPasswordUpdateReq) error {
 
-	if err := s.UpdatePassword(ctx, service.Session().GetUid(ctx), params.OldPassword, params.NewPassword); err != nil {
+	uid := service.Session().GetUid(ctx)
+
+	user, err := dao.User.FindUserByUserId(ctx, uid)
+	if err != nil || user.Id == "" {
+		return errors.New("用户不存在")
+	}
+
+	account, err := dao.User.FindAccountByUserId(ctx, user.UserId)
+	if err != nil {
 		logger.Error(ctx, err)
-		return errors.New("密码修改失败")
+		return errors.New("账号信息有误")
+	}
+
+	if !crypto.VerifyPassword(account.Password, params.OldPassword+account.Salt) {
+		return errors.New("登录密码有误, 请重新输入")
+	}
+
+	if err = dao.User.ChangePasswordByUserId(ctx, uid, params.NewPassword); err != nil {
+		logger.Error(ctx, err)
+		return errors.New("修改密码失败")
 	}
 
 	return nil
+}
+
+// 用户设置
+func (s *sUser) Setting(ctx context.Context) (*model.UserSettingRes, error) {
+
+	user, err := dao.User.FindUserByUserId(ctx, service.Session().GetUid(ctx))
+	if err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	return &model.UserSettingRes{
+		UserInfo: &model.UserInfo{
+			UserId:   user.UserId,
+			Nickname: user.Nickname,
+			Avatar:   user.Avatar,
+			Motto:    user.Motto,
+			Gender:   user.Gender,
+			Mobile:   user.Mobile,
+			Email:    user.Email,
+		},
+		Setting: &model.SettingInfo{},
+	}, nil
 }
 
 // 换绑手机号

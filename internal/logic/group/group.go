@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/encoding/gjson"
-	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/dao"
 	"github.com/iimeta/iim-client/internal/errors"
@@ -18,7 +17,6 @@ import (
 	"github.com/iimeta/iim-client/utility/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"time"
 )
 
 type sGroup struct {
@@ -116,7 +114,7 @@ func (s *sGroup) Dismiss(ctx context.Context, params model.GroupDismissReq) erro
 
 	_ = service.TalkMessage().SendSystemText(ctx, uid, &model.TextMessageReq{
 		Content: "群聊已被群主解散",
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   consts.ChatGroupMode,
 			ReceiverId: params.GroupId,
 		},
@@ -169,7 +167,7 @@ func (s *sGroup) Invite(ctx context.Context, params model.GroupInviteReq) error 
 }
 
 // 退出群聊
-func (s *sGroup) SignOut(ctx context.Context, params model.GroupSecedeReq) error {
+func (s *sGroup) Secede(ctx context.Context, params model.GroupSecedeReq) error {
 
 	uid := service.Session().GetUid(ctx)
 	if err := dao.Group.Secede(ctx, params.GroupId, uid); err != nil {
@@ -220,7 +218,7 @@ func (s *sGroup) Setting(ctx context.Context, params model.GroupSettingReq) erro
 
 	_ = service.TalkMessage().SendSystemText(ctx, uid, &model.TextMessageReq{
 		Content: "群主或管理员修改了群信息",
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   consts.ChatGroupMode,
 			ReceiverId: params.GroupId,
 		},
@@ -270,7 +268,7 @@ func (s *sGroup) Detail(ctx context.Context, params model.GroupDetailReq) (*mode
 		GroupName: groupInfo.GroupName,
 		Profile:   groupInfo.Profile,
 		Avatar:    groupInfo.Avatar,
-		CreatedAt: gtime.NewFromTimeStamp(groupInfo.CreatedAt).Format(time.DateTime),
+		CreatedAt: util.FormatDatetime(groupInfo.CreatedAt),
 		IsManager: uid == groupInfo.CreatorId,
 		IsDisturb: 0,
 		IsMute:    groupInfo.IsMute,
@@ -494,7 +492,7 @@ func (s *sGroup) OvertList(ctx context.Context, params model.GroupOvertListReq) 
 			Profile:   value.Profile,
 			Count:     countMap[value.GroupId],
 			MaxNum:    value.MaxNum,
-			CreatedAt: gtime.NewFromTimeStamp(value.CreatedAt).Format(time.DateTime),
+			CreatedAt: util.FormatDatetime(value.CreatedAt),
 		})
 	}
 
@@ -515,9 +513,8 @@ func (s *sGroup) Handover(ctx context.Context, params model.GroupHandoverReq) er
 		return errors.New("暂无权限")
 	}
 
-	err := s.GroupMemberHandover(ctx, params.GroupId, uid, params.UserId)
-	if err != nil {
-		logger.Error(ctx, err)
+	if err := dao.GroupMember.Handover(ctx, params.GroupId, uid, params.UserId); err != nil {
+		logger.Error(ctx)
 		return errors.New("转让群主失败")
 	}
 
@@ -527,7 +524,7 @@ func (s *sGroup) Handover(ctx context.Context, params model.GroupHandoverReq) er
 		return err
 	}
 
-	extra := model.TalkRecordExtraGroupTransfer{}
+	extra := model.TalkRecordGroupTransfer{}
 	for _, member := range members {
 		if member.UserId == uid {
 			extra.OldOwnerId = member.UserId
@@ -538,7 +535,7 @@ func (s *sGroup) Handover(ctx context.Context, params model.GroupHandoverReq) er
 		}
 	}
 
-	_ = service.TalkMessage().SendSysOther(ctx, &model.TalkRecords{
+	_ = service.TalkMessage().SendSysOther(ctx, &model.TalkRecord{
 		MsgType:    consts.ChatMsgSysGroupTransfer,
 		TalkType:   consts.TalkRecordTalkTypeGroup,
 		UserId:     uid,
@@ -561,9 +558,8 @@ func (s *sGroup) AssignAdmin(ctx context.Context, params model.GroupAssignAdminR
 		leader = 1
 	}
 
-	err := s.SetLeaderStatus(ctx, params.GroupId, params.UserId, leader)
-	if err != nil {
-		logger.Error(ctx, "设置管理员信息失败 err:", err.Error())
+	if err := dao.GroupMember.SetLeaderStatus(ctx, params.GroupId, params.UserId, leader); err != nil {
+		logger.Error(ctx)
 		return errors.New("设置管理员信息失败")
 	}
 
@@ -583,24 +579,23 @@ func (s *sGroup) NoSpeak(ctx context.Context, params model.GroupNoSpeakReq) erro
 		status = 0
 	}
 
-	err := s.SetMuteStatus(ctx, params.GroupId, params.UserId, status)
-	if err != nil {
-		logger.Error(ctx, err)
+	if err := dao.GroupMember.SetMuteStatus(ctx, params.GroupId, params.UserId, status); err != nil {
+		logger.Error(ctx)
 		return errors.New("设置群成员禁言状态失败")
 	}
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		TalkType:   consts.TalkRecordTalkTypeGroup,
 		UserId:     uid,
 		ReceiverId: params.GroupId,
 	}
 
-	members := make([]*model.TalkRecordExtraGroupMembers, 0)
+	members := make([]*model.TalkGroupMember, 0)
 	if user, err := dao.User.FindUserByUserId(ctx, params.UserId); err != nil {
 		logger.Error(ctx, err)
 		return err
 	} else {
-		members = append(members, &model.TalkRecordExtraGroupMembers{
+		members = append(members, &model.TalkGroupMember{
 			UserId:   user.UserId,
 			Nickname: user.Nickname,
 		})
@@ -614,14 +609,14 @@ func (s *sGroup) NoSpeak(ctx context.Context, params model.GroupNoSpeakReq) erro
 
 	if status == 1 {
 		data.MsgType = consts.ChatMsgSysGroupMemberMuted
-		data.Extra = gjson.MustEncodeString(model.TalkRecordExtraGroupMemberCancelMuted{
+		data.Extra = gjson.MustEncodeString(model.TalkRecordGroupMemberCancelMuted{
 			OwnerId:   uid,
 			OwnerName: user.Nickname,
 			Members:   members,
 		})
 	} else {
 		data.MsgType = consts.ChatMsgSysGroupMemberCancelMuted
-		data.Extra = gjson.MustEncodeString(model.TalkRecordExtraGroupMemberCancelMuted{
+		data.Extra = gjson.MustEncodeString(model.TalkRecordGroupMemberCancelMuted{
 			OwnerId:   uid,
 			OwnerName: user.Nickname,
 			Members:   members,
@@ -674,19 +669,19 @@ func (s *sGroup) Mute(ctx context.Context, params model.GroupMuteReq) error {
 	var msgType int
 	if params.Mode == 1 {
 		msgType = consts.ChatMsgSysGroupMuted
-		extra = model.TalkRecordExtraGroupMuted{
+		extra = model.TalkRecordGroupMuted{
 			OwnerId:   user.UserId,
 			OwnerName: user.Nickname,
 		}
 	} else {
 		msgType = consts.ChatMsgSysGroupCancelMuted
-		extra = model.TalkRecordExtraGroupCancelMuted{
+		extra = model.TalkRecordGroupCancelMuted{
 			OwnerId:   user.UserId,
 			OwnerName: user.Nickname,
 		}
 	}
 
-	_ = service.TalkMessage().SendSysOther(ctx, &model.TalkRecords{
+	_ = service.TalkMessage().SendSysOther(ctx, &model.TalkRecord{
 		MsgType:    msgType,
 		TalkType:   consts.TalkRecordTalkTypeGroup,
 		UserId:     uid,
@@ -726,48 +721,6 @@ func (s *sGroup) Overt(ctx context.Context, params model.GroupOvertReq) error {
 	if err := dao.Group.UpdateOne(ctx, bson.M{"group_id": params.GroupId}, data); err != nil {
 		logger.Error(ctx, err)
 		return errors.New("服务器异常, 请稍后再试")
-	}
-
-	return nil
-}
-
-// 退出群聊[仅管理员及群成员]
-func (s *sGroup) Secede(ctx context.Context, groupId int, uid int) error {
-
-	if err := dao.Group.Secede(ctx, groupId, uid); err != nil {
-		logger.Error(ctx)
-		return err
-	}
-
-	return nil
-}
-
-// 交接群主权限
-func (s *sGroup) GroupMemberHandover(ctx context.Context, groupId int, userId int, memberId int) error {
-
-	if err := dao.GroupMember.Handover(ctx, groupId, userId, memberId); err != nil {
-		logger.Error(ctx)
-		return err
-	}
-
-	return nil
-}
-
-func (s *sGroup) SetLeaderStatus(ctx context.Context, groupId int, userId int, leader int) error {
-
-	if err := dao.GroupMember.SetLeaderStatus(ctx, groupId, userId, leader); err != nil {
-		logger.Error(ctx)
-		return err
-	}
-
-	return nil
-}
-
-func (s *sGroup) SetMuteStatus(ctx context.Context, groupId int, userId int, status int) error {
-
-	if err := dao.GroupMember.SetMuteStatus(ctx, groupId, userId, status); err != nil {
-		logger.Error(ctx)
-		return err
 	}
 
 	return nil

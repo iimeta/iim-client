@@ -35,7 +35,7 @@ func New() service.INoteAnnex {
 	}
 }
 
-func (s *sNoteAnnex) Create(ctx context.Context, data *model.Annex) error {
+func (s *sNoteAnnex) Create(ctx context.Context, data *model.NoteAnnex) error {
 
 	if _, err := dao.NoteAnnex.Insert(ctx, &do.NoteAnnex{
 		UserId:       data.UserId,
@@ -147,35 +147,25 @@ func (s *sNoteAnnex) RecoverList(ctx context.Context) (*model.AnnexRecoverListRe
 		return t.Id
 	})
 
-	items := make([]*model.RecoverAnnexItem, 0)
+	items := make([]*model.NoteAnnex, 0)
 	for _, annex := range noteAnnexList {
-		items = append(items, &model.RecoverAnnexItem{
+		at := gtime.NewFromTimeStamp(annex.DeletedAt).Add(time.Hour * 24 * 30)
+		items = append(items, &model.NoteAnnex{
 			Id:           annex.Id,
 			NoteId:       annex.NoteId,
 			Title:        noteMap[annex.NoteId].Title,
 			OriginalName: annex.OriginalName,
-			DeletedAt:    annex.DeletedAt,
-		})
-	}
-
-	data := make([]*model.AnnexRecoverListResponse_Item, 0)
-	for _, item := range items {
-		at := gtime.NewFromTimeStamp(item.DeletedAt).Add(time.Hour * 24 * 30)
-		data = append(data, &model.AnnexRecoverListResponse_Item{
-			Id:           item.Id,
-			NoteId:       item.NoteId,
-			Title:        item.Title,
-			OriginalName: item.OriginalName,
+			DeletedAt:    util.FormatDatetime(annex.DeletedAt),
 			Day:          int(math.Ceil(float64(at.Second() / 86400))), // todo 有没有更好的方法
 		})
 	}
 
 	return &model.AnnexRecoverListRes{
-		Items: nil,
+		Items: items,
 		Paginate: &model.Paginate{
 			Page:  1,
 			Size:  10000,
-			Total: len(data),
+			Total: len(items),
 		},
 	}, nil
 }

@@ -98,16 +98,18 @@ func (s *sNote) Detail(ctx context.Context, params model.NoteDetailReq) (*model.
 		return nil, errors.New("笔记不存在")
 	}
 
-	tags := make([]*model.DetailResponse_Tag, 0)
-	for _, id := range gstr.Split(note.TagsId, ",") {
-		tags = append(tags, &model.DetailResponse_Tag{Id: id})
+	tags := make([]*model.NoteTag, 0)
+	if note.TagsId != "" {
+		for _, id := range gstr.Split(note.TagsId, ",") {
+			tags = append(tags, &model.NoteTag{Id: id})
+		}
 	}
 
-	files := make([]*model.DetailResponse_File, 0)
+	files := make([]*model.NoteAnnex, 0)
 	items, err := dao.NoteAnnex.AnnexList(ctx, uid, params.NoteId)
 	if err == nil {
 		for _, item := range items {
-			files = append(files, &model.DetailResponse_File{
+			files = append(files, &model.NoteAnnex{
 				Id:           item.Id,
 				Suffix:       item.Suffix,
 				Size:         item.Size,

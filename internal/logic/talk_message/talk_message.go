@@ -61,7 +61,7 @@ var mapping map[string]func(ctx context.Context) error
 // 系统文本消息
 func (s *sTalkMessage) SendSystemText(ctx context.Context, uid int, req *model.TextMessageReq) error {
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		TalkType:   req.Receiver.TalkType,
 		MsgType:    consts.ChatMsgSysText,
 		UserId:     uid,
@@ -75,7 +75,7 @@ func (s *sTalkMessage) SendSystemText(ctx context.Context, uid int, req *model.T
 // 文本消息
 func (s *sTalkMessage) SendText(ctx context.Context, uid int, req *model.TextMessageReq) error {
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		TalkType:   req.Receiver.TalkType,
 		MsgType:    consts.ChatMsgTypeText,
 		QuoteId:    req.QuoteId,
@@ -90,13 +90,13 @@ func (s *sTalkMessage) SendText(ctx context.Context, uid int, req *model.TextMes
 // 图片文件消息
 func (s *sTalkMessage) SendImage(ctx context.Context, uid int, req *model.ImageMessageReq) error {
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		TalkType:   req.Receiver.TalkType,
 		MsgType:    consts.ChatMsgTypeImage,
 		QuoteId:    req.QuoteId,
 		UserId:     uid,
 		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordExtraImage{
+		Extra: gjson.MustEncodeString(&model.TalkRecordImage{
 			Url:    req.Url,
 			Width:  req.Width,
 			Height: req.Height,
@@ -109,12 +109,12 @@ func (s *sTalkMessage) SendImage(ctx context.Context, uid int, req *model.ImageM
 // 语音文件消息
 func (s *sTalkMessage) SendVoice(ctx context.Context, uid int, req *model.VoiceMessageReq) error {
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		TalkType:   req.Receiver.TalkType,
 		MsgType:    consts.ChatMsgTypeAudio,
 		UserId:     uid,
 		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordExtraAudio{
+		Extra: gjson.MustEncodeString(&model.TalkRecordAudio{
 			Suffix:   util.FileSuffix(req.Url),
 			Size:     req.Size,
 			Url:      req.Url,
@@ -128,12 +128,12 @@ func (s *sTalkMessage) SendVoice(ctx context.Context, uid int, req *model.VoiceM
 // 视频文件消息
 func (s *sTalkMessage) SendVideo(ctx context.Context, uid int, req *model.VideoMessageReq) error {
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		TalkType:   req.Receiver.TalkType,
 		MsgType:    consts.ChatMsgTypeVideo,
 		UserId:     uid,
 		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordExtraVideo{
+		Extra: gjson.MustEncodeString(&model.TalkRecordVideo{
 			Cover:    req.Cover,
 			Size:     req.Size,
 			Url:      req.Url,
@@ -167,7 +167,7 @@ func (s *sTalkMessage) SendFile(ctx context.Context, uid int, req *model.Message
 		return err
 	}
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		MsgId:      gmd5.MustEncryptString(req.UploadId),
 		TalkType:   req.Receiver.TalkType,
 		UserId:     uid,
@@ -177,7 +177,7 @@ func (s *sTalkMessage) SendFile(ctx context.Context, uid int, req *model.Message
 	switch consts.GetMediaType(file.FileExt) {
 	case consts.MediaFileAudio:
 		data.MsgType = consts.ChatMsgTypeAudio
-		data.Extra = gjson.MustEncodeString(&model.TalkRecordExtraAudio{
+		data.Extra = gjson.MustEncodeString(&model.TalkRecordAudio{
 			Suffix:   file.FileExt,
 			Size:     int(file.FileSize),
 			Url:      publicUrl,
@@ -185,7 +185,7 @@ func (s *sTalkMessage) SendFile(ctx context.Context, uid int, req *model.Message
 		})
 	case consts.MediaFileVideo:
 		data.MsgType = consts.ChatMsgTypeVideo
-		data.Extra = gjson.MustEncodeString(&model.TalkRecordExtraVideo{
+		data.Extra = gjson.MustEncodeString(&model.TalkRecordVideo{
 			Cover:    "",
 			Suffix:   file.FileExt,
 			Size:     int(file.FileSize),
@@ -194,7 +194,7 @@ func (s *sTalkMessage) SendFile(ctx context.Context, uid int, req *model.Message
 		})
 	case consts.MediaFileOther:
 		data.MsgType = consts.ChatMsgTypeFile
-		data.Extra = gjson.MustEncodeString(&model.TalkRecordExtraFile{
+		data.Extra = gjson.MustEncodeString(&model.TalkRecordFile{
 			Drive:  file.Drive,
 			Name:   file.OriginalName,
 			Suffix: file.FileExt,
@@ -209,12 +209,12 @@ func (s *sTalkMessage) SendFile(ctx context.Context, uid int, req *model.Message
 // 代码消息
 func (s *sTalkMessage) SendCode(ctx context.Context, uid int, req *model.CodeMessageReq) error {
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		TalkType:   req.Receiver.TalkType,
 		MsgType:    consts.ChatMsgTypeCode,
 		UserId:     uid,
 		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordExtraCode{
+		Extra: gjson.MustEncodeString(&model.TalkRecordCode{
 			Lang: req.Lang,
 			Code: req.Code,
 		}),
@@ -226,7 +226,7 @@ func (s *sTalkMessage) SendCode(ctx context.Context, uid int, req *model.CodeMes
 // 投票消息
 func (s *sTalkMessage) SendVote(ctx context.Context, uid int, req *model.MessageVoteReq) error {
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		RecordId:   core.IncrRecordId(ctx),
 		MsgId:      util.NewMsgId(),
 		TalkType:   consts.ChatGroupMode,
@@ -289,12 +289,12 @@ func (s *sTalkMessage) SendEmoticon(ctx context.Context, uid int, req *model.Emo
 		return err
 	}
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		TalkType:   req.Receiver.TalkType,
 		MsgType:    consts.ChatMsgTypeImage,
 		UserId:     uid,
 		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordExtraImage{
+		Extra: gjson.MustEncodeString(&model.TalkRecordImage{
 			Url:    emoticon.Url,
 			Width:  0,
 			Height: 0,
@@ -373,12 +373,12 @@ func (s *sTalkMessage) SendForward(ctx context.Context, uid int, req *model.Forw
 // 位置消息
 func (s *sTalkMessage) SendLocation(ctx context.Context, uid int, req *model.LocationMessageReq) error {
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		TalkType:   req.Receiver.TalkType,
 		MsgType:    consts.ChatMsgTypeLocation,
 		UserId:     uid,
 		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordExtraLocation{
+		Extra: gjson.MustEncodeString(&model.TalkRecordLocation{
 			Longitude:   req.Longitude,
 			Latitude:    req.Latitude,
 			Description: req.Description,
@@ -391,12 +391,12 @@ func (s *sTalkMessage) SendLocation(ctx context.Context, uid int, req *model.Loc
 // 推送用户名片消息
 func (s *sTalkMessage) SendBusinessCard(ctx context.Context, uid int, req *model.CardMessageReq) error {
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		TalkType:   req.Receiver.TalkType,
 		MsgType:    consts.ChatMsgTypeCard,
 		UserId:     uid,
 		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordExtraCard{
+		Extra: gjson.MustEncodeString(&model.TalkRecordCard{
 			UserId: req.UserId,
 		}),
 	}
@@ -413,12 +413,12 @@ func (s *sTalkMessage) SendLogin(ctx context.Context, uid int, req *model.LoginM
 		return err
 	}
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		TalkType:   consts.ChatPrivateMode,
 		MsgType:    consts.ChatMsgTypeLogin,
 		UserId:     robot.UserId,
 		ReceiverId: uid,
-		Extra: gjson.MustEncodeString(&model.TalkRecordExtraLogin{
+		Extra: gjson.MustEncodeString(&model.TalkRecordLogin{
 			IP:       req.Ip,
 			Platform: req.Platform,
 			Agent:    req.Agent,
@@ -434,29 +434,29 @@ func (s *sTalkMessage) SendLogin(ctx context.Context, uid int, req *model.LoginM
 // 图文消息
 func (s *sTalkMessage) SendMixedMessage(ctx context.Context, uid int, req *model.MixedMessageReq) error {
 
-	items := make([]*model.TalkRecordExtraMixedItem, 0)
+	items := make([]*model.TalkRecordMixedItem, 0)
 
 	for _, item := range req.Items {
-		items = append(items, &model.TalkRecordExtraMixedItem{
+		items = append(items, &model.TalkRecordMixedItem{
 			Type:    item.Type,
 			Content: item.Content,
 		})
 	}
 
-	data := &model.TalkRecords{
+	data := &model.TalkRecord{
 		TalkType:   req.Receiver.TalkType,
 		MsgType:    consts.ChatMsgTypeMixed,
 		QuoteId:    req.QuoteId,
 		UserId:     uid,
 		ReceiverId: req.Receiver.ReceiverId,
-		Extra:      gjson.MustEncodeString(model.TalkRecordExtraMixed{Items: items}),
+		Extra:      gjson.MustEncodeString(model.TalkRecordMixed{Items: items}),
 	}
 
 	return s.save(ctx, data)
 }
 
 // 推送其它消息
-func (s *sTalkMessage) SendSysOther(ctx context.Context, data *model.TalkRecords) error {
+func (s *sTalkMessage) SendSysOther(ctx context.Context, data *model.TalkRecord) error {
 	return s.save(ctx, data)
 }
 
@@ -521,24 +521,12 @@ func (s *sTalkMessage) HandleVote(ctx context.Context, params model.MessageVoteH
 		return nil, err
 	}
 
-	vote := &model.QueryVoteModel{
-		ReceiverId:   talkRecords.ReceiverId,
-		TalkType:     talkRecords.TalkType,
-		MsgType:      talkRecords.MsgType,
-		VoteId:       talkRecordsVote.Id,
-		RecordId:     talkRecordsVote.RecordId,
-		AnswerMode:   talkRecordsVote.AnswerMode,
-		AnswerOption: talkRecordsVote.AnswerOption,
-		AnswerNum:    talkRecordsVote.AnswerNum,
-		VoteStatus:   talkRecordsVote.Status,
+	if talkRecords.MsgType != consts.ChatMsgTypeVote {
+		return nil, errors.Newf("当前记录不属于投票信息[%d]", talkRecords.MsgType)
 	}
 
-	if vote.MsgType != consts.ChatMsgTypeVote {
-		return nil, errors.Newf("当前记录不属于投票信息[%d]", vote.MsgType)
-	}
-
-	if vote.TalkType == consts.ChatGroupMode {
-		count, err := dao.GroupMember.CountDocuments(ctx, bson.M{"group_id": vote.ReceiverId, "user_id": uid, "is_quit": 0})
+	if talkRecords.TalkType == consts.ChatGroupMode {
+		count, err := dao.GroupMember.CountDocuments(ctx, bson.M{"group_id": talkRecords.ReceiverId, "user_id": uid, "is_quit": 0})
 		if err != nil {
 			logger.Error(ctx, err)
 			return nil, err
@@ -549,21 +537,21 @@ func (s *sTalkMessage) HandleVote(ctx context.Context, params model.MessageVoteH
 		}
 	}
 
-	count, err := dao.CountDocuments(ctx, dao.TalkRecordsVote.Database, do.TALK_RECORDS_VOTE_ANSWER_COLLECTION, bson.M{"vote_id": vote.VoteId, "user_id": uid})
+	count, err := dao.CountDocuments(ctx, dao.TalkRecordsVote.Database, do.TALK_RECORDS_VOTE_ANSWER_COLLECTION, bson.M{"vote_id": talkRecordsVote.Id, "user_id": uid})
 	if err != nil {
 		logger.Error(ctx, err)
 		return nil, err
 	}
 
 	if count > 0 {
-		return nil, errors.Newf("重复投票[%d]", vote.VoteId)
+		return nil, errors.Newf("重复投票[%d]", talkRecordsVote.Id)
 	}
 
 	options := strings.Split(params.Options, ",")
 	sort.Strings(options)
 
 	var answerOptions map[string]any
-	if err := gjson.Unmarshal([]byte(vote.AnswerOption), &answerOptions); err != nil {
+	if err := gjson.Unmarshal([]byte(talkRecordsVote.AnswerOption), &answerOptions); err != nil {
 		logger.Error(ctx, err)
 		return nil, err
 	}
@@ -574,20 +562,20 @@ func (s *sTalkMessage) HandleVote(ctx context.Context, params model.MessageVoteH
 		}
 	}
 
-	if vote.AnswerMode == consts.VoteAnswerModeSingleChoice {
+	if talkRecordsVote.AnswerMode == consts.VoteAnswerModeSingleChoice {
 		options = options[:1]
 	}
 
 	answers := make([]interface{}, 0, len(options))
 	for _, option := range options {
 		answers = append(answers, &do.TalkRecordsVoteAnswer{
-			VoteId: vote.VoteId,
+			VoteId: talkRecordsVote.Id,
 			UserId: uid,
 			Option: option,
 		})
 	}
 
-	if err = dao.TalkRecordsVote.UpdateById(ctx, vote.VoteId, bson.M{
+	if err = dao.TalkRecordsVote.UpdateById(ctx, talkRecordsVote.Id, bson.M{
 		"$inc": bson.M{
 			"answered_num": 1,
 		},
@@ -596,11 +584,11 @@ func (s *sTalkMessage) HandleVote(ctx context.Context, params model.MessageVoteH
 		return nil, err
 	}
 
-	if talkRecordsVote, err := dao.TalkRecordsVote.FindById(ctx, vote.VoteId); err != nil {
+	if talkRecordsVote, err := dao.TalkRecordsVote.FindById(ctx, talkRecordsVote.Id); err != nil {
 		logger.Error(ctx, err)
 		return nil, err
 	} else if talkRecordsVote.AnsweredNum >= talkRecordsVote.AnswerNum {
-		if err = dao.TalkRecordsVote.UpdateById(ctx, vote.VoteId, bson.M{
+		if err = dao.TalkRecordsVote.UpdateById(ctx, talkRecordsVote.Id, bson.M{
 			"status": 1,
 		}); err != nil {
 			logger.Error(ctx, err)
@@ -613,17 +601,17 @@ func (s *sTalkMessage) HandleVote(ctx context.Context, params model.MessageVoteH
 		return nil, err
 	}
 
-	if _, err = dao.TalkRecordsVote.SetVoteAnswerUser(ctx, vote.VoteId); err != nil {
+	if _, err = dao.TalkRecordsVote.SetVoteAnswerUser(ctx, talkRecordsVote.Id); err != nil {
 		logger.Error(ctx, err)
 		return nil, err
 	}
 
-	if _, err = dao.TalkRecordsVote.SetVoteStatistics(ctx, vote.VoteId); err != nil {
+	if _, err = dao.TalkRecordsVote.SetVoteStatistics(ctx, talkRecordsVote.Id); err != nil {
 		logger.Error(ctx, err)
 		return nil, err
 	}
 
-	info, err := dao.TalkRecordsVote.GetVoteStatistics(ctx, vote.VoteId)
+	info, err := dao.TalkRecordsVote.GetVoteStatistics(ctx, talkRecordsVote.Id)
 	if err != nil {
 		logger.Error(ctx, err)
 		return nil, err
@@ -632,7 +620,7 @@ func (s *sTalkMessage) HandleVote(ctx context.Context, params model.MessageVoteH
 	return info, nil
 }
 
-func (s *sTalkMessage) save(ctx context.Context, data *model.TalkRecords) error {
+func (s *sTalkMessage) save(ctx context.Context, data *model.TalkRecord) error {
 
 	if data.RecordId == 0 {
 		data.RecordId = core.IncrRecordId(ctx)
@@ -660,8 +648,6 @@ func (s *sTalkMessage) save(ctx context.Context, data *model.TalkRecords) error 
 		QuoteId:    data.QuoteId,
 		Content:    data.Content,
 		Extra:      data.Extra,
-		CreatedAt:  data.CreatedAt,
-		UpdatedAt:  data.UpdatedAt,
 	})
 	if err != nil {
 		logger.Error(ctx, err)
@@ -688,7 +674,7 @@ func (s *sTalkMessage) save(ctx context.Context, data *model.TalkRecords) error 
 	return nil
 }
 
-func (s *sTalkMessage) loadSequence(ctx context.Context, data *model.TalkRecords) {
+func (s *sTalkMessage) loadSequence(ctx context.Context, data *model.TalkRecord) {
 	if data.TalkType == consts.ChatGroupMode {
 		data.Sequence = dao.Sequence.Get(ctx, 0, data.ReceiverId)
 	} else {
@@ -696,7 +682,7 @@ func (s *sTalkMessage) loadSequence(ctx context.Context, data *model.TalkRecords
 	}
 }
 
-func (s *sTalkMessage) loadReply(ctx context.Context, data *model.TalkRecords) {
+func (s *sTalkMessage) loadReply(ctx context.Context, data *model.TalkRecord) {
 
 	// 检测是否引用消息
 	if data.QuoteId == "" {
@@ -727,7 +713,7 @@ func (s *sTalkMessage) loadReply(ctx context.Context, data *model.TalkRecords) {
 		return
 	}
 
-	reply := model.Reply{
+	reply := model.TalkRecordReply{
 		UserId:   record.UserId,
 		Nickname: user.Nickname,
 		MsgType:  1,
@@ -748,7 +734,7 @@ func (s *sTalkMessage) loadReply(ctx context.Context, data *model.TalkRecords) {
 }
 
 // 发送消息后置处理
-func (s *sTalkMessage) afterHandle(ctx context.Context, record *model.TalkRecords, opt map[string]string) {
+func (s *sTalkMessage) afterHandle(ctx context.Context, record *model.TalkRecord, opt map[string]string) {
 
 	if record.TalkType == consts.ChatPrivateMode {
 		s.unreadStorage.Incr(ctx, consts.ChatPrivateMode, record.UserId, record.ReceiverId)
@@ -830,7 +816,7 @@ func (s *sTalkMessage) Text(ctx context.Context, params model.TextMessageReq) er
 
 	if err := service.TalkMessage().SendText(ctx, uid, &model.TextMessageReq{
 		Content: params.Text,
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
 			ReceiverId: params.ReceiverId,
 		},
@@ -859,7 +845,7 @@ func (s *sTalkMessage) Code(ctx context.Context, params model.CodeMessageReq) er
 	if err := service.TalkMessage().SendCode(ctx, uid, &model.CodeMessageReq{
 		Lang: params.Lang,
 		Code: params.Code,
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
 			ReceiverId: params.ReceiverId,
 		},
@@ -921,7 +907,7 @@ func (s *sTalkMessage) Image(ctx context.Context, params model.ImageMessageReq) 
 		Width:  meta.Width,
 		Height: meta.Height,
 		Size:   int(file.Size),
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
 			ReceiverId: params.ReceiverId,
 		},
@@ -949,7 +935,7 @@ func (s *sTalkMessage) File(ctx context.Context, params model.MessageFileReq) er
 
 	if err := service.TalkMessage().SendFile(ctx, uid, &model.MessageFileReq{
 		UploadId: params.UploadId,
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
 			ReceiverId: params.ReceiverId,
 		},
@@ -988,7 +974,7 @@ func (s *sTalkMessage) Vote(ctx context.Context, params model.MessageVoteReq) er
 		Title:     params.Title,
 		Options:   params.Options,
 		Anonymous: params.Anonymous,
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   consts.ChatGroupMode,
 			ReceiverId: params.ReceiverId,
 		},
@@ -1016,7 +1002,7 @@ func (s *sTalkMessage) Emoticon(ctx context.Context, params model.EmoticonMessag
 
 	if err := service.TalkMessage().SendEmoticon(ctx, uid, &model.EmoticonMessageReq{
 		EmoticonId: params.EmoticonId,
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
 			ReceiverId: params.ReceiverId,
 		},
@@ -1050,7 +1036,7 @@ func (s *sTalkMessage) Forward(ctx context.Context, params model.ForwardMessageR
 		MessageIds: make([]int, 0),
 		Gids:       make([]int, 0),
 		Uids:       make([]int, 0),
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
 			ReceiverId: params.ReceiverId,
 		},
@@ -1092,7 +1078,7 @@ func (s *sTalkMessage) Card(ctx context.Context, params model.CardMessageReq) er
 
 	if err := service.TalkMessage().SendBusinessCard(ctx, uid, &model.CardMessageReq{
 		UserId: params.ReceiverId,
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
 			ReceiverId: params.ReceiverId,
 		},
@@ -1104,16 +1090,16 @@ func (s *sTalkMessage) Card(ctx context.Context, params model.CardMessageReq) er
 	return nil
 }
 
-// 删除聊天记录
+// 删除消息记录
 func (s *sTalkMessage) Delete(ctx context.Context, params model.MessageDeleteReq) error {
 
-	if err := s.DeleteRecordList(ctx, &model.RemoveRecordListOpt{
+	if err := dao.TalkRecords.DeleteRecord(ctx, &do.RemoveRecord{
 		UserId:     service.Session().GetUid(ctx),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
 		RecordIds:  params.RecordIds,
 	}); err != nil {
-		logger.Error(ctx, err)
+		logger.Error(ctx)
 		return err
 	}
 
@@ -1138,7 +1124,7 @@ func (s *sTalkMessage) Location(ctx context.Context, params model.LocationMessag
 		Longitude:   params.Longitude,
 		Latitude:    params.Latitude,
 		Description: "", // todo 需完善
-		Receiver: &model.MessageReceiver{
+		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
 			ReceiverId: params.ReceiverId,
 		},
@@ -1211,7 +1197,7 @@ func (s *sTalkMessage) MultiMergeForward(ctx context.Context, uid int, params *m
 		ids = append(ids, id)
 	}
 
-	extra := gjson.MustEncodeString(model.TalkRecordExtraForward{
+	extra := gjson.MustEncodeString(model.TalkRecordForward{
 		MsgIds:  ids,
 		Records: tmpRecords,
 	})
@@ -1399,22 +1385,6 @@ func aggregation(ctx context.Context, params *model.ForwardMessageReq) ([]map[st
 	return data, nil
 }
 
-// 删除消息记录
-func (s *sTalkMessage) DeleteRecordList(ctx context.Context, opt *model.RemoveRecordListOpt) error {
-
-	if err := dao.TalkRecords.DeleteRecordList(ctx, &do.RemoveRecord{
-		UserId:     opt.UserId,
-		TalkType:   opt.TalkType,
-		ReceiverId: opt.ReceiverId,
-		RecordIds:  opt.RecordIds,
-	}); err != nil {
-		logger.Error(ctx)
-		return err
-	}
-
-	return nil
-}
-
 // 收藏表情包
 func (s *sTalkMessage) Collect(ctx context.Context, params model.MessageCollectReq) error {
 
@@ -1444,7 +1414,7 @@ func (s *sTalkMessage) Collect(ctx context.Context, params model.MessageCollectR
 		}
 	}
 
-	var file model.TalkRecordExtraImage
+	var file model.TalkRecordImage
 	if err = gjson.Unmarshal([]byte(record.Extra), &file); err != nil {
 		logger.Error(ctx, err)
 		return err

@@ -21,7 +21,7 @@ type (
 		// 邀请好友加入群聊
 		Invite(ctx context.Context, params model.GroupInviteReq) error
 		// 退出群聊
-		SignOut(ctx context.Context, params model.GroupSecedeReq) error
+		Secede(ctx context.Context, params model.GroupSecedeReq) error
 		// 群设置接口(预留)
 		Setting(ctx context.Context, params model.GroupSettingReq) error
 		// 移除指定成员(群聊&管理员权限)
@@ -46,12 +46,6 @@ type (
 		Mute(ctx context.Context, params model.GroupMuteReq) error
 		// 公开群
 		Overt(ctx context.Context, params model.GroupOvertReq) error
-		// 退出群聊[仅管理员及群成员]
-		Secede(ctx context.Context, groupId int, uid int) error
-		// 交接群主权限
-		GroupMemberHandover(ctx context.Context, groupId int, userId int, memberId int) error
-		SetLeaderStatus(ctx context.Context, groupId int, userId int, leader int) error
-		SetMuteStatus(ctx context.Context, groupId int, userId int, status int) error
 	}
 )
 

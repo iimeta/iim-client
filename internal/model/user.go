@@ -1,12 +1,5 @@
 package model
 
-type UserRegister struct {
-	Nickname string
-	Account  string
-	Password string
-	Platform string
-}
-
 // 登录用户详情接口响应参数
 type UserDetailRes struct {
 	Id       int    `json:"id"`
@@ -21,27 +14,8 @@ type UserDetailRes struct {
 
 // 用户配置信息响应参数
 type UserSettingRes struct {
-	UserInfo *UserSettingResponse_UserInfo   `json:"user_info,omitempty"`
-	Setting  *UserSettingResponse_ConfigInfo `json:"setting,omitempty"`
-}
-
-type UserSettingResponse_UserInfo struct {
-	Uid      int    `json:"uid,omitempty"`
-	Nickname string `json:"nickname,omitempty"`
-	Avatar   string `json:"avatar,omitempty"`
-	Motto    string `json:"motto,omitempty"`
-	Gender   int    `json:"gender,omitempty"`
-	IsQiye   bool   `json:"is_qiye,omitempty"`
-	Mobile   string `json:"mobile,omitempty"`
-	Email    string `json:"email,omitempty"`
-}
-
-type UserSettingResponse_ConfigInfo struct {
-	ThemeMode           string `json:"theme_mode,omitempty"`
-	ThemeBagImg         string `json:"theme_bag_img,omitempty"`
-	ThemeColor          string `json:"theme_color,omitempty"`
-	NotifyCueTone       string `json:"notify_cue_tone,omitempty"`
-	KeyboardEventNotify string `json:"keyboard_event_notify,omitempty"`
+	UserInfo *UserInfo    `json:"user_info,omitempty"`
+	Setting  *SettingInfo `json:"setting,omitempty"`
 }
 
 // 用户信息更新接口请求参数
@@ -49,7 +23,7 @@ type UserDetailUpdateReq struct {
 	Avatar   string `json:"avatar,omitempty"`
 	Nickname string `json:"nickname,omitempty" v:"required|max-length:30"`
 	Gender   int    `json:"gender,omitempty" v:"in:0,1,2"`
-	Motto    string `json:"motto,omitempty" v:"max-length:255"`
+	Motto    string `json:"motto,omitempty" v:"max-length:1024"`
 	Birthday string `json:"birthday,omitempty" v:"length:0,10"`
 }
 
@@ -87,4 +61,23 @@ type User struct {
 	IsRobot   int    `json:"is_robot,omitempty"`   // 是否机器人[0:否;1:是;]
 	CreatedAt int64  `json:"created_at,omitempty"` // 注册时间
 	UpdatedAt int64  `json:"updated_at,omitempty"` // 更新时间
+}
+
+type UserInfo struct {
+	UserId   int    `json:"uid,omitempty"`
+	Nickname string `json:"nickname,omitempty"`
+	Avatar   string `json:"avatar,omitempty"`
+	Motto    string `json:"motto,omitempty"`
+	Gender   int    `json:"gender,omitempty"`
+	IsQiye   bool   `json:"is_qiye,omitempty"`
+	Mobile   string `json:"mobile,omitempty"`
+	Email    string `json:"email,omitempty"`
+}
+
+type SettingInfo struct {
+	ThemeMode           string `json:"theme_mode,omitempty"`
+	ThemeBagImg         string `json:"theme_bag_img,omitempty"`
+	ThemeColor          string `json:"theme_color,omitempty"`
+	NotifyCueTone       string `json:"notify_cue_tone,omitempty"`
+	KeyboardEventNotify string `json:"keyboard_event_notify,omitempty"`
 }
