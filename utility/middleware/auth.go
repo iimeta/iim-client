@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/iimeta/iim-client/utility/jwt"
 	"github.com/iimeta/iim-client/utility/logger"
 	"net/http"
@@ -64,7 +65,11 @@ func Auth(r *ghttp.Request, secret string, guard string, storage IStorage) {
 
 	r.SetCtxVar(UID_KEY, uid)
 
-	logger.Debugf(r.GetCtx(), "url: %s, body: %s", r.GetUrl(), r.GetBodyString())
+	if gstr.HasPrefix(r.GetHeader("Content-Type"), "application/json") {
+		logger.Debugf(r.GetCtx(), "url: %s, body: %s", r.GetUrl(), r.GetBodyString())
+	} else {
+		logger.Debugf(r.GetCtx(), "url: %s, Content-Type: %s", r.GetUrl(), r.GetHeader("Content-Type"))
+	}
 
 	r.Middleware.Next()
 }

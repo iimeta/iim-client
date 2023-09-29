@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/iimeta/iim-client/internal/config"
 	"github.com/iimeta/iim-client/internal/consts"
@@ -75,7 +76,7 @@ func (s *sNoteAnnex) Upload(ctx context.Context, params model.AnnexUploadReq) (*
 		return nil, errors.New("附件上传失败")
 	}
 
-	ext := util.FileSuffix(file.Filename)
+	ext := gfile.ExtName(file.Filename)
 
 	filePath := fmt.Sprintf("private/files/note/%s/%s", util.DateNumber(), util.GenFileName(ext))
 

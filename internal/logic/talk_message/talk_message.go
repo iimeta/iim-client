@@ -8,8 +8,10 @@ import (
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/os/grpool"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/iimeta/iim-client/internal/config"
 	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/core"
@@ -28,6 +30,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"html"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -115,7 +118,7 @@ func (s *sTalkMessage) SendVoice(ctx context.Context, uid int, req *model.VoiceM
 		UserId:     uid,
 		ReceiverId: req.Receiver.ReceiverId,
 		Extra: gjson.MustEncodeString(&model.TalkRecordAudio{
-			Suffix:   util.FileSuffix(req.Url),
+			Suffix:   gfile.ExtName(req.Url),
 			Size:     req.Size,
 			Url:      req.Url,
 			Duration: 0,
@@ -660,7 +663,7 @@ func (s *sTalkMessage) save(ctx context.Context, data *model.TalkRecord) error {
 
 	switch data.MsgType {
 	case consts.ChatMsgTypeText:
-		option["text"] = util.MtSubstr(util.ReplaceImgAll(data.Content), 0, 300)
+		option["text"] = gstr.SubStr(util.ReplaceImgAll(data.Content), 0, 300)
 	default:
 		if value, ok := consts.ChatMsgTypeMapping[data.MsgType]; ok {
 			option["text"] = value
@@ -866,7 +869,7 @@ func (s *sTalkMessage) Image(ctx context.Context, params model.ImageMessageReq) 
 		return errors.New("image 字段必传")
 	}
 
-	if !util.Include(util.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif", "webp"}) {
+	if !slices.Contains([]string{"png", "jpg", "jpeg", "gif", "webp"}, gfile.ExtName(file.Filename)) {
 		return errors.New("上传文件格式不正确,仅支持 png、jpg、jpeg、gif 及 webp")
 	}
 
@@ -891,7 +894,7 @@ func (s *sTalkMessage) Image(ctx context.Context, params model.ImageMessageReq) 
 		return err
 	}
 
-	ext := util.FileSuffix(file.Filename)
+	ext := gfile.ExtName(file.Filename)
 
 	meta := util.ReadImageMeta(bytes.NewReader(stream))
 
@@ -1364,7 +1367,7 @@ func aggregation(ctx context.Context, params *model.ForwardMessageReq) ([]map[st
 
 		switch row.MsgType {
 		case consts.ChatMsgTypeText:
-			item["text"] = util.MtSubstr(strings.TrimSpace(row.Content), 0, 30)
+			item["text"] = gstr.SubStr(strings.TrimSpace(row.Content), 0, 30)
 		case consts.ChatMsgTypeCode:
 			item["text"] = "【代码消息】"
 		case consts.ChatMsgTypeImage:

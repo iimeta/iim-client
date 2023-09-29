@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/iimeta/iim-client/internal/model/do"
 	"github.com/iimeta/iim-client/internal/model/entity"
 	"github.com/iimeta/iim-client/utility/db"
@@ -48,7 +49,7 @@ func (d *NoteDao) Detail(ctx context.Context, uid int, noteId string) (*entity.N
 // 新建笔记
 func (d *NoteDao) Create(ctx context.Context, create *do.NoteCreate) (string, error) {
 
-	abstract := util.MtSubstr(create.MdContent, 0, 200)
+	abstract := gstr.SubStr(create.MdContent, 0, 200)
 
 	data := &do.Note{
 		UserId:   create.UserId,
@@ -78,7 +79,7 @@ func (d *NoteDao) Create(ctx context.Context, create *do.NoteCreate) (string, er
 // 更新笔记信息
 func (d *NoteDao) Update(ctx context.Context, edit *do.NoteEdit) error {
 
-	abstract := util.MtSubstr(edit.MdContent, 0, 200)
+	abstract := gstr.SubStr(edit.MdContent, 0, 200)
 
 	if err := d.UpdateById(ctx, edit.NoteId, &do.Note{
 		Title:    edit.Title,

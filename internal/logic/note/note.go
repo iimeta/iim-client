@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/iimeta/iim-client/internal/config"
 	"github.com/iimeta/iim-client/internal/dao"
@@ -17,6 +18,7 @@ import (
 	"github.com/iimeta/iim-client/utility/logger"
 	"github.com/iimeta/iim-client/utility/util"
 	"html"
+	"slices"
 )
 
 type sNote struct {
@@ -213,7 +215,7 @@ func (s *sNote) Upload(ctx context.Context) (*model.NoteUploadImageRes, error) {
 		return nil, errors.New("image 字段必传")
 	}
 
-	if !util.Include(util.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif", "webp"}) {
+	if !slices.Contains([]string{"png", "jpg", "jpeg", "gif", "webp"}, gfile.ExtName(file.Filename)) {
 		return nil, errors.New("上传文件格式不正确,仅支持 png、jpg、jpeg、gif 和 webp")
 	}
 
@@ -228,7 +230,7 @@ func (s *sNote) Upload(ctx context.Context) (*model.NoteUploadImageRes, error) {
 		return nil, errors.New("文件上传失败")
 	}
 
-	ext := util.FileSuffix(file.Filename)
+	ext := gfile.ExtName(file.Filename)
 	meta := util.ReadImageMeta(bytes.NewReader(stream))
 
 	filePath := fmt.Sprintf("public/media/image/note/%s/%s", util.DateNumber(), util.GenImageName(ext, meta.Width, meta.Height))

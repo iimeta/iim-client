@@ -10,22 +10,7 @@ type IntInterface interface {
 	uint | uint8 | uint16 | uint32 | uint64 | int | int8 | int16 | int32 | int64
 }
 
-type FloatInterface interface {
-	float32 | float64
-}
-
-// Include 检测给定的值是否包含在切片中
-func Include[T IntInterface | string](find T, arr []T) bool {
-	for _, value := range arr {
-		if value == find {
-			return true
-		}
-	}
-
-	return false
-}
-
-// Unique 切片去重
+// 切片去重
 func Unique[T IntInterface | string](data []T) []T {
 
 	list, hash := make([]T, 0), make(map[T]struct{})
@@ -40,38 +25,7 @@ func Unique[T IntInterface | string](data []T) []T {
 	return list
 }
 
-func Max[T IntInterface | FloatInterface](arr []T) T {
-	max := arr[0]
-	for _, v := range arr {
-		if v > max {
-			max = v
-		}
-	}
-
-	return max
-}
-
-func Min[T IntInterface | FloatInterface](arr []T) T {
-	min := arr[0]
-	for _, v := range arr {
-		if v < min {
-			min = v
-		}
-	}
-
-	return min
-}
-
-func Sum[T IntInterface | FloatInterface](arr []T) T {
-	var count T
-	for _, v := range arr {
-		count += v
-	}
-
-	return count
-}
-
-// ToMap 切片转 map
+// 切片转 map
 func ToMap[T any, K int | string](arr []T, fn func(T) K) map[K]T {
 	var m = make(map[K]T)
 

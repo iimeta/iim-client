@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/iimeta/iim-client/internal/config"
 	"github.com/iimeta/iim-client/internal/dao"
 	"github.com/iimeta/iim-client/internal/errors"
@@ -14,6 +15,7 @@ import (
 	"github.com/iimeta/iim-client/utility/filesystem"
 	"github.com/iimeta/iim-client/utility/logger"
 	"github.com/iimeta/iim-client/utility/util"
+	"slices"
 	"time"
 )
 
@@ -67,7 +69,7 @@ func (s *sEmoticon) Upload(ctx context.Context) (*model.UploadRes, error) {
 		return nil, errors.New("emoticon 字段必传")
 	}
 
-	if !util.Include(util.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif"}) {
+	if !slices.Contains([]string{"png", "jpg", "jpeg", "gif"}, gfile.ExtName(file.Filename)) {
 		return nil, errors.New("上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
 	}
 
@@ -83,7 +85,7 @@ func (s *sEmoticon) Upload(ctx context.Context) (*model.UploadRes, error) {
 	}
 
 	meta := util.ReadImageMeta(bytes.NewReader(stream))
-	ext := util.FileSuffix(file.Filename)
+	ext := gfile.ExtName(file.Filename)
 	src := fmt.Sprintf("public/media/image/emoticon/%s/%s", time.Now().Format("20060102"), util.GenImageName(ext, meta.Width, meta.Height))
 	if err = s.Filesystem.Default.Write(stream, src); err != nil {
 		logger.Error(ctx, err)

@@ -17,6 +17,7 @@ import (
 	"github.com/iimeta/iim-client/utility/logger"
 	"github.com/iimeta/iim-client/utility/util"
 	"net/http"
+	"slices"
 	"time"
 )
 
@@ -302,7 +303,7 @@ func (s *sTalkRecords) SearchHistoryRecords(ctx context.Context, params model.Ta
 		consts.ChatMsgTypeVote,
 	}
 
-	if util.Include(params.MsgType, m) {
+	if slices.Contains(m, params.MsgType) {
 		m = []int{params.MsgType}
 	}
 

@@ -9,9 +9,9 @@ import (
 	"github.com/iimeta/iim-client/internal/model/entity"
 	"github.com/iimeta/iim-client/utility/db"
 	"github.com/iimeta/iim-client/utility/logger"
-	"github.com/iimeta/iim-client/utility/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"slices"
 )
 
 var Emoticon = NewEmoticonDao()
@@ -79,7 +79,7 @@ func (d *EmoticonDao) GetDetailsAll(ctx context.Context, emoticonId string, uid 
 func (d *EmoticonDao) RemoveUserSysEmoticon(ctx context.Context, uid int, emoticonId string) error {
 
 	ids := d.GetUserInstallIds(ctx, uid)
-	if !util.Include(emoticonId, ids) {
+	if !slices.Contains(ids, emoticonId) {
 		return errors.New("数据不存在")
 	}
 
@@ -102,7 +102,7 @@ func (d *EmoticonDao) RemoveUserSysEmoticon(ctx context.Context, uid int, emotic
 func (d *EmoticonDao) AddUserSysEmoticon(ctx context.Context, uid int, emoticonId string) error {
 
 	ids := d.GetUserInstallIds(ctx, uid)
-	if util.Include(emoticonId, ids) {
+	if slices.Contains(ids, emoticonId) {
 		return nil
 	}
 

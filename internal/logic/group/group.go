@@ -17,6 +17,7 @@ import (
 	"github.com/iimeta/iim-client/utility/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"slices"
 )
 
 type sGroup struct {
@@ -332,7 +333,7 @@ func (s *sGroup) GetInviteFriends(ctx context.Context, params model.GetInviteFri
 
 	data := make([]*model.ContactListItem, 0)
 	for i := 0; i < len(items); i++ {
-		if !util.Include(items[i].Id, mids) {
+		if !slices.Contains(mids, items[i].Id) {
 			data = append(data, items[i])
 		}
 	}
