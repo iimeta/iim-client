@@ -23,7 +23,7 @@ import (
 var modelsMap sync.Map
 var clientMap sync.Map
 
-var apiKeysRoundrobin = new(util.Roundrobin)
+var apiKeysRoundrobin = new(util.RoundRobin)
 var ChatMessageRoleSystem openai.ChatCompletionMessage
 
 func init() {
@@ -61,7 +61,7 @@ func Init(ctx context.Context, model string) {
 	proxyURL := cfg["proxy_url"].String()
 	apiKeys := cfg["api_keys"].Strings()
 
-	apiKey := apiKeysRoundrobin.Roundrobin(apiKeys)
+	apiKey := apiKeysRoundrobin.RoundRobin(apiKeys)
 	logger.Infof(ctx, "apiKey: %s", apiKey)
 
 	config := openai.DefaultConfig(apiKey)

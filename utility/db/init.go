@@ -33,6 +33,7 @@ func init() {
 	if err = client.Ping(ctx, readpref.Primary()); err != nil {
 		panic(fmt.Sprint("MongoDB", err))
 	}
+
 	logger.Info(ctx, "MongoDB Successfully connected and pinged.")
 
 	database, err := config.Get(ctx, "mongodb.database")

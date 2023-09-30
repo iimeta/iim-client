@@ -1,7 +1,6 @@
 package util
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -51,14 +50,4 @@ func ParseIds(str string) []int {
 	}
 
 	return ids
-}
-
-func ToIds[T IntInterface](items []T) string {
-	tmp := make([]string, 0, len(items))
-
-	for _, item := range items {
-		tmp = append(tmp, fmt.Sprintf("%d", item))
-	}
-
-	return strings.Join(tmp, ",")
 }

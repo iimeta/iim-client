@@ -11,7 +11,7 @@ import (
 	"github.com/iimeta/iim-client/utility/util"
 )
 
-var qwenApiKeysRoundrobin = new(util.Roundrobin)
+var qwenApiKeysRoundrobin = new(util.RoundRobin)
 
 func init() {
 
@@ -39,7 +39,7 @@ func getQwenApiKey(ctx context.Context, model string) string {
 
 	apiKeys := cfg["api_keys"].Strings()
 
-	apiKey := qwenApiKeysRoundrobin.Roundrobin(apiKeys)
+	apiKey := qwenApiKeysRoundrobin.RoundRobin(apiKeys)
 	logger.Infof(ctx, "apiKey: %s", apiKey)
 
 	return apiKey

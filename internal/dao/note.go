@@ -163,7 +163,7 @@ func (d *NoteDao) Asterisk(ctx context.Context, uid int, noteId string, mode int
 // 更新笔记标签
 func (d *NoteDao) Tag(ctx context.Context, uid int, noteId string, tags []int) error {
 	return d.UpdateOne(ctx, bson.M{"_id": noteId, "user_id": uid}, bson.M{
-		"tags_id": util.ToIds(tags),
+		"tags_id": gstr.JoinAny(tags, ","),
 	})
 }
 

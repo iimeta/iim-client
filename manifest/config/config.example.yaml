@@ -56,6 +56,7 @@ app:
   env: dev  # dev, prod
   debug: true
   juhe_key: xxx
+  juhe_url:
   admin_email:
     - xxx@xxx.com
 
