@@ -72,6 +72,7 @@ type UserInfo struct {
 	IsQiye   bool   `json:"is_qiye,omitempty"`
 	Mobile   string `json:"mobile,omitempty"`
 	Email    string `json:"email,omitempty"`
+	Birthday string `json:"birthday,omitempty"` // 生日
 }
 
 type SettingInfo struct {

@@ -57,15 +57,10 @@ func (d *EmoticonDao) GetSystemEmoticonList(ctx context.Context) ([]*entity.Emot
 }
 
 // 获取系统表情包分组详情列表
-func (d *EmoticonDao) GetDetailsAll(ctx context.Context, emoticonId string, uid int) ([]*entity.EmoticonItem, error) {
+func (d *EmoticonDao) GetDetailsAll(ctx context.Context, uid int) ([]*entity.EmoticonItem, error) {
 
-	filter := bson.M{}
-	if emoticonId != "" && emoticonId != "0" {
-		filter["emoticon_id"] = emoticonId
-	}
-
-	if uid != 0 {
-		filter["user_id"] = uid
+	filter := bson.M{
+		"user_id": uid,
 	}
 
 	emoticonItemList := make([]*entity.EmoticonItem, 0)

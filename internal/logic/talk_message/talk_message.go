@@ -817,7 +817,7 @@ func (s *sTalkMessage) Text(ctx context.Context, params model.TextMessageReq) er
 		return err
 	}
 
-	if err := service.TalkMessage().SendText(ctx, uid, &model.TextMessageReq{
+	if err := s.SendText(ctx, uid, &model.TextMessageReq{
 		Content: params.Text,
 		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
@@ -845,7 +845,7 @@ func (s *sTalkMessage) Code(ctx context.Context, params model.CodeMessageReq) er
 		return err
 	}
 
-	if err := service.TalkMessage().SendCode(ctx, uid, &model.CodeMessageReq{
+	if err := s.SendCode(ctx, uid, &model.CodeMessageReq{
 		Lang: params.Lang,
 		Code: params.Code,
 		Receiver: &model.Receiver{
@@ -905,7 +905,7 @@ func (s *sTalkMessage) Image(ctx context.Context, params model.ImageMessageReq) 
 		return err
 	}
 
-	if err = service.TalkMessage().SendImage(ctx, service.Session().GetUid(ctx), &model.ImageMessageReq{
+	if err = s.SendImage(ctx, service.Session().GetUid(ctx), &model.ImageMessageReq{
 		Url:    s.Filesystem.Default.PublicUrl(filePath),
 		Width:  meta.Width,
 		Height: meta.Height,
@@ -936,7 +936,7 @@ func (s *sTalkMessage) File(ctx context.Context, params model.MessageFileReq) er
 		return err
 	}
 
-	if err := service.TalkMessage().SendFile(ctx, uid, &model.MessageFileReq{
+	if err := s.SendFile(ctx, uid, &model.MessageFileReq{
 		UploadId: params.UploadId,
 		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
@@ -972,7 +972,7 @@ func (s *sTalkMessage) Vote(ctx context.Context, params model.MessageVoteReq) er
 		return err
 	}
 
-	if err := service.TalkMessage().SendVote(ctx, uid, &model.MessageVoteReq{
+	if err := s.SendVote(ctx, uid, &model.MessageVoteReq{
 		Mode:      params.Mode,
 		Title:     params.Title,
 		Options:   params.Options,
@@ -1003,7 +1003,7 @@ func (s *sTalkMessage) Emoticon(ctx context.Context, params model.EmoticonMessag
 		return err
 	}
 
-	if err := service.TalkMessage().SendEmoticon(ctx, uid, &model.EmoticonMessageReq{
+	if err := s.SendEmoticon(ctx, uid, &model.EmoticonMessageReq{
 		EmoticonId: params.EmoticonId,
 		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
@@ -1057,7 +1057,7 @@ func (s *sTalkMessage) Forward(ctx context.Context, params model.ForwardMessageR
 		data.Gids = append(data.Gids, id)
 	}
 
-	if err := service.TalkMessage().SendForward(ctx, uid, data); err != nil {
+	if err := s.SendForward(ctx, uid, data); err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
@@ -1079,7 +1079,7 @@ func (s *sTalkMessage) Card(ctx context.Context, params model.CardMessageReq) er
 		return err
 	}
 
-	if err := service.TalkMessage().SendBusinessCard(ctx, uid, &model.CardMessageReq{
+	if err := s.SendBusinessCard(ctx, uid, &model.CardMessageReq{
 		UserId: params.ReceiverId,
 		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
@@ -1123,7 +1123,7 @@ func (s *sTalkMessage) Location(ctx context.Context, params model.LocationMessag
 		return err
 	}
 
-	if err := service.TalkMessage().SendLocation(ctx, uid, &model.LocationMessageReq{
+	if err := s.SendLocation(ctx, uid, &model.LocationMessageReq{
 		Longitude:   params.Longitude,
 		Latitude:    params.Latitude,
 		Description: "", // todo 需完善
@@ -1201,8 +1201,9 @@ func (s *sTalkMessage) MultiMergeForward(ctx context.Context, uid int, params *m
 	}
 
 	extra := gjson.MustEncodeString(model.TalkRecordForward{
-		MsgIds:  ids,
-		Records: tmpRecords,
+		RecordsIds: ids,
+		Records:    tmpRecords,
+		TalkType:   params.Receiver.TalkType,
 	})
 
 	records := make([]interface{}, 0, len(receives))
@@ -1329,7 +1330,7 @@ func aggregation(ctx context.Context, params *model.ForwardMessageReq) ([]map[st
 		ids = ids[:3]
 	}
 
-	talkRecordsList, err := dao.TalkRecords.Find(ctx, bson.M{"record_id": bson.M{"$in": ids}})
+	talkRecordsList, err := dao.TalkRecords.Find(ctx, bson.M{"record_id": bson.M{"$in": ids}}, "created_at")
 	if err != nil {
 		logger.Error(ctx, err)
 		return nil, err
@@ -1465,7 +1466,7 @@ func (s *sTalkMessage) onSendText(ctx context.Context) error {
 		return err
 	}
 
-	err = service.TalkMessage().SendText(ctx, service.Session().GetUid(ctx), textMessageReq)
+	err = s.SendText(ctx, service.Session().GetUid(ctx), textMessageReq)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -1522,7 +1523,7 @@ func (s *sTalkMessage) onSendImage(ctx context.Context) error {
 		return err
 	}
 
-	err = service.TalkMessage().SendImage(ctx, service.Session().GetUid(ctx), imageMessageReq)
+	err = s.SendImage(ctx, service.Session().GetUid(ctx), imageMessageReq)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -1541,7 +1542,7 @@ func (s *sTalkMessage) onSendVoice(ctx context.Context) error {
 		return err
 	}
 
-	err = service.TalkMessage().SendVoice(ctx, service.Session().GetUid(ctx), voiceMessageReq)
+	err = s.SendVoice(ctx, service.Session().GetUid(ctx), voiceMessageReq)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -1560,7 +1561,7 @@ func (s *sTalkMessage) onSendVideo(ctx context.Context) error {
 		return err
 	}
 
-	err = service.TalkMessage().SendVideo(ctx, service.Session().GetUid(ctx), videoMessageReq)
+	err = s.SendVideo(ctx, service.Session().GetUid(ctx), videoMessageReq)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -1579,7 +1580,7 @@ func (s *sTalkMessage) onSendFile(ctx context.Context) error {
 		return err
 	}
 
-	err = service.TalkMessage().SendFile(ctx, service.Session().GetUid(ctx), fileMessageReq)
+	err = s.SendFile(ctx, service.Session().GetUid(ctx), fileMessageReq)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -1598,7 +1599,7 @@ func (s *sTalkMessage) onSendCode(ctx context.Context) error {
 		return err
 	}
 
-	err = service.TalkMessage().SendCode(ctx, service.Session().GetUid(ctx), codeMessageReq)
+	err = s.SendCode(ctx, service.Session().GetUid(ctx), codeMessageReq)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -1617,7 +1618,7 @@ func (s *sTalkMessage) onSendLocation(ctx context.Context) error {
 		return err
 	}
 
-	err = service.TalkMessage().SendLocation(ctx, service.Session().GetUid(ctx), locationMessageReq)
+	err = s.SendLocation(ctx, service.Session().GetUid(ctx), locationMessageReq)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -1636,7 +1637,7 @@ func (s *sTalkMessage) onSendForward(ctx context.Context) error {
 		return err
 	}
 
-	err = service.TalkMessage().SendForward(ctx, service.Session().GetUid(ctx), forwardMessageReq)
+	err = s.SendForward(ctx, service.Session().GetUid(ctx), forwardMessageReq)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -1655,7 +1656,7 @@ func (s *sTalkMessage) onSendEmoticon(ctx context.Context) error {
 		return err
 	}
 
-	err = service.TalkMessage().SendEmoticon(ctx, service.Session().GetUid(ctx), emoticonMessageReq)
+	err = s.SendEmoticon(ctx, service.Session().GetUid(ctx), emoticonMessageReq)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -1682,7 +1683,7 @@ func (s *sTalkMessage) onSendVote(ctx context.Context) error {
 		return errors.New("options 选项不能超过6个")
 	}
 
-	err = service.TalkMessage().SendVote(ctx, service.Session().GetUid(ctx), voteMessageReq)
+	err = s.SendVote(ctx, service.Session().GetUid(ctx), voteMessageReq)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -1701,7 +1702,7 @@ func (s *sTalkMessage) onSendCard(ctx context.Context) error {
 		return err
 	}
 
-	err = service.TalkMessage().SendBusinessCard(ctx, service.Session().GetUid(ctx), cardMessageReq)
+	err = s.SendBusinessCard(ctx, service.Session().GetUid(ctx), cardMessageReq)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -1720,7 +1721,7 @@ func (s *sTalkMessage) onMixedMessage(ctx context.Context) error {
 		return err
 	}
 
-	err = service.TalkMessage().SendMixedMessage(ctx, service.Session().GetUid(ctx), mixedMessageReq)
+	err = s.SendMixedMessage(ctx, service.Session().GetUid(ctx), mixedMessageReq)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err

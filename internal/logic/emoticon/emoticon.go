@@ -38,7 +38,7 @@ func (s *sEmoticon) CollectList(ctx context.Context) ([]*model.CollectEmoticon, 
 
 	collectEmoticons := make([]*model.CollectEmoticon, 0)
 
-	if items, err := dao.Emoticon.GetDetailsAll(ctx, "", service.Session().GetUid(ctx)); err == nil {
+	if items, err := dao.Emoticon.GetDetailsAll(ctx, service.Session().GetUid(ctx)); err == nil {
 		for _, item := range items {
 			collectEmoticons = append(collectEmoticons, &model.CollectEmoticon{
 				MediaId: item.Id,

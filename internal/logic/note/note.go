@@ -138,7 +138,7 @@ func (s *sNote) Detail(ctx context.Context, params model.NoteDetailReq) (*model.
 // 添加或编辑笔记
 func (s *sNote) Edit(ctx context.Context, params model.NoteEditReq) (*model.NoteEditRes, error) {
 
-	if params.NoteId == "" || params.NoteId == "0" { // todo
+	if params.NoteId == "" {
 		opt := &do.NoteCreate{
 			UserId:    service.Session().GetUid(ctx),
 			NoteId:    params.NoteId,

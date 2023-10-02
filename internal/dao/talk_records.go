@@ -181,7 +181,7 @@ func (d *TalkRecordsDao) GetForwardRecords(ctx context.Context, uid, recordId in
 		return nil, nil, err
 	}
 
-	talkRecordsList, err := d.Find(ctx, bson.M{"record_id": bson.M{"$in": extra.MsgIds}}, "-sequence")
+	talkRecordsList, err := d.Find(ctx, bson.M{"record_id": bson.M{"$in": extra.RecordsIds}}, "created_at")
 	if err != nil {
 		return nil, nil, err
 	}

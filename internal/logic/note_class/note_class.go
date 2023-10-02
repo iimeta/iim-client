@@ -69,7 +69,7 @@ func (s *sNoteClass) Edit(ctx context.Context, params model.ClassEditReq) (*mode
 
 	uid := service.Session().GetUid(ctx)
 
-	if params.ClassId == "" || params.ClassId == "0" { // todo
+	if params.ClassId == "" {
 
 		id, err := dao.NoteClass.Create(ctx, uid, params.ClassName)
 		if err != nil {

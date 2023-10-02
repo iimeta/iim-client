@@ -125,9 +125,7 @@ func (d *ContactDao) LoadContactCache(ctx context.Context, uid int) error {
 	return d.cache.MSet(ctx, uid, items)
 }
 
-// UpdateRemark 编辑好友备注
-// @params uid      用户ID
-// @params friendId 好友ID
+// 修改好友备注
 func (d *ContactDao) UpdateRemark(ctx context.Context, uid int, friendId int, remark string) error {
 
 	filter := bson.M{
@@ -146,9 +144,7 @@ func (d *ContactDao) UpdateRemark(ctx context.Context, uid int, friendId int, re
 	return nil
 }
 
-// Delete 删除好友
-// @params uid      用户ID
-// @params friendId 好友ID
+// 删除好友
 func (d *ContactDao) Delete(ctx context.Context, uid, friendId int) error {
 
 	filter := bson.M{
@@ -170,7 +166,7 @@ func (d *ContactDao) Delete(ctx context.Context, uid, friendId int) error {
 
 		if err := ContactGroup.UpdateOne(ctx, filter, bson.M{
 			"$inc": bson.M{
-				"num": -1,
+				"count": -1,
 			},
 		}); err != nil {
 			return err
@@ -186,7 +182,7 @@ func (d *ContactDao) Delete(ctx context.Context, uid, friendId int) error {
 	return nil
 }
 
-// 获取好友列表
+// 好友列表
 func (d *ContactDao) List(ctx context.Context, uid int) ([]*entity.Contact, []*entity.User, error) {
 
 	filter := bson.M{
@@ -254,7 +250,7 @@ func (d *ContactDao) MoveGroup(ctx context.Context, uid int, friendId int, group
 
 		if err := ContactGroup.UpdateOne(ctx, filter, bson.M{
 			"$inc": bson.M{
-				"num": -1,
+				"count": -1,
 			},
 		}); err != nil {
 			return err
@@ -264,7 +260,6 @@ func (d *ContactDao) MoveGroup(ctx context.Context, uid int, friendId int, group
 	filter = bson.M{
 		"user_id":   uid,
 		"friend_id": friendId,
-		//"group_id":  contact.GroupId,
 	}
 
 	if err := d.UpdateOne(ctx, filter, bson.M{
@@ -280,7 +275,7 @@ func (d *ContactDao) MoveGroup(ctx context.Context, uid int, friendId int, group
 
 	if err := ContactGroup.UpdateOne(ctx, filter, bson.M{
 		"$inc": bson.M{
-			"num": 1,
+			"count": 1,
 		},
 	}); err != nil {
 		return err

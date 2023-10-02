@@ -431,10 +431,11 @@ func (s *sGroup) Members(ctx context.Context, params model.GroupMemberListReq) (
 			UserId:   member.UserId,
 			Leader:   member.Leader,
 			IsMute:   member.IsMute,
-			Remark:   member.UserCard,
+			UserCard: member.UserCard,
 			Nickname: userMap[member.UserId].Nickname,
 			Avatar:   userMap[member.UserId].Avatar,
 			Gender:   userMap[member.UserId].Gender,
+			Motto:    userMap[member.UserId].Motto,
 		})
 	}
 

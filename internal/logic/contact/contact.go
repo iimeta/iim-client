@@ -31,7 +31,7 @@ func New() service.IContact {
 	}
 }
 
-// List 好友列表
+// 好友列表
 func (s *sContact) List(ctx context.Context) (*model.ContactListRes, error) {
 
 	contactList, userList, err := dao.Contact.List(ctx, service.Session().GetUid(ctx))
@@ -60,7 +60,7 @@ func (s *sContact) List(ctx context.Context) (*model.ContactListRes, error) {
 	return &model.ContactListRes{Items: items}, nil
 }
 
-// Delete 删除好友
+// 删除好友
 func (s *sContact) Delete(ctx context.Context, params model.ContactDeleteReq) error {
 
 	uid := service.Session().GetUid(ctx)
@@ -93,7 +93,7 @@ func (s *sContact) Delete(ctx context.Context, params model.ContactDeleteReq) er
 	return nil
 }
 
-// Search 查找好友
+// 查找好友
 func (s *sContact) Search(ctx context.Context, params model.ContactSearchReq) (*model.ContactSearchRes, error) {
 
 	user, err := dao.User.FindUserByAccount(ctx, params.Mobile)
@@ -117,7 +117,7 @@ func (s *sContact) Search(ctx context.Context, params model.ContactSearchReq) (*
 	}, nil
 }
 
-// Remark 编辑好友备注
+// 编辑好友备注
 func (s *sContact) Remark(ctx context.Context, params model.ContactEditRemarkReq) error {
 
 	if err := dao.Contact.UpdateRemark(ctx, service.Session().GetUid(ctx), params.FriendId, params.Remark); err != nil {
@@ -128,7 +128,7 @@ func (s *sContact) Remark(ctx context.Context, params model.ContactEditRemarkReq
 	return nil
 }
 
-// Detail 好友详情信息
+// 好友详情信息
 func (s *sContact) Detail(ctx context.Context, params model.ContactDetailReq) (*model.ContactDetailRes, error) {
 
 	uid := service.Session().GetUid(ctx)
@@ -151,6 +151,7 @@ func (s *sContact) Detail(ctx context.Context, params model.ContactDetailReq) (*
 		Avatar:       user.Avatar,
 		Gender:       user.Gender,
 		Motto:        user.Motto,
+		Birthday:     user.Birthday,
 		FriendApply:  0,
 		FriendStatus: 0, // 朋友关系[0:本人;1:陌生人;2:朋友;]
 	}
@@ -177,7 +178,7 @@ func (s *sContact) Detail(ctx context.Context, params model.ContactDetailReq) (*
 	return &data, nil
 }
 
-// MoveGroup 移动好友分组
+// 移动好友分组
 func (s *sContact) MoveGroup(ctx context.Context, params model.ContactChangeGroupReq) error {
 
 	err := dao.Contact.MoveGroup(ctx, service.Session().GetUid(ctx), params.UserId, params.GroupId)

@@ -76,7 +76,7 @@ type LocationMessageReq struct {
 	ReceiverId  int       `json:"receiver_id" v:"required"`
 }
 
-// // 转发消息
+// 转发消息
 type ForwardMessageReq struct {
 	Type            string    `json:"type,omitempty"`
 	Mode            int       `json:"mode,omitempty" v:"required"`        // 转发模式

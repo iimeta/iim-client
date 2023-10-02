@@ -116,6 +116,7 @@ func (s *sUser) Setting(ctx context.Context) (*model.UserSettingRes, error) {
 			Gender:   user.Gender,
 			Mobile:   user.Mobile,
 			Email:    user.Email,
+			Birthday: user.Birthday,
 		},
 		Setting: &model.SettingInfo{},
 	}, nil

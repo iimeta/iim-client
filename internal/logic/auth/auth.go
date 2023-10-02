@@ -151,29 +151,39 @@ func (s *sAuth) Login(ctx context.Context, params model.LoginReq) (*model.LoginR
 		return nil, err
 	}
 
-	// TODO 这里需要异步处理
-	loginRobot, _ := dao.Robot.GetLoginRobot(ctx)
+	loginRobot, err := dao.Robot.GetLoginRobot(ctx)
+	if err != nil {
+		logger.Error(ctx, err)
+	}
+
 	if loginRobot != nil {
 
 		ip := g.RequestFromCtx(ctx).GetClientIp()
-		address, _ := util.FindAddress(ctx, ip)
+		address, err := util.FindAddress(ctx, ip)
+		if err != nil {
+			logger.Error(ctx, err)
+		}
 
-		_, _ = dao.TalkSession.Create(ctx, &do.TalkSessionCreate{
+		if _, err = dao.TalkSession.Create(ctx, &do.TalkSessionCreate{
 			UserId:     user.UserId,
 			TalkType:   consts.ChatPrivateMode,
 			ReceiverId: loginRobot.UserId,
 			IsRobot:    1,
 			IsTalk:     loginRobot.IsTalk,
-		})
+		}); err != nil {
+			logger.Error(ctx, err)
+		}
 
 		// 推送登录消息
-		_ = service.TalkMessage().SendLogin(ctx, user.UserId, &model.LoginMessageReq{
+		if err = service.TalkMessage().SendLogin(ctx, user.UserId, &model.LoginMessageReq{
 			Ip:       ip,
 			Address:  address,
 			Platform: params.Platform,
 			Agent:    g.RequestFromCtx(ctx).GetHeader("user-agent"),
 			Reason:   "常用设备登录",
-		})
+		}); err != nil {
+			logger.Error(ctx, err)
+		}
 	}
 
 	return &model.LoginRes{

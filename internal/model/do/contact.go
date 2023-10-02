@@ -32,7 +32,6 @@ type ContactApply struct {
 // 好友分组
 type ContactGroup struct {
 	gmeta.Meta `collection:"contact_group" bson:"-"`
-	Id         string `bson:"_id"`        // ID todo
 	UserId     int    `bson:"user_id"`    // 用户ID
 	Name       string `bson:"name"`       // 分组名称
 	Count      int    `json:"count"`      // 成员总数

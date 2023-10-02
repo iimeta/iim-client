@@ -49,6 +49,7 @@ type ContactDetailRes struct {
 	FriendStatus int    `json:"friend_status"`
 	GroupId      string `json:"group_id"`
 	Email        string `json:"email"`
+	Birthday     string `json:"birthday"` // 生日
 }
 
 // 修改好友分组接口请求参数
@@ -174,7 +175,7 @@ type ContactApply struct {
 
 // 好友分组
 type ContactGroup struct {
-	Id    string `json:"id"`    // 主键ID
+	Id    string `json:"id"`    // ID
 	Name  string `json:"name"`  // 分组名称
 	Count int    `json:"count"` // 成员总数
 	Sort  int    `json:"sort"`  // 分组排序

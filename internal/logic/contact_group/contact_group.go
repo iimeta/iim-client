@@ -83,15 +83,15 @@ func (s *sContactGroup) Save(ctx context.Context, params model.GroupSaveReq) err
 
 	uid := service.Session().GetUid(ctx)
 
-	updateItems := make([]*do.ContactGroup, 0)
+	updateItems := make([]*model.ContactGroup, 0)
 	deleteItems := make([]string, 0)
 	insertItems := make([]interface{}, 0)
 
 	ids := make(map[string]struct{})
 	for i, item := range params.Items {
-		if item.Id != "" && item.Id != "0" {
+		if item.Id != "" {
 			ids[item.Id] = struct{}{}
-			updateItems = append(updateItems, &do.ContactGroup{
+			updateItems = append(updateItems, &model.ContactGroup{
 				Id:   item.Id,
 				Sort: i + 1,
 				Name: item.Name,
@@ -131,7 +131,7 @@ func (s *sContactGroup) Save(ctx context.Context, params model.GroupSaveReq) err
 		}
 
 		if err := dao.Contact.UpdateMany(ctx, bson.M{"user_id": uid, "group_id": bson.M{"$in": deleteItems}}, bson.M{
-			"group_id": 0,
+			"group_id": nil,
 		}); err != nil {
 			logger.Error(ctx, err)
 			return err
