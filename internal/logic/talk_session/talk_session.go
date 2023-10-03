@@ -28,7 +28,6 @@ type sTalkSession struct {
 	ClientStorage  *cache.ClientStorage
 	MessageStorage *cache.MessageStorage
 	UnreadStorage  *cache.UnreadStorage
-	ContactRemark  *cache.ContactRemark
 }
 
 func init() {
@@ -41,7 +40,6 @@ func New() service.ITalkSession {
 		ClientStorage:  cache.NewClientStorage(redis.Client, config.Cfg, cache.NewSidStorage(redis.Client)),
 		MessageStorage: cache.NewMessageStorage(redis.Client),
 		UnreadStorage:  cache.NewUnreadStorage(redis.Client),
-		ContactRemark:  cache.NewContactRemark(redis.Client),
 	}
 }
 

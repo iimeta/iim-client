@@ -319,7 +319,7 @@ func (s *sServerConsume) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 		return
 	}
 
-	record, err := dao.TalkRecords.FindById(ctx, in.RecordId)
+	record, err := dao.TalkRecords.FindByRecordId(ctx, in.RecordId)
 	if err != nil {
 		logger.Error(ctx, err)
 		return

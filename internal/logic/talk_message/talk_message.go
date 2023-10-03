@@ -468,7 +468,7 @@ func (s *sTalkMessage) Revoke(ctx context.Context, params model.MessageRevokeReq
 
 	uid := service.Session().GetUid(ctx)
 
-	record, err := dao.TalkRecords.FindById(ctx, params.RecordId)
+	record, err := dao.TalkRecords.FindByRecordId(ctx, params.RecordId)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -486,7 +486,7 @@ func (s *sTalkMessage) Revoke(ctx context.Context, params model.MessageRevokeReq
 		return errors.New("超出有效撤回时间范围, 无法进行撤销")
 	}
 
-	if err := dao.TalkRecords.UpdateById(ctx, params.RecordId, bson.M{"is_revoke": 1}); err != nil {
+	if err := dao.TalkRecords.UpdateOne(ctx, bson.M{"record_id": params.RecordId}, bson.M{"is_revoke": 1}); err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
@@ -1148,7 +1148,7 @@ func (s *sTalkMessage) Verify(ctx context.Context, uid int, params *model.Forwar
 		},
 		"talk_type": params.Receiver.TalkType,
 		"msg_type": bson.M{
-			"$in": []int{1, 2, 3, 4, 5, 6, 7, 8, consts.ChatMsgTypeForward},
+			"$nin": []int{consts.ChatMsgTypeLogin, consts.ChatMsgTypeVote},
 		},
 		"is_revoke": bson.M{
 			"$ne": 1,
@@ -1394,7 +1394,7 @@ func (s *sTalkMessage) Collect(ctx context.Context, params model.MessageCollectR
 
 	uid := service.Session().GetUid(ctx)
 
-	record, err := dao.TalkRecords.FindById(ctx, params.RecordId)
+	record, err := dao.TalkRecords.FindByRecordId(ctx, params.RecordId)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err

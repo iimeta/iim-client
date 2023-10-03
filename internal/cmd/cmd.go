@@ -27,9 +27,6 @@ import (
 	"github.com/iimeta/iim-client/utility/socket"
 	"golang.org/x/sync/errgroup"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 )
 
@@ -157,9 +154,6 @@ var (
 					}
 				})
 
-				c := make(chan os.Signal, 1)
-				signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
-
 				// 延时启动守护协程
 				time.AfterFunc(3*time.Second, func() {
 					service.ServerSubscribe().Start(groupCtx, eg)
@@ -170,6 +164,8 @@ var (
 				if err != nil {
 					panic(err)
 				}
+
+				logger.Info(r.Context(), "WebSocket 连接成功...")
 			})
 
 			s.Run()
