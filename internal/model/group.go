@@ -266,10 +266,3 @@ type NoticeEdit struct {
 	IsTop     int
 	IsConfirm int
 }
-
-type GroupAuth struct {
-	TalkType          int
-	UserId            int
-	ReceiverId        int
-	IsVerifyGroupMute bool
-}

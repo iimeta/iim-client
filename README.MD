@@ -27,7 +27,7 @@
 4. Linux环境, 到 iim-client/bin 目录下, 执行: chmod +777 ./*
 5. Linux启动服务, 执行: ./start.sh
 6. Windows启动服务, 双击: start.bat
-7. 访问: http://ip:8000/, 如: http://localhost:8000/
+7. 访问: http://ip:8000/ 如: http://localhost:8000/
 
 ## 项目前端
 [前端传送门](https://github.com/iimeta/iim-web)

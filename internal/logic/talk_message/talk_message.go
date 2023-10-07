@@ -43,6 +43,7 @@ type sTalkMessage struct {
 	sidStorage     *cache.ServerStorage
 	clientStorage  *cache.ClientStorage
 	Filesystem     *filesystem.Filesystem
+	mapping        map[string]func(ctx context.Context) error
 }
 
 func init() {
@@ -59,7 +60,220 @@ func New() service.ITalkMessage {
 	}
 }
 
-var mapping map[string]func(ctx context.Context) error
+// 校验权限
+func (s *sTalkMessage) VerifyPermission(ctx context.Context, info *model.VerifyInfo) error {
+
+	// 判断对方是否是自己
+	if info.TalkType == consts.ChatPrivateMode && info.ReceiverId == service.Session().GetUid(ctx) {
+		return nil
+	}
+
+	if info.TalkType == consts.ChatPrivateMode {
+		if dao.Contact.IsFriend(ctx, info.UserId, info.ReceiverId, false) {
+			return nil
+		}
+		return errors.New("暂无权限发送消息")
+	}
+
+	groupInfo, err := dao.Group.FindGroupByGroupId(ctx, info.ReceiverId)
+	if err != nil {
+		logger.Error(ctx, err)
+		return err
+	}
+
+	if groupInfo.IsDismiss == 1 {
+		return errors.New("此群聊已解散")
+	}
+
+	memberInfo, err := dao.GroupMember.FindByUserId(ctx, info.ReceiverId, info.UserId)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return errors.New("暂无权限发送消息")
+		}
+
+		logger.Error(ctx, err)
+		return errors.New("系统繁忙, 请稍后再试")
+	}
+
+	if memberInfo.IsQuit == consts.GroupMemberQuitStatusYes {
+		return errors.New("暂无权限发送消息")
+	}
+
+	if memberInfo.IsMute == consts.GroupMemberMuteStatusYes {
+		return errors.New("已被群主或管理员禁言")
+	}
+
+	if info.IsVerifyGroupMute && groupInfo.IsMute == 1 && memberInfo.Leader == 0 {
+		return errors.New("此群聊已开启全员禁言")
+	}
+
+	return nil
+}
+
+// 发送消息
+func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) error {
+
+	uid := service.Session().GetUid(ctx)
+
+	var data *model.TalkRecord
+	switch message.MsgType {
+	case consts.MsgTypeText:
+		data = &model.TalkRecord{
+			TalkType:   message.Text.Receiver.TalkType,
+			MsgType:    consts.ChatMsgTypeText,
+			QuoteId:    message.Text.QuoteId,
+			UserId:     uid,
+			ReceiverId: message.Text.Receiver.ReceiverId,
+			Content:    util.EscapeHtml(message.Text.Content),
+		}
+	case consts.MsgTypeCode:
+	case consts.MsgTypeImage:
+		data = &model.TalkRecord{
+			TalkType:   message.Image.Receiver.TalkType,
+			MsgType:    consts.ChatMsgTypeImage,
+			QuoteId:    message.Image.QuoteId,
+			UserId:     uid,
+			ReceiverId: message.Image.Receiver.ReceiverId,
+			Extra: gjson.MustEncodeString(&model.TalkRecordImage{
+				Url:    message.Image.Url,
+				Width:  message.Image.Width,
+				Height: message.Image.Height,
+			}),
+		}
+	case consts.MsgTypeVoice:
+		data = &model.TalkRecord{
+			TalkType:   message.Voice.Receiver.TalkType,
+			MsgType:    consts.ChatMsgTypeAudio,
+			UserId:     uid,
+			ReceiverId: message.Voice.Receiver.ReceiverId,
+			Extra: gjson.MustEncodeString(&model.TalkRecordAudio{
+				Suffix:   gfile.ExtName(message.Voice.Url),
+				Size:     message.Voice.Size,
+				Url:      message.Voice.Url,
+				Duration: 0,
+			}),
+		}
+	case consts.MsgTypeVideo:
+		data = &model.TalkRecord{
+			TalkType:   message.Video.Receiver.TalkType,
+			MsgType:    consts.ChatMsgTypeVideo,
+			UserId:     uid,
+			ReceiverId: message.Video.Receiver.ReceiverId,
+			Extra: gjson.MustEncodeString(&model.TalkRecordVideo{
+				Cover:    message.Video.Cover,
+				Size:     message.Video.Size,
+				Url:      message.Video.Url,
+				Duration: message.Video.Duration,
+			}),
+		}
+	case consts.MsgTypeFile:
+		data = &model.TalkRecord{
+			MsgId:      gmd5.MustEncryptString(message.File.UploadId),
+			TalkType:   message.File.Receiver.TalkType,
+			UserId:     uid,
+			ReceiverId: message.File.Receiver.ReceiverId,
+			MsgType:    consts.ChatMsgTypeFile,
+			Extra: gjson.MustEncodeString(&model.TalkRecordFile{
+				Drive:  message.File.Drive,
+				Name:   message.File.Name,
+				Suffix: message.File.Suffix,
+				Size:   message.File.Size,
+				Path:   message.File.Path,
+			}),
+		}
+
+	case consts.MsgTypeVote:
+		data = &model.TalkRecord{
+			RecordId:   core.IncrRecordId(ctx),
+			MsgId:      util.NewMsgId(),
+			TalkType:   consts.ChatGroupMode,
+			MsgType:    consts.ChatMsgTypeVote,
+			UserId:     uid,
+			ReceiverId: message.Vote.Receiver.ReceiverId,
+		}
+	case consts.MsgTypeMixed:
+		data = &model.TalkRecord{
+			TalkType:   message.Mixed.Receiver.TalkType,
+			MsgType:    consts.ChatMsgTypeMixed,
+			QuoteId:    message.Mixed.QuoteId,
+			UserId:     uid,
+			ReceiverId: message.Mixed.Receiver.ReceiverId,
+			Extra:      gjson.MustEncodeString(model.TalkRecordMixed{Items: message.Mixed.Items}),
+		}
+	case consts.MsgTypeForward:
+	case consts.MsgTypeLogin:
+		data = &model.TalkRecord{
+			TalkType:   consts.ChatPrivateMode,
+			MsgType:    consts.ChatMsgTypeLogin,
+			UserId:     1, // todo 登录助手
+			ReceiverId: uid,
+			Extra: gjson.MustEncodeString(&model.TalkRecordLogin{
+				IP:       message.Login.Ip,
+				Platform: message.Login.Platform,
+				Agent:    message.Login.Agent,
+				Address:  message.Login.Address,
+				Reason:   message.Login.Reason,
+				Datetime: gtime.Datetime(),
+			}),
+		}
+	case consts.MsgTypeCard:
+		data = &model.TalkRecord{
+			TalkType:   message.Card.Receiver.TalkType,
+			MsgType:    consts.ChatMsgTypeCard,
+			UserId:     uid,
+			ReceiverId: message.Card.Receiver.ReceiverId,
+			Extra: gjson.MustEncodeString(&model.TalkRecordCard{
+				UserId: message.Card.UserId,
+			}),
+		}
+	case consts.MsgTypeLocation:
+		data = &model.TalkRecord{
+			TalkType:   message.Location.Receiver.TalkType,
+			MsgType:    consts.ChatMsgTypeLocation,
+			UserId:     uid,
+			ReceiverId: message.Location.Receiver.ReceiverId,
+			Extra: gjson.MustEncodeString(&model.TalkRecordLocation{
+				Longitude:   message.Location.Longitude,
+				Latitude:    message.Location.Latitude,
+				Description: message.Location.Description,
+			}),
+		}
+	}
+
+	return s.save(ctx, data)
+}
+
+// 发送系统消息
+func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMessage) error {
+
+	uid := service.Session().GetUid(ctx)
+
+	var data *model.TalkRecord
+	switch message.MsgType {
+	case consts.MsgSysText:
+		data = &model.TalkRecord{
+			TalkType:   message.Text.Receiver.TalkType,
+			MsgType:    consts.ChatMsgSysText,
+			UserId:     uid,
+			ReceiverId: message.Text.Receiver.ReceiverId,
+			Content:    html.EscapeString(message.Text.Content),
+		}
+	case consts.MsgSysGroupCreate:
+	case consts.MsgSysGroupMemberJoin:
+	case consts.MsgSysGroupMemberQuit:
+	case consts.MsgSysGroupMemberKicked:
+	case consts.MsgSysGroupMessageRevoke:
+	case consts.MsgSysGroupDismissed:
+	case consts.MsgSysGroupMuted:
+	case consts.MsgSysGroupCancelMuted:
+	case consts.MsgSysGroupMemberMuted:
+	case consts.MsgSysGroupMemberCancelMuted:
+	case consts.MsgSysGroupNotice:
+	case consts.MsgSysGroupTransfer:
+	}
+
+	return s.save(ctx, data)
+}
 
 // 系统文本消息
 func (s *sTalkMessage) SendSystemText(ctx context.Context, uid int, req *model.TextMessageReq) error {
@@ -437,10 +651,10 @@ func (s *sTalkMessage) SendLogin(ctx context.Context, uid int, req *model.LoginM
 // 图文消息
 func (s *sTalkMessage) SendMixedMessage(ctx context.Context, uid int, req *model.MixedMessageReq) error {
 
-	items := make([]*model.TalkRecordMixedItem, 0)
+	items := make([]*model.MixedMessage, 0)
 
 	for _, item := range req.Items {
-		items = append(items, &model.TalkRecordMixedItem{
+		items = append(items, &model.MixedMessage{
 			Type:    item.Type,
 			Content: item.Content,
 		})
@@ -806,8 +1020,7 @@ func (s *sTalkMessage) Text(ctx context.Context, params model.TextMessageReq) er
 
 	uid := service.Session().GetUid(ctx)
 
-	// todo auth
-	if err := service.Group().GroupAuth(ctx, &model.GroupAuth{
+	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
 		TalkType:          params.TalkType,
 		UserId:            uid,
 		ReceiverId:        params.ReceiverId,
@@ -835,7 +1048,7 @@ func (s *sTalkMessage) Text(ctx context.Context, params model.TextMessageReq) er
 func (s *sTalkMessage) Code(ctx context.Context, params model.CodeMessageReq) error {
 
 	uid := service.Session().GetUid(ctx)
-	if err := service.Group().GroupAuth(ctx, &model.GroupAuth{
+	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
 		TalkType:          params.TalkType,
 		UserId:            uid,
 		ReceiverId:        params.ReceiverId,
@@ -878,7 +1091,7 @@ func (s *sTalkMessage) Image(ctx context.Context, params model.ImageMessageReq) 
 		return errors.New("上传文件大小不能超过5M")
 	}
 
-	if err = service.Group().GroupAuth(ctx, &model.GroupAuth{
+	if err = s.VerifyPermission(ctx, &model.VerifyInfo{
 		TalkType:          params.TalkType,
 		UserId:            service.Session().GetUid(ctx),
 		ReceiverId:        params.ReceiverId,
@@ -926,7 +1139,7 @@ func (s *sTalkMessage) Image(ctx context.Context, params model.ImageMessageReq) 
 func (s *sTalkMessage) File(ctx context.Context, params model.MessageFileReq) error {
 
 	uid := service.Session().GetUid(ctx)
-	if err := service.Group().GroupAuth(ctx, &model.GroupAuth{
+	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
 		TalkType:          params.TalkType,
 		UserId:            uid,
 		ReceiverId:        params.ReceiverId,
@@ -962,7 +1175,7 @@ func (s *sTalkMessage) Vote(ctx context.Context, params model.MessageVoteReq) er
 	}
 
 	uid := service.Session().GetUid(ctx)
-	if err := service.Group().GroupAuth(ctx, &model.GroupAuth{
+	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
 		TalkType:          consts.ChatGroupMode,
 		UserId:            uid,
 		ReceiverId:        params.ReceiverId,
@@ -993,7 +1206,7 @@ func (s *sTalkMessage) Vote(ctx context.Context, params model.MessageVoteReq) er
 func (s *sTalkMessage) Emoticon(ctx context.Context, params model.EmoticonMessageReq) error {
 
 	uid := service.Session().GetUid(ctx)
-	if err := service.Group().GroupAuth(ctx, &model.GroupAuth{
+	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
 		TalkType:          params.TalkType,
 		UserId:            uid,
 		ReceiverId:        params.ReceiverId,
@@ -1025,7 +1238,7 @@ func (s *sTalkMessage) Forward(ctx context.Context, params model.ForwardMessageR
 	}
 
 	uid := service.Session().GetUid(ctx)
-	if err := service.Group().GroupAuth(ctx, &model.GroupAuth{
+	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
 		TalkType:   params.TalkType,
 		UserId:     service.Session().GetUid(ctx),
 		ReceiverId: params.ReceiverId,
@@ -1069,7 +1282,7 @@ func (s *sTalkMessage) Forward(ctx context.Context, params model.ForwardMessageR
 func (s *sTalkMessage) Card(ctx context.Context, params model.CardMessageReq) error {
 
 	uid := service.Session().GetUid(ctx)
-	if err := service.Group().GroupAuth(ctx, &model.GroupAuth{
+	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
 		TalkType:          params.TalkType,
 		UserId:            uid,
 		ReceiverId:        params.ReceiverId,
@@ -1113,7 +1326,7 @@ func (s *sTalkMessage) Delete(ctx context.Context, params model.MessageDeleteReq
 func (s *sTalkMessage) Location(ctx context.Context, params model.LocationMessageReq) error {
 
 	uid := service.Session().GetUid(ctx)
-	if err := service.Group().GroupAuth(ctx, &model.GroupAuth{
+	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
 		TalkType:          params.TalkType,
 		UserId:            uid,
 		ReceiverId:        params.ReceiverId,
@@ -1410,11 +1623,11 @@ func (s *sTalkMessage) Collect(ctx context.Context, params model.MessageCollectR
 
 	if record.TalkType == consts.ChatPrivateMode {
 		if record.UserId != uid && record.ReceiverId != uid {
-			return consts.ErrPermissionDenied
+			return errors.ERR_PERMISSION_DENIED
 		}
 	} else if record.TalkType == consts.ChatGroupMode {
 		if !dao.GroupMember.IsMember(ctx, record.ReceiverId, uid, true) {
-			return consts.ErrPermissionDenied
+			return errors.ERR_PERMISSION_DENIED
 		}
 	}
 
@@ -1442,8 +1655,7 @@ func (s *sTalkMessage) Collect(ctx context.Context, params model.MessageCollectR
 // 发送消息接口
 func (s *sTalkMessage) Publish(ctx context.Context, params model.MessagePublishReq) error {
 
-	// todo
-	if err := service.Group().GroupAuth(ctx, &model.GroupAuth{
+	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
 		TalkType:          params.Receiver.TalkType,
 		UserId:            service.Session().GetUid(ctx),
 		ReceiverId:        params.Receiver.ReceiverId,
@@ -1732,23 +1944,23 @@ func (s *sTalkMessage) onMixedMessage(ctx context.Context) error {
 
 func (s *sTalkMessage) transfer(ctx context.Context, typeValue string) error {
 
-	if mapping == nil {
-		mapping = make(map[string]func(ctx context.Context) error)
-		mapping["text"] = s.onSendText
-		mapping["code"] = s.onSendCode
-		mapping["location"] = s.onSendLocation
-		mapping["emoticon"] = s.onSendEmoticon
-		mapping["vote"] = s.onSendVote
-		mapping["image"] = s.onSendImage
-		mapping["voice"] = s.onSendVoice
-		mapping["video"] = s.onSendVideo
-		mapping["file"] = s.onSendFile
-		mapping["card"] = s.onSendCard
-		mapping["forward"] = s.onSendForward
-		mapping["mixed"] = s.onMixedMessage
+	if s.mapping == nil {
+		s.mapping = make(map[string]func(ctx context.Context) error)
+		s.mapping["text"] = s.onSendText
+		s.mapping["code"] = s.onSendCode
+		s.mapping["location"] = s.onSendLocation
+		s.mapping["emoticon"] = s.onSendEmoticon
+		s.mapping["vote"] = s.onSendVote
+		s.mapping["image"] = s.onSendImage
+		s.mapping["voice"] = s.onSendVoice
+		s.mapping["video"] = s.onSendVideo
+		s.mapping["file"] = s.onSendFile
+		s.mapping["card"] = s.onSendCard
+		s.mapping["forward"] = s.onSendForward
+		s.mapping["mixed"] = s.onMixedMessage
 	}
 
-	if call, ok := mapping[typeValue]; ok {
+	if call, ok := s.mapping[typeValue]; ok {
 		return call(ctx)
 	}
 

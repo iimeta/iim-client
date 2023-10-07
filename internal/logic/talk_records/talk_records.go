@@ -218,7 +218,7 @@ func (s *sTalkRecords) GetRecords(ctx context.Context, params model.TalkRecordsR
 
 	if params.TalkType == consts.ChatGroupMode {
 
-		err := service.Group().GroupAuth(ctx, &model.GroupAuth{
+		err := service.TalkMessage().VerifyPermission(ctx, &model.VerifyInfo{
 			TalkType:   params.TalkType,
 			UserId:     service.Session().GetUid(ctx),
 			ReceiverId: params.ReceiverId,
@@ -276,7 +276,7 @@ func (s *sTalkRecords) SearchHistoryRecords(ctx context.Context, params model.Ta
 	uid := service.Session().GetUid(ctx)
 
 	if params.TalkType == consts.ChatGroupMode {
-		err := service.Group().GroupAuth(ctx, &model.GroupAuth{
+		err := service.TalkMessage().VerifyPermission(ctx, &model.VerifyInfo{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,

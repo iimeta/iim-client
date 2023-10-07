@@ -4,7 +4,6 @@ package consts
 const (
 	ChatPrivateMode = 1 // 私信模式
 	ChatGroupMode   = 2 // 群聊模式
-	ChatRoomMode    = 3 // 房间模式
 )
 
 const (
@@ -24,12 +23,6 @@ const (
 	PushEventContactApply      = "im.contact.apply"    // 好友申请消息推送
 	PushEventContactStatus     = "im.contact.status"   // 用户在线状态推送
 	PushEventGroupApply        = "im.group.apply"      // 用户在线状态推送
-)
-
-const (
-	BusinessCodeTalk = 101
-
-	BusinessCodeExample = 102
 )
 
 // IM消息类型

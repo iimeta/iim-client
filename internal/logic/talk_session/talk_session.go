@@ -58,7 +58,7 @@ func (s *sTalkSession) Create(ctx context.Context, params model.SessionCreateReq
 		return nil, errors.New("会话创建失败")
 	}
 
-	if service.Group().GroupAuth(ctx, &model.GroupAuth{
+	if service.TalkMessage().VerifyPermission(ctx, &model.VerifyInfo{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,

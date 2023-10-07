@@ -34,55 +34,6 @@ func New() service.IGroup {
 	}
 }
 
-func (s *sGroup) GroupAuth(ctx context.Context, auth *model.GroupAuth) error {
-
-	// 判断对方是否是自己
-	if auth.TalkType == consts.ChatPrivateMode && auth.ReceiverId == service.Session().GetUid(ctx) {
-		return nil
-	}
-
-	if auth.TalkType == consts.ChatPrivateMode {
-		if dao.Contact.IsFriend(ctx, auth.UserId, auth.ReceiverId, false) {
-			return nil
-		}
-		return errors.New("暂无权限发送消息")
-	}
-
-	groupInfo, err := dao.Group.FindGroupByGroupId(ctx, auth.ReceiverId)
-	if err != nil {
-		logger.Error(ctx, err)
-		return err
-	}
-
-	if groupInfo.IsDismiss == 1 {
-		return errors.New("此群聊已解散")
-	}
-
-	memberInfo, err := dao.GroupMember.FindByUserId(ctx, auth.ReceiverId, auth.UserId)
-	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return errors.New("暂无权限发送消息")
-		}
-
-		logger.Error(ctx, err)
-		return errors.New("系统繁忙, 请稍后再试")
-	}
-
-	if memberInfo.IsQuit == consts.GroupMemberQuitStatusYes {
-		return errors.New("暂无权限发送消息")
-	}
-
-	if memberInfo.IsMute == consts.GroupMemberMuteStatusYes {
-		return errors.New("已被群主或管理员禁言")
-	}
-
-	if auth.IsVerifyGroupMute && groupInfo.IsMute == 1 && memberInfo.Leader == 0 {
-		return errors.New("此群聊已开启全员禁言")
-	}
-
-	return nil
-}
-
 // 创建群聊分组
 func (s *sGroup) Create(ctx context.Context, params model.GroupCreateReq) (*model.GroupCreateRes, error) {
 

@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/iimeta/iim-client/internal/consts"
+	errors2 "github.com/iimeta/iim-client/internal/errors"
 	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/model/do"
 	"github.com/iimeta/iim-client/internal/model/entity"
@@ -57,7 +58,7 @@ func (d *TalkRecordsDao) DeleteRecord(ctx context.Context, remove *do.RemoveReco
 	} else {
 
 		if !GroupMember.IsMember(ctx, remove.ReceiverId, remove.UserId, false) {
-			return consts.ErrPermissionDenied
+			return errors2.ERR_PERMISSION_DENIED
 		}
 
 		if talkRecordsList, err = d.Find(ctx, bson.M{"record_id": bson.M{"$in": ids}, "talk_type": consts.ChatGroupMode}); err != nil {

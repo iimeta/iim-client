@@ -222,7 +222,7 @@ type TalkRecordGroupNotice struct {
 
 // 图文混合消息
 type TalkRecordMixed struct {
-	Items []*TalkRecordMixedItem `json:"items"` // 消息内容, 可包含图片, 文字, 表情等多种消息
+	Items []*MixedMessage `json:"items"` // 消息内容, 可包含图片, 文字, 表情等多种消息
 }
 
 type TalkRecordMixedItem struct {

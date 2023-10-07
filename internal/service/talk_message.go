@@ -13,6 +13,12 @@ import (
 
 type (
 	ITalkMessage interface {
+		// 校验权限
+		VerifyPermission(ctx context.Context, info *model.VerifyInfo) error
+		// 发送消息
+		SendMessage(ctx context.Context, message *model.Message) error
+		// 发送系统消息
+		SendSysMessage(ctx context.Context, message *model.SysMessage) error
 		// 系统文本消息
 		SendSystemText(ctx context.Context, uid int, req *model.TextMessageReq) error
 		// 文本消息
