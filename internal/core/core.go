@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/iimeta/iim-client/internal/config"
 	"github.com/iimeta/iim-client/utility/logger"
 	"github.com/iimeta/iim-client/utility/redis"
@@ -22,12 +21,6 @@ const (
 )
 
 func init() {
-
-	// 设置全局时区
-	err := gtime.SetTimeZone("Asia/Shanghai")
-	if err != nil {
-		panic(err)
-	}
 
 	ctx := gctx.New()
 
