@@ -8,6 +8,7 @@ require (
 	github.com/gogf/gf/v2 v2.5.2
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/gorilla/websocket v1.5.0
+	github.com/iimeta/iim-server v0.0.0-20231008154756-214004881cfd
 	github.com/json-iterator/go v1.1.12
 	github.com/orcaman/concurrent-map/v2 v2.0.1
 	github.com/redis/go-redis/v9 v9.2.1
@@ -36,7 +37,6 @@ require (
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/grokify/html-strip-tags-go v0.0.1 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
@@ -48,7 +48,6 @@ require (
 	github.com/mozillazg/go-httpheader v0.2.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
-	github.com/stretchr/testify v1.8.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
