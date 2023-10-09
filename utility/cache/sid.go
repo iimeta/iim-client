@@ -9,13 +9,13 @@ import (
 )
 
 const (
-	// ServerKey 正在的运行服务
+	//   正在的运行服务
 	ServerKey = "server_ids"
 
-	// ServerKeyExpire 过期的运行服务
+	//   过期的运行服务
 	ServerKeyExpire = "server_ids_expire"
 
-	// ServerOverTime 运行检测超时时间(单位秒)
+	//   运行检测超时时间(单位秒)
 	ServerOverTime = 50
 )
 
@@ -27,7 +27,7 @@ func NewSidStorage(rds *redis.Client) *ServerStorage {
 	return &ServerStorage{redis: rds}
 }
 
-// Set 更新服务心跳时间
+// 更新服务心跳时间
 func (s *ServerStorage) Set(ctx context.Context, server string, time int64) error {
 	_, err := s.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.SRem(ctx, ServerKeyExpire, server)
@@ -37,12 +37,12 @@ func (s *ServerStorage) Set(ctx context.Context, server string, time int64) erro
 	return err
 }
 
-// Del 删除指定 ServerStorage
+// 删除指定 ServerStorage
 func (s *ServerStorage) Del(ctx context.Context, server string) error {
 	return s.redis.HDel(ctx, ServerKey, server).Err()
 }
 
-// All 获取指定状态的运行 ServerStorage
+// 获取指定状态的运行 ServerStorage
 // status 状态[1:运行中;2:已超时;3:全部]
 func (s *ServerStorage) All(ctx context.Context, status int) []string {
 

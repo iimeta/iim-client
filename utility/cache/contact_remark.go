@@ -9,7 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// ContactRemark 好友备注缓存
+// 好友备注缓存
 type ContactRemark struct {
 	redis *redis.Client
 }

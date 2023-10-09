@@ -2,33 +2,26 @@ package contact
 
 import (
 	"context"
-	"github.com/iimeta/iim-client/internal/config"
 	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/dao"
 	"github.com/iimeta/iim-client/internal/errors"
 	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/model/entity"
 	"github.com/iimeta/iim-client/internal/service"
-	"github.com/iimeta/iim-client/utility/cache"
 	"github.com/iimeta/iim-client/utility/logger"
-	"github.com/iimeta/iim-client/utility/redis"
 	"github.com/iimeta/iim-client/utility/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type sContact struct {
-	ClientStorage *cache.ClientStorage
-}
+type sContact struct{}
 
 func init() {
 	service.RegisterContact(New())
 }
 
 func New() service.IContact {
-	return &sContact{
-		ClientStorage: cache.NewClientStorage(redis.Client, config.Cfg, cache.NewSidStorage(redis.Client)),
-	}
+	return &sContact{}
 }
 
 // 好友列表
