@@ -12,7 +12,7 @@ const (
 
 type TalkSession struct {
 	gmeta.Meta    `collection:"talk_session" bson:"-"`
-	TalkType      int   `bson:"talk_type,omitempty"`   // 聊天类型[1:私信;2:群聊;]
+	TalkType      int   `bson:"talk_type,omitempty"`   // 聊天类型[1:私聊;2:群聊;]
 	UserId        int   `bson:"user_id,omitempty"`     // 用户ID
 	ReceiverId    int   `bson:"receiver_id,omitempty"` // 接收者ID(用户ID 或 群ID)
 	IsTop         int   `bson:"is_top"`                // 是否置顶[0:否;1:是;]
@@ -58,7 +58,7 @@ type TalkRecords struct {
 	RecordId   int    `bson:"record_id"`   // 记录ID
 	MsgId      string `bson:"msg_id"`      // 消息唯一ID
 	Sequence   int64  `bson:"sequence"`    // 消息时序ID
-	TalkType   int    `bson:"talk_type"`   // 对话类型[1:私信;2:群聊;]
+	TalkType   int    `bson:"talk_type"`   // 对话类型[1:私聊;2:群聊;]
 	MsgType    int    `bson:"msg_type"`    // 消息类型
 	UserId     int    `bson:"user_id"`     // 发送者ID[0:系统用户;]
 	ReceiverId int    `bson:"receiver_id"` // 接收者ID(用户ID 或 群ID)

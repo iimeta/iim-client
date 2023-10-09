@@ -11,7 +11,7 @@ func (c *ControllerV1) Refresh(ctx context.Context, req *v1.RefreshReq) (res *v1
 
 	refreshRes, err := service.Auth().Refresh(ctx)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	res = &v1.RefreshRes{

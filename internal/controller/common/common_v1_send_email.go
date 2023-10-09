@@ -11,7 +11,7 @@ func (c *ControllerV1) SendEmail(ctx context.Context, req *v1.SendEmailReq) (res
 
 	sendEmailRes, err := service.Common().EmailCode(ctx, req.SendEmailReq)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	res = &v1.SendEmailRes{

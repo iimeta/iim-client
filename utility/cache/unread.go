@@ -17,7 +17,7 @@ func NewUnreadStorage(rds *redis.Client) *UnreadStorage {
 }
 
 // Incr 消息未读数自增
-// @params mode    对话模式 1私信 2群聊
+// @params mode    对话模式 1私聊 2群聊
 // @params sender  发送者ID
 // @params receive 接收者ID
 func (u *UnreadStorage) Incr(ctx context.Context, mode, sender, receive int) {
@@ -25,7 +25,7 @@ func (u *UnreadStorage) Incr(ctx context.Context, mode, sender, receive int) {
 }
 
 // PipeIncr 消息未读数自增
-// @params mode    对话模式 1私信 2群聊
+// @params mode    对话模式 1私聊 2群聊
 // @params sender  发送者ID
 // @params receive 接收者ID
 func (u *UnreadStorage) PipeIncr(ctx context.Context, pipe redis.Pipeliner, mode, sender, receive int) {
@@ -33,7 +33,7 @@ func (u *UnreadStorage) PipeIncr(ctx context.Context, pipe redis.Pipeliner, mode
 }
 
 // Get 获取消息未读数
-// @params mode    对话模式 1私信 2群聊
+// @params mode    对话模式 1私聊 2群聊
 // @params sender  发送者ID
 // @params receive 接收者ID
 func (u *UnreadStorage) Get(ctx context.Context, mode, sender, receive int) int {
@@ -42,7 +42,7 @@ func (u *UnreadStorage) Get(ctx context.Context, mode, sender, receive int) int 
 }
 
 // Del 删除消息未读数
-// @params mode    对话模式 1私信 2群聊
+// @params mode    对话模式 1私聊 2群聊
 // @params sender  发送者ID
 // @params receive 接收者ID
 func (u *UnreadStorage) Del(ctx context.Context, mode, sender, receive int) {
@@ -50,7 +50,7 @@ func (u *UnreadStorage) Del(ctx context.Context, mode, sender, receive int) {
 }
 
 // Reset 消息未读数重置
-// @params mode    对话模式 1私信 2群聊
+// @params mode    对话模式 1私聊 2群聊
 // @params sender  发送者ID
 // @params receive 接收者ID
 func (u *UnreadStorage) Reset(ctx context.Context, mode, sender, receive int) {

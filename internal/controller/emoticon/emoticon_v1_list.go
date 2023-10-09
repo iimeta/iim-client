@@ -11,6 +11,9 @@ import (
 func (c *ControllerV1) List(ctx context.Context, req *v1.ListReq) (res *v1.ListRes, err error) {
 
 	collectEmoticons, err := service.Emoticon().CollectList(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	res = &v1.ListRes{
 		ListRes: &model.ListRes{

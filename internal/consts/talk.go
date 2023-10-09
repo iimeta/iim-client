@@ -2,7 +2,7 @@ package consts
 
 // 聊天模式
 const (
-	ChatPrivateMode = 1 // 私信模式
+	ChatPrivateMode = 1 // 私聊模式
 	ChatGroupMode   = 2 // 群聊模式
 )
 

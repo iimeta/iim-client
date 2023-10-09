@@ -11,7 +11,7 @@ func (c *ControllerV1) Login(ctx context.Context, req *v1.LoginReq) (res *v1.Log
 
 	loginRes, err := service.Auth().Login(ctx, req.LoginReq)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	res = &v1.LoginRes{

@@ -27,7 +27,7 @@ type TalkRecord struct {
 	RecordId   int    `json:"record_id"`   // 记录ID
 	MsgId      string `json:"msg_id"`      // 消息唯一ID
 	Sequence   int64  `json:"sequence"`    // 消息时序ID
-	TalkType   int    `json:"talk_type"`   // 对话类型[1:私信;2:群聊;]
+	TalkType   int    `json:"talk_type"`   // 对话类型[1:私聊;2:群聊;]
 	MsgType    int    `json:"msg_type"`    // 消息类型
 	UserId     int    `json:"user_id"`     // 发送者ID[0:系统用户;]
 	ReceiverId int    `json:"receiver_id"` // 接收者ID(用户ID 或 群ID)

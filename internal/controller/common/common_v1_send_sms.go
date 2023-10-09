@@ -11,7 +11,7 @@ func (c *ControllerV1) SendSms(ctx context.Context, req *v1.SendSmsReq) (res *v1
 
 	sendSmsRes, err := service.Common().SmsCode(ctx, req.SendSmsReq)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	res = &v1.SendSmsRes{

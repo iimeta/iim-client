@@ -176,4 +176,4 @@ aliyun:
         - sk-xxx
 
 register:
-  auto_add_uids: [ ]  # 注册时需要自动添加的用户ID(user_id)
+  auto_add_uids: [ ]  # 注册时需要自动添加的用户ID [user_id, user_id, user_id...]

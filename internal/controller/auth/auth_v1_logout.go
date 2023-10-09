@@ -10,9 +10,6 @@ import (
 func (c *ControllerV1) Logout(ctx context.Context, req *v1.LogoutReq) (res *v1.LogoutRes, err error) {
 
 	err = service.Auth().Logout(ctx)
-	if err != nil {
-		return
-	}
 
 	return
 }

@@ -47,7 +47,6 @@ func init() {
 type Config struct {
 	sid        string      // 服务运行ID
 	App        *App        `json:"app"`
-	Redis      *Redis      `json:"redis"`
 	Jwt        *Jwt        `json:"jwt"`
 	Filesystem *Filesystem `json:"filesystem"`
 	Email      *Email      `json:"email"`
@@ -59,13 +58,6 @@ type App struct {
 	JuheKey    string   `json:"juhe_key"`
 	JuheUrl    string   `json:"juhe_url"`
 	AdminEmail []string `json:"admin_email"`
-}
-
-type Redis struct {
-	Host     string `json:"host"`     // 服务器IP地址
-	Port     int    `json:"port"`     // 服务器端口号
-	Auth     string `json:"auth"`     // 服务器端口号
-	Database int    `json:"database"` // 数据库
 }
 
 // Jwt相关配置信息
@@ -115,7 +107,7 @@ type CosSystem struct {
 
 // 邮件配置信息
 type Email struct {
-	Host     string `json:"host"`     // smtp.163.com
+	Host     string `json:"host"`     // smtp.xxx.com
 	Port     int    `json:"port"`     // 端口号
 	UserName string `json:"username"` // 登录账号
 	Password string `json:"password"` // 登录密码

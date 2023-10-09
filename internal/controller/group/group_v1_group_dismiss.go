@@ -12,5 +12,4 @@ func (c *ControllerV1) GroupDismiss(ctx context.Context, req *v1.GroupDismissReq
 	err = service.Group().Dismiss(ctx, req.GroupDismissReq)
 
 	return
-
 }

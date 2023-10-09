@@ -18,7 +18,7 @@ type EmoticonMessageReq struct {
 	EmoticonId string    `json:"emoticon_id" v:"required"`
 }
 
-// 位置消息
+// 名片消息
 type CardMessageReq struct {
 	Type       string    `json:"type,omitempty"`
 	UserId     int       `json:"user_id,omitempty" v:"required"`
@@ -166,64 +166,6 @@ type MessagePublishReq struct {
 type Receiver struct {
 	TalkType   int `json:"talk_type,omitempty"`   // 对话类型 1:私聊 2:群聊
 	ReceiverId int `json:"receiver_id,omitempty"` // 接收者ID, 好友ID或群ID
-}
-
-type TextMessage struct {
-	AckId   string         `json:"ack_id"`
-	Event   string         `json:"event"`
-	Content TextMessageReq `json:"content"`
-}
-
-type CodeMessage struct {
-	AckId   string         `json:"ack_id"`
-	Event   string         `json:"event"`
-	Content CodeMessageReq `json:"content"`
-}
-
-type EmoticonMessage struct {
-	MsgId   string             `json:"msg_id"`
-	Event   string             `json:"event"`
-	Content EmoticonMessageReq `json:"content"`
-}
-
-type ImageMessage struct {
-	MsgId   string          `json:"msg_id"`
-	Event   string          `json:"event"`
-	Content ImageMessageReq `json:"content"`
-}
-
-type FileMessage struct {
-	MsgId   string          `json:"msg_id"`
-	Event   string          `json:"event"`
-	Content ImageMessageReq `json:"content"`
-}
-
-type LocationMessage struct {
-	MsgId   string             `json:"msg_id"`
-	Event   string             `json:"event"`
-	Content LocationMessageReq `json:"content"`
-}
-
-type VoteMessage struct {
-	MsgId   string         `json:"msg_id"`
-	Event   string         `json:"event"`
-	Content MessageVoteReq `json:"content"`
-}
-
-type KeyboardMessage struct {
-	Event   string `json:"event"`
-	Content struct {
-		SenderID   int `json:"sender_id"`
-		ReceiverID int `json:"receiver_id"`
-	} `json:"content"`
-}
-
-type TalkReadMessage struct {
-	Event   string `json:"event"`
-	Content struct {
-		MsgIds     []int `json:"msg_id"`
-		ReceiverId int   `json:"receiver_id"`
-	} `json:"content"`
 }
 
 type Mention struct {
