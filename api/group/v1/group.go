@@ -83,6 +83,7 @@ type GetInviteFriendsReq struct {
 // 待审批入群申请列表接口响应参数
 type GetInviteFriendsRes struct {
 	g.Meta `mime:"application/json" example:"json"`
+	*model.GetInviteFriendsRes
 }
 
 // 退出群聊接口请求参数

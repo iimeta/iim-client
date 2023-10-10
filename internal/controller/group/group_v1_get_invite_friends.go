@@ -2,7 +2,6 @@ package group
 
 import (
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/service"
 
@@ -16,11 +15,11 @@ func (c *ControllerV1) GetInviteFriends(ctx context.Context, req *v1.GetInviteFr
 		return nil, err
 	}
 
-	g.RequestFromCtx(ctx).Response.WriteJson(model.DefaultResponse{
-		Code:    200,
-		Message: "success",
-		Data:    contactListItem,
-	})
+	res = &v1.GetInviteFriendsRes{
+		GetInviteFriendsRes: &model.GetInviteFriendsRes{
+			Items: contactListItem,
+		},
+	}
 
 	return
 }

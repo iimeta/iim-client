@@ -72,6 +72,11 @@ type GetInviteFriendsReq struct {
 	GroupId int `json:"group_id,omitempty"`
 }
 
+// 获取待审批入群申请列表接口响应参数
+type GetInviteFriendsRes struct {
+	Items []*ContactListItem `json:"items"`
+}
+
 // 群列表接口响应参数
 type GroupListRes struct {
 	Items []*Group `json:"items"`

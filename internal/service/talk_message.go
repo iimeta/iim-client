@@ -19,6 +19,8 @@ type (
 		SendMessage(ctx context.Context, message *model.Message) error
 		// 发送系统消息
 		SendSysMessage(ctx context.Context, message *model.SysMessage) error
+		// 发送通知消息
+		SendNoticeMessage(ctx context.Context, message *model.NoticeMessage) error
 		// 系统文本消息
 		SendSystemText(ctx context.Context, uid int, req *model.TextMessageReq) error
 		// 文本消息

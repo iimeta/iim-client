@@ -119,21 +119,21 @@ func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) 
 	switch message.MsgType {
 	case consts.MsgTypeText:
 		data = &model.TalkRecord{
-			TalkType:   message.Text.Receiver.TalkType,
+			TalkType:   message.TalkType,
 			MsgType:    consts.ChatMsgTypeText,
-			QuoteId:    message.Text.QuoteId,
+			QuoteId:    message.QuoteId,
 			UserId:     uid,
-			ReceiverId: message.Text.Receiver.ReceiverId,
+			ReceiverId: message.Receiver.ReceiverId,
 			Content:    util.EscapeHtml(message.Text.Content),
 		}
 	case consts.MsgTypeCode:
 	case consts.MsgTypeImage:
 		data = &model.TalkRecord{
-			TalkType:   message.Image.Receiver.TalkType,
+			TalkType:   message.Receiver.TalkType,
 			MsgType:    consts.ChatMsgTypeImage,
-			QuoteId:    message.Image.QuoteId,
+			QuoteId:    message.QuoteId,
 			UserId:     uid,
-			ReceiverId: message.Image.Receiver.ReceiverId,
+			ReceiverId: message.Receiver.ReceiverId,
 			Extra: gjson.MustEncodeString(&model.TalkRecordImage{
 				Url:    message.Image.Url,
 				Width:  message.Image.Width,
@@ -142,10 +142,10 @@ func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) 
 		}
 	case consts.MsgTypeVoice:
 		data = &model.TalkRecord{
-			TalkType:   message.Voice.Receiver.TalkType,
+			TalkType:   message.Receiver.TalkType,
 			MsgType:    consts.ChatMsgTypeAudio,
 			UserId:     uid,
-			ReceiverId: message.Voice.Receiver.ReceiverId,
+			ReceiverId: message.Receiver.ReceiverId,
 			Extra: gjson.MustEncodeString(&model.TalkRecordAudio{
 				Suffix:   gfile.ExtName(message.Voice.Url),
 				Size:     message.Voice.Size,
@@ -155,10 +155,10 @@ func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) 
 		}
 	case consts.MsgTypeVideo:
 		data = &model.TalkRecord{
-			TalkType:   message.Video.Receiver.TalkType,
+			TalkType:   message.Receiver.TalkType,
 			MsgType:    consts.ChatMsgTypeVideo,
 			UserId:     uid,
-			ReceiverId: message.Video.Receiver.ReceiverId,
+			ReceiverId: message.Receiver.ReceiverId,
 			Extra: gjson.MustEncodeString(&model.TalkRecordVideo{
 				Cover:    message.Video.Cover,
 				Size:     message.Video.Size,
@@ -169,9 +169,9 @@ func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) 
 	case consts.MsgTypeFile:
 		data = &model.TalkRecord{
 			MsgId:      gmd5.MustEncryptString(message.File.UploadId),
-			TalkType:   message.File.Receiver.TalkType,
+			TalkType:   message.Receiver.TalkType,
 			UserId:     uid,
-			ReceiverId: message.File.Receiver.ReceiverId,
+			ReceiverId: message.Receiver.ReceiverId,
 			MsgType:    consts.ChatMsgTypeFile,
 			Extra: gjson.MustEncodeString(&model.TalkRecordFile{
 				Drive:  message.File.Drive,
@@ -189,49 +189,35 @@ func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) 
 			TalkType:   consts.ChatGroupMode,
 			MsgType:    consts.ChatMsgTypeVote,
 			UserId:     uid,
-			ReceiverId: message.Vote.Receiver.ReceiverId,
+			ReceiverId: message.Receiver.ReceiverId,
 		}
 	case consts.MsgTypeMixed:
 		data = &model.TalkRecord{
-			TalkType:   message.Mixed.Receiver.TalkType,
+			TalkType:   message.Receiver.TalkType,
 			MsgType:    consts.ChatMsgTypeMixed,
-			QuoteId:    message.Mixed.QuoteId,
+			QuoteId:    message.QuoteId,
 			UserId:     uid,
-			ReceiverId: message.Mixed.Receiver.ReceiverId,
-			Extra:      gjson.MustEncodeString(model.TalkRecordMixed{Items: message.Mixed.Items}),
+			ReceiverId: message.Receiver.ReceiverId,
+			Extra:      gjson.MustEncodeString(model.Mixed{Items: message.Mixed.Items}),
 		}
 	case consts.MsgTypeForward:
-	case consts.MsgTypeLogin:
-		data = &model.TalkRecord{
-			TalkType:   consts.ChatPrivateMode,
-			MsgType:    consts.ChatMsgTypeLogin,
-			UserId:     1, // todo 登录助手
-			ReceiverId: uid,
-			Extra: gjson.MustEncodeString(&model.TalkRecordLogin{
-				IP:       message.Login.Ip,
-				Platform: message.Login.Platform,
-				Agent:    message.Login.Agent,
-				Address:  message.Login.Address,
-				Reason:   message.Login.Reason,
-				Datetime: gtime.Datetime(),
-			}),
-		}
+
 	case consts.MsgTypeCard:
 		data = &model.TalkRecord{
-			TalkType:   message.Card.Receiver.TalkType,
+			TalkType:   message.Card.TalkType,
 			MsgType:    consts.ChatMsgTypeCard,
 			UserId:     uid,
-			ReceiverId: message.Card.Receiver.ReceiverId,
+			ReceiverId: message.Receiver.ReceiverId,
 			Extra: gjson.MustEncodeString(&model.TalkRecordCard{
 				UserId: message.Card.UserId,
 			}),
 		}
 	case consts.MsgTypeLocation:
 		data = &model.TalkRecord{
-			TalkType:   message.Location.Receiver.TalkType,
+			TalkType:   message.Receiver.TalkType,
 			MsgType:    consts.ChatMsgTypeLocation,
 			UserId:     uid,
-			ReceiverId: message.Location.Receiver.ReceiverId,
+			ReceiverId: message.Receiver.ReceiverId,
 			Extra: gjson.MustEncodeString(&model.TalkRecordLocation{
 				Longitude:   message.Location.Longitude,
 				Latitude:    message.Location.Latitude,
@@ -252,10 +238,10 @@ func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMes
 	switch message.MsgType {
 	case consts.MsgSysText:
 		data = &model.TalkRecord{
-			TalkType:   message.Text.Receiver.TalkType,
+			TalkType:   message.Receiver.TalkType,
 			MsgType:    consts.ChatMsgSysText,
 			UserId:     uid,
-			ReceiverId: message.Text.Receiver.ReceiverId,
+			ReceiverId: message.Receiver.ReceiverId,
 			Content:    html.EscapeString(message.Text.Content),
 		}
 	case consts.MsgSysGroupCreate:
@@ -270,6 +256,33 @@ func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMes
 	case consts.MsgSysGroupMemberCancelMuted:
 	case consts.MsgSysGroupNotice:
 	case consts.MsgSysGroupTransfer:
+	}
+
+	return s.save(ctx, data)
+}
+
+// 发送通知消息
+func (s *sTalkMessage) SendNoticeMessage(ctx context.Context, message *model.NoticeMessage) error {
+
+	uid := service.Session().GetUid(ctx)
+
+	var data *model.TalkRecord
+	switch message.MsgType {
+	case consts.MsgTypeLogin:
+		data = &model.TalkRecord{
+			TalkType:   consts.ChatPrivateMode,
+			MsgType:    consts.ChatMsgTypeLogin,
+			UserId:     1, // todo 登录助手
+			ReceiverId: uid,
+			Extra: gjson.MustEncodeString(&model.TalkRecordLogin{
+				IP:       message.Login.Ip,
+				Platform: message.Login.Platform,
+				Agent:    message.Login.Agent,
+				Address:  message.Login.Address,
+				Reason:   message.Login.Reason,
+				Datetime: gtime.Datetime(),
+			}),
+		}
 	}
 
 	return s.save(ctx, data)
