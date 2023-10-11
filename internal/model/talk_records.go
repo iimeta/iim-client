@@ -39,6 +39,16 @@ type TalkRecord struct {
 	Extra      string `json:"extra"`       // 扩展信信息
 	CreatedAt  string `json:"created_at"`  // 创建时间
 	UpdatedAt  string `json:"updated_at"`  // 更新时间
+
+	Text     *Text     `json:"text,omitempty"`
+	Image    *Image    `json:"image,omitempty"`
+	Voice    *Voice    `json:"voice,omitempty"`
+	Video    *Video    `json:"video,omitempty"`
+	File     *File     `json:"file,omitempty"`
+	Vote     *Vote     `json:"vote,omitempty"`
+	Mixed    *Mixed    `json:"mixed,omitempty"`
+	Card     *Card     `json:"card,omitempty"`
+	Location *Location `json:"location,omitempty"`
 }
 
 type TalkRecordsItem struct {

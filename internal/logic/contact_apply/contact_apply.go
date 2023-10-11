@@ -119,7 +119,10 @@ func (s *sContactApply) Create(ctx context.Context, params model.ApplyCreateReq)
 // 同意好友申请
 func (s *sContactApply) Accept(ctx context.Context, params model.ApplyAcceptReq) (*model.ContactApply, error) {
 
-	uid := service.Session().GetUid(ctx)
+	uid := params.UserId
+	if uid == 0 {
+		uid = service.Session().GetUid(ctx)
+	}
 
 	applyInfo := new(entity.ContactApply)
 	if err := dao.FindOne(ctx, dao.Contact.Database, do.CONTACT_APPLY_COLLECTION, bson.M{"_id": params.ApplyId, "friend_id": uid}, &applyInfo); err != nil {

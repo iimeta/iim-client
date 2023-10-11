@@ -1,5 +1,7 @@
 package entity
 
+import "github.com/iimeta/iim-client/internal/model"
+
 type TalkSession struct {
 	Id            string `bson:"_id,omitempty"`         // 聊天列表ID
 	TalkType      int    `bson:"talk_type,omitempty"`   // 聊天类型[1:私聊;2:群聊;]
@@ -32,6 +34,16 @@ type TalkRecords struct {
 	Extra      string `bson:"extra"`       // 扩展信信息
 	CreatedAt  int64  `bson:"created_at"`  // 创建时间
 	UpdatedAt  int64  `bson:"updated_at"`  // 更新时间
+
+	Text     *model.Text     `json:"text,omitempty" bson:"text,omitempty"`
+	Image    *model.Image    `json:"image,omitempty" bson:"image,omitempty"`
+	Voice    *model.Voice    `json:"voice,omitempty" bson:"voice,omitempty"`
+	Video    *model.Video    `json:"video,omitempty" bson:"video,omitempty"`
+	File     *model.File     `json:"file,omitempty" bson:"file,omitempty"`
+	Vote     *model.Vote     `json:"vote,omitempty" bson:"vote,omitempty"`
+	Mixed    *model.Mixed    `json:"mixed,omitempty" bson:"mixed,omitempty"`
+	Card     *model.Card     `json:"card,omitempty" bson:"card,omitempty"`
+	Location *model.Location `json:"location,omitempty" bson:"location,omitempty"`
 }
 
 type TalkRecordsVote struct {

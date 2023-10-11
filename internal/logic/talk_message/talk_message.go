@@ -111,35 +111,17 @@ func (s *sTalkMessage) VerifyPermission(ctx context.Context, info *model.VerifyI
 }
 
 // 发送消息
-func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) error {
+func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) (err error) {
 
 	uid := service.Session().GetUid(ctx)
 
 	var data *model.TalkRecord
 	switch message.MsgType {
 	case consts.MsgTypeText:
-		data = &model.TalkRecord{
-			TalkType:   message.TalkType,
-			MsgType:    consts.ChatMsgTypeText,
-			QuoteId:    message.QuoteId,
-			UserId:     uid,
-			ReceiverId: message.Receiver.ReceiverId,
-			Content:    util.EscapeHtml(message.Text.Content),
-		}
+		data, err = s.TextMessageHandler(ctx, message)
 	case consts.MsgTypeCode:
 	case consts.MsgTypeImage:
-		data = &model.TalkRecord{
-			TalkType:   message.Receiver.TalkType,
-			MsgType:    consts.ChatMsgTypeImage,
-			QuoteId:    message.QuoteId,
-			UserId:     uid,
-			ReceiverId: message.Receiver.ReceiverId,
-			Extra: gjson.MustEncodeString(&model.TalkRecordImage{
-				Url:    message.Image.Url,
-				Width:  message.Image.Width,
-				Height: message.Image.Height,
-			}),
-		}
+		data, err = s.ImageMessageHandler(ctx, message)
 	case consts.MsgTypeVoice:
 		data = &model.TalkRecord{
 			TalkType:   message.Receiver.TalkType,
@@ -226,7 +208,50 @@ func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) 
 		}
 	}
 
+	if err != nil {
+		logger.Error(ctx, err)
+		return err
+	}
+
 	return s.save(ctx, data)
+}
+
+func (s *sTalkMessage) TextMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error) {
+
+	uid := service.Session().GetUid(ctx)
+
+	data := &model.TalkRecord{
+		TalkType:   message.TalkType,
+		MsgType:    consts.ChatMsgTypeText,
+		QuoteId:    message.QuoteId,
+		UserId:     uid,
+		ReceiverId: message.Receiver.ReceiverId,
+		Content:    util.EscapeHtml(message.Text.Content),
+		Text:       message.Text,
+	}
+
+	return data, nil
+}
+
+func (s *sTalkMessage) ImageMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error) {
+
+	uid := service.Session().GetUid(ctx)
+
+	data := &model.TalkRecord{
+		TalkType:   message.Receiver.TalkType,
+		MsgType:    consts.ChatMsgTypeImage,
+		QuoteId:    message.QuoteId,
+		UserId:     uid,
+		ReceiverId: message.Receiver.ReceiverId,
+		Extra: gjson.MustEncodeString(&model.TalkRecordImage{
+			Url:    message.Image.Url,
+			Width:  message.Image.Width,
+			Height: message.Image.Height,
+		}),
+		Image: message.Image,
+	}
+
+	return data, nil
 }
 
 // 发送系统消息
@@ -878,6 +903,8 @@ func (s *sTalkMessage) save(ctx context.Context, data *model.TalkRecord) error {
 		QuoteId:    data.QuoteId,
 		Content:    data.Content,
 		Extra:      data.Extra,
+		Text:       data.Text,
+		Image:      data.Image,
 	})
 	if err != nil {
 		logger.Error(ctx, err)
@@ -1691,7 +1718,28 @@ func (s *sTalkMessage) onSendText(ctx context.Context) error {
 		return err
 	}
 
-	err = s.SendText(ctx, service.Session().GetUid(ctx), textMessageReq)
+	//err = s.SendText(ctx, service.Session().GetUid(ctx), textMessageReq)
+	//if err != nil {
+	//	logger.Error(ctx, err)
+	//	return err
+	//}
+
+	err = s.SendMessage(ctx, &model.Message{
+		TalkType: textMessageReq.Receiver.TalkType,
+		MsgType:  consts.MsgTypeText,
+		QuoteId:  textMessageReq.QuoteId,
+		Sender: &model.Sender{
+			Id: service.Session().GetUid(ctx),
+		},
+		Receiver: &model.Receiver{
+			Id:         textMessageReq.Receiver.ReceiverId,
+			ReceiverId: textMessageReq.Receiver.ReceiverId,
+		},
+		Text: &model.Text{
+			Content: util.EscapeHtml(textMessageReq.Content),
+		},
+	})
+
 	if err != nil {
 		logger.Error(ctx, err)
 		return err

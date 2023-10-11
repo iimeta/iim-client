@@ -16,7 +16,9 @@ type (
 		// 校验权限
 		VerifyPermission(ctx context.Context, info *model.VerifyInfo) error
 		// 发送消息
-		SendMessage(ctx context.Context, message *model.Message) error
+		SendMessage(ctx context.Context, message *model.Message) (err error)
+		TextMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		ImageMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
 		// 发送系统消息
 		SendSysMessage(ctx context.Context, message *model.SysMessage) error
 		// 发送通知消息
