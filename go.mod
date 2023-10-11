@@ -10,7 +10,7 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/iimeta/iim-server v0.0.0-20231009152525-8df13dcbd4f5
 	github.com/redis/go-redis/v9 v9.2.1
-	github.com/sashabaranov/go-openai v1.15.3
+	github.com/sashabaranov/go-openai v1.16.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.43
 	github.com/tjfoc/gmsm v1.4.1
 	go.mongodb.org/mongo-driver v1.12.1
@@ -29,7 +29,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
-	github.com/google/uuid v1.3.1 // indirect
 	github.com/grokify/html-strip-tags-go v0.0.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect

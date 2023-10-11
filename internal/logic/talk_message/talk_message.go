@@ -204,7 +204,7 @@ func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) 
 
 	case consts.MsgTypeCard:
 		data = &model.TalkRecord{
-			TalkType:   message.Card.TalkType,
+			TalkType:   message.TalkType,
 			MsgType:    consts.ChatMsgTypeCard,
 			UserId:     uid,
 			ReceiverId: message.Receiver.ReceiverId,
