@@ -93,6 +93,7 @@ type (
 		FileMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
 		VoteMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
 		MixedMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		// todo
 		ForwardMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
 		EmoticonMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
 		CardMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)

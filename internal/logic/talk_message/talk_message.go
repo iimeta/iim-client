@@ -144,6 +144,7 @@ func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) 
 		data, err = s.MixedMessageHandler(ctx, message)
 	case consts.MsgTypeForward:
 		data, err = s.ForwardMessageHandler(ctx, message)
+		return err
 	case consts.MsgTypeEmoticon:
 		data, err = s.EmoticonMessageHandler(ctx, message)
 	case consts.MsgTypeCard:
@@ -1116,7 +1117,18 @@ func (s *sTalkMessage) File(ctx context.Context, params model.MessageFileReq) er
 		return err
 	}
 
-	if err := s.SendFile(ctx, uid, &model.MessageFileReq{
+	//if err := s.SendFile(ctx, uid, &model.MessageFileReq{
+	//	UploadId: params.UploadId,
+	//	Receiver: &model.Receiver{
+	//		TalkType:   params.TalkType,
+	//		ReceiverId: params.ReceiverId,
+	//	},
+	//}); err != nil {
+	//	logger.Error(ctx, err)
+	//	return err
+	//}
+
+	if err := s.onSendFile(ctx, &model.MessageFileReq{
 		UploadId: params.UploadId,
 		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
@@ -1831,17 +1843,87 @@ func (s *sTalkMessage) onSendVideo(ctx context.Context) error {
 }
 
 // 文件消息
-func (s *sTalkMessage) onSendFile(ctx context.Context) error {
+func (s *sTalkMessage) onSendFile(ctx context.Context, req ...*model.MessageFileReq) error {
 
 	fileMessageReq := &model.MessageFileReq{}
-	err := gjson.Unmarshal(g.RequestFromCtx(ctx).GetBody(), fileMessageReq)
+	if len(req) > 0 {
+		fileMessageReq = req[0]
+	} else {
+		err := gjson.Unmarshal(g.RequestFromCtx(ctx).GetBody(), fileMessageReq)
+		if err != nil {
+			logger.Error(ctx, err)
+			return err
+		}
+	}
+
+	//err = s.SendFile(ctx, service.Session().GetUid(ctx), fileMessageReq)
+	//if err != nil {
+	//	logger.Error(ctx, err)
+	//	return err
+	//}
+	uid := service.Session().GetUid(ctx)
+	file, err := dao.SplitUpload.GetFile(ctx, uid, fileMessageReq.UploadId)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
 
-	err = s.SendFile(ctx, service.Session().GetUid(ctx), fileMessageReq)
-	if err != nil {
+	publicUrl := ""
+	filePath := fmt.Sprintf("private/files/talks/%s/%s.%s", util.DateNumber(), gmd5.MustEncryptString(util.Random(16)), file.FileExt)
+
+	// 公开文件
+	if consts.GetMediaType(file.FileExt) <= 3 {
+		filePath = fmt.Sprintf("public/media/%s/%s.%s", util.DateNumber(), gmd5.MustEncryptString(util.Random(16)), file.FileExt)
+		publicUrl = filesystem.NewFilesystem(config.Cfg).Default.PublicUrl(filePath)
+	}
+
+	if err := filesystem.NewFilesystem(config.Cfg).Default.Copy(file.Path, filePath); err != nil {
+		logger.Error(ctx, err)
+		return err
+	}
+
+	message := &model.Message{
+		MsgId:    gmd5.MustEncryptString(fileMessageReq.UploadId),
+		TalkType: fileMessageReq.Receiver.TalkType,
+		Sender: &model.Sender{
+			Id: service.Session().GetUid(ctx),
+		},
+		Receiver: &model.Receiver{
+			Id:         fileMessageReq.Receiver.ReceiverId,
+			ReceiverId: fileMessageReq.Receiver.ReceiverId,
+		},
+	}
+
+	switch consts.GetMediaType(file.FileExt) {
+	case consts.MediaFileAudio:
+		message.MsgType = consts.MsgTypeVoice
+		message.Voice = &model.Voice{
+			Suffix:   file.FileExt,
+			Size:     int(file.FileSize),
+			Url:      publicUrl,
+			Duration: 0,
+		}
+	case consts.MediaFileVideo:
+		message.MsgType = consts.MsgTypeVideo
+		message.Video = &model.Video{
+			Cover:    "",
+			Suffix:   file.FileExt,
+			Size:     int(file.FileSize),
+			Url:      publicUrl,
+			Duration: 0,
+		}
+	case consts.MediaFileOther:
+		message.MsgType = consts.MsgTypeFile
+		message.File = &model.File{
+			Drive:  file.Drive,
+			Name:   file.OriginalName,
+			Suffix: file.FileExt,
+			Size:   int(file.FileSize),
+			Path:   filePath,
+		}
+	}
+
+	if err = s.SendMessage(ctx, message); err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
@@ -1936,8 +2018,23 @@ func (s *sTalkMessage) onSendForward(ctx context.Context) error {
 		return err
 	}
 
-	err = s.SendForward(ctx, service.Session().GetUid(ctx), forwardMessageReq)
-	if err != nil {
+	//err = s.SendForward(ctx, service.Session().GetUid(ctx), forwardMessageReq)
+	//if err != nil {
+	//	logger.Error(ctx, err)
+	//	return err
+	//}
+
+	if err = s.SendMessage(ctx, &model.Message{
+		TalkType: forwardMessageReq.Receiver.TalkType,
+		MsgType:  consts.MsgTypeForward,
+		Sender: &model.Sender{
+			Id: service.Session().GetUid(ctx),
+		},
+		Receiver: &model.Receiver{
+			Id:         forwardMessageReq.Receiver.ReceiverId,
+			ReceiverId: forwardMessageReq.Receiver.ReceiverId,
+		},
+	}); err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
@@ -2126,7 +2223,7 @@ func (s *sTalkMessage) transfer(ctx context.Context, typeValue string) error {
 		s.mapping["image"] = s.onSendImage
 		s.mapping["voice"] = s.onSendVoice
 		s.mapping["video"] = s.onSendVideo
-		s.mapping["file"] = s.onSendFile
+		//s.mapping["file"] = s.onSendFile todo
 		s.mapping["card"] = s.onSendCard
 		s.mapping["forward"] = s.onSendForward
 		s.mapping["mixed"] = s.onMixedMessage
@@ -2295,7 +2392,73 @@ func (s *sTalkMessage) MixedMessageHandler(ctx context.Context, message *model.M
 	return data, nil
 }
 
+// todo
 func (s *sTalkMessage) ForwardMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error) {
+
+	req := &model.ForwardMessageReq{}
+	err := gjson.Unmarshal(g.RequestFromCtx(ctx).GetBody(), req)
+	if err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	uid := message.Sender.Id
+
+	// 验证转发消息合法性
+	if err = s.Verify(ctx, uid, req); err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	var items []*model.ForwardRecord
+	// 发送方式 1:逐条发送 2:合并发送
+	if req.Mode == 1 {
+		items, err = s.MultiSplitForward(ctx, uid, req)
+	} else {
+		items, err = s.MultiMergeForward(ctx, uid, req)
+	}
+
+	if err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	for _, record := range items {
+		if record.TalkType == consts.ChatPrivateMode {
+			s.unreadStorage.Incr(ctx, consts.ChatPrivateMode, uid, record.ReceiverId)
+		} else if record.TalkType == consts.ChatGroupMode {
+			pipe := redis.Pipeline(ctx)
+			for _, uid := range dao.GroupMember.GetMemberIds(ctx, record.ReceiverId) {
+				s.unreadStorage.PipeIncr(ctx, pipe, consts.ChatGroupMode, record.ReceiverId, uid)
+			}
+			if _, err := pipe.Exec(ctx); err != nil {
+				logger.Error(ctx, err)
+			}
+		}
+
+		_ = s.messageStorage.Set(ctx, record.TalkType, uid, record.ReceiverId, &cache.LastCacheMessage{
+			Content:  "[转发消息]",
+			Datetime: gtime.Datetime(),
+		})
+	}
+
+	pipe := redis.Pipeline(ctx)
+
+	for _, item := range items {
+		data := gjson.MustEncodeString(map[string]any{
+			"event": consts.SubEventImMessage,
+			"data": gjson.MustEncodeString(map[string]any{
+				"sender_id":   uid,
+				"receiver_id": item.ReceiverId,
+				"talk_type":   item.TalkType,
+				"record_id":   item.RecordId,
+			}),
+		})
+
+		pipe.Publish(ctx, consts.ImTopicChat, data)
+	}
+
+	_, _ = redis.Pipelined(ctx, pipe)
 
 	return nil, nil
 }

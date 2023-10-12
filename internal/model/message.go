@@ -1,6 +1,7 @@
 package model
 
 type Message struct {
+	MsgId    string    `json:"msg_id,omitempty" bson:"msg_id,omitempty"`
 	MsgType  string    `json:"msg_type,omitempty" bson:"msg_type,omitempty"`
 	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`       // 发送者
 	Receiver *Receiver `json:"receiver,omitempty" bson:"receiver,omitempty"`   // 接收者
@@ -140,17 +141,21 @@ type Image struct {
 
 // 语音消息
 type Voice struct {
-	Url      string `json:"url,omitempty" bson:"url,omitempty" v:"required"`
-	Duration int    `json:"duration,omitempty" bson:"duration,omitempty" v:"required"`
-	Size     int    `json:"size,omitempty" bson:"size,omitempty" v:"required"` // 语音大小
+	Url      string `json:"url,omitempty" bson:"url,omitempty" v:"required"`           // 语音地址
+	Duration int    `json:"duration,omitempty" bson:"duration,omitempty" v:"required"` // 语音时长
+	Size     int    `json:"size,omitempty" bson:"size,omitempty" v:"required"`         // 语音大小
+	Name     string `json:"name,omitempty" bson:"name,omitempty"`                      // 语音名称
+	Suffix   string `json:"suffix,omitempty" bson:"suffix,omitempty"`                  // 文件后缀
 }
 
 // 视频文件消息
 type Video struct {
-	Url      string `json:"url,omitempty" bson:"url,omitempty" v:"required"`
-	Duration int    `json:"duration,omitempty" bson:"duration,omitempty" v:"required"`
-	Size     int    `json:"size,omitempty" bson:"size,omitempty" v:"required"` // 视频大小
-	Cover    string `json:"cover,omitempty" bson:"cover,omitempty"`            // 封面图
+	Url      string `json:"url,omitempty" bson:"url,omitempty" v:"required"`           // 视频地址
+	Duration int    `json:"duration,omitempty" bson:"duration,omitempty" v:"required"` // 视频时长
+	Size     int    `json:"size,omitempty" bson:"size,omitempty" v:"required"`         // 视频大小
+	Cover    string `json:"cover,omitempty" bson:"cover,omitempty"`                    // 视频封面
+	Name     string `json:"name,omitempty" bson:"name,omitempty"`                      // 视频名称
+	Suffix   string `json:"suffix,omitempty" bson:"suffix,omitempty"`                  // 文件后缀
 }
 
 // 文件消息
