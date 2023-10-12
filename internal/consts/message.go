@@ -10,9 +10,10 @@ const (
 	MsgTypeForward  = "forward"  // 转发消息
 	MsgTypeVote     = "vote"     // 投票消息
 	MsgTypeMixed    = "mixed"    // 图文消息
-	MsgTypeLogin    = "login"    // 登录消息
+	MsgTypeEmoticon = "emoticon" // 表情消息
 	MsgTypeCard     = "card"     // 名片消息
 	MsgTypeLocation = "location" // 位置消息
+	MsgTypeLogin    = "login"    // 登录消息
 )
 
 const (

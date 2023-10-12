@@ -74,13 +74,17 @@ type TalkRecords struct {
 	CreatedAt  int64  `bson:"created_at"`  // 创建时间
 	UpdatedAt  int64  `bson:"updated_at"`  // 更新时间
 
+	Reply *model.Reply `json:"reply,omitempty" bson:"reply,omitempty"`
+
 	Text     *model.Text     `json:"text,omitempty" bson:"text,omitempty"`
+	Code     *model.Code     `json:"code,omitempty" bson:"code,omitempty"`
 	Image    *model.Image    `json:"image,omitempty" bson:"image,omitempty"`
 	Voice    *model.Voice    `json:"voice,omitempty" bson:"voice,omitempty"`
 	Video    *model.Video    `json:"video,omitempty" bson:"video,omitempty"`
 	File     *model.File     `json:"file,omitempty" bson:"file,omitempty"`
 	Vote     *model.Vote     `json:"vote,omitempty" bson:"vote,omitempty"`
 	Mixed    *model.Mixed    `json:"mixed,omitempty" bson:"mixed,omitempty"`
+	Emoticon *model.Emoticon `json:"emoticon,omitempty" bson:"emoticon,omitempty"`
 	Card     *model.Card     `json:"card,omitempty" bson:"card,omitempty"`
 	Location *model.Location `json:"location,omitempty" bson:"location,omitempty"`
 }

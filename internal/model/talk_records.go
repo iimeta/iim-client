@@ -40,13 +40,17 @@ type TalkRecord struct {
 	CreatedAt  string `json:"created_at"`  // 创建时间
 	UpdatedAt  string `json:"updated_at"`  // 更新时间
 
+	Reply *Reply `json:"reply,omitempty"`
+
 	Text     *Text     `json:"text,omitempty"`
+	Code     *Code     `json:"code,omitempty"`
 	Image    *Image    `json:"image,omitempty"`
 	Voice    *Voice    `json:"voice,omitempty"`
 	Video    *Video    `json:"video,omitempty"`
 	File     *File     `json:"file,omitempty"`
 	Vote     *Vote     `json:"vote,omitempty"`
 	Mixed    *Mixed    `json:"mixed,omitempty"`
+	Emoticon *Emoticon `json:"emoticon,omitempty"`
 	Card     *Card     `json:"card,omitempty"`
 	Location *Location `json:"location,omitempty"`
 }
@@ -78,7 +82,7 @@ type TalkRecordReply struct {
 	UserId   int    `json:"user_id,omitempty"`
 	Nickname string `json:"nickname,omitempty"`
 	MsgType  int    `json:"msg_type,omitempty"` // 1:文字 2:图片
-	Content  string `json:"content,omitempty"`  // 文字或图片连接
+	Content  string `json:"content,omitempty"`  // 文字或图片链接
 	MsgId    string `json:"msg_id,omitempty"`
 }
 

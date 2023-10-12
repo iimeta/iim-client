@@ -2,26 +2,29 @@ package model
 
 type Message struct {
 	MsgType  string    `json:"msg_type,omitempty" bson:"msg_type,omitempty"`
-	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`    // 发送者
-	Receiver *Receiver `json:"receiver,omitempty" bson:"receiver,omitempty"`  // 接收者
+	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`       // 发送者
+	Receiver *Receiver `json:"receiver,omitempty" bson:"receiver,omitempty"`   // 接收者
 	TalkType int       `json:"talk_type,omitempty" bson:"talk_type,omitempty"` // 对话类型 1:私聊 2:群聊
 	Mention  *Mention  `json:"mention,omitempty" bson:"mention,omitempty"`
 	QuoteId  string    `json:"quote_id,omitempty" bson:"quote_id,omitempty"` // 引用的消息ID
+	Reply    *Reply    `json:"reply,omitempty" bson:"reply,omitempty"`
 
 	Text     *Text     `json:"text,omitempty" bson:"text,omitempty"`
+	Code     *Code     `json:"code,omitempty" bson:"code,omitempty"`
 	Image    *Image    `json:"image,omitempty" bson:"image,omitempty"`
 	Voice    *Voice    `json:"voice,omitempty" bson:"voice,omitempty"`
 	Video    *Video    `json:"video,omitempty" bson:"video,omitempty"`
 	File     *File     `json:"file,omitempty" bson:"file,omitempty"`
 	Vote     *Vote     `json:"vote,omitempty" bson:"vote,omitempty"`
 	Mixed    *Mixed    `json:"mixed,omitempty" bson:"mixed,omitempty"`
+	Emoticon *Emoticon `json:"emoticon,omitempty" bson:"emoticon,omitempty"`
 	Card     *Card     `json:"card,omitempty" bson:"card,omitempty"`
 	Location *Location `json:"location,omitempty" bson:"location,omitempty"`
 }
 
 type SysMessage struct {
 	MsgType  string    `json:"msg_type,omitempty" bson:"msg_type,omitempty"`
-	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`   // 发送者
+	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`     // 发送者
 	Receiver *Receiver `json:"receiver,omitempty" bson:"receiver,omitempty"` // 接收者
 
 	Text *Text `json:"text,omitempty" bson:"text,omitempty"`
@@ -29,22 +32,22 @@ type SysMessage struct {
 
 type NoticeMessage struct {
 	MsgType  string    `json:"msg_type,omitempty" bson:"msg_type,omitempty"`
-	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`   // 发送者
+	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`     // 发送者
 	Receiver *Receiver `json:"receiver,omitempty" bson:"receiver,omitempty"` // 接收者
 
 	Login *Login `json:"login,omitempty" bson:"login,omitempty"`
 }
 
 type Sender struct {
-	Id   int    `json:"id,omitempty" bson:"id,omitempty"`   // 发送者ID
+	Id   int    `json:"id,omitempty" bson:"id,omitempty"`     // 发送者ID
 	Name string `json:"name,omitempty" bson:"name,omitempty"` // 发送者名称
 }
 
 type Receiver struct {
-	TalkType   int    `json:"talk_type,omitempty" bson:"talk_type,omitempty"`   // 对话类型 1:私聊 2:群聊 todo
+	TalkType   int    `json:"talk_type,omitempty" bson:"talk_type,omitempty"`     // 对话类型 1:私聊 2:群聊 todo
 	ReceiverId int    `json:"receiver_id,omitempty" bson:"receiver_id,omitempty"` // 接收者ID, 好友ID或群ID
-	Id         int    `json:"id,omitempty" bson:"id,omitempty"`          // 接收者ID, 好友ID或群ID
-	Name       string `json:"name,omitempty" bson:"name,omitempty"`        // 接收者名称, 好友名称或群名称
+	Id         int    `json:"id,omitempty" bson:"id,omitempty"`                   // 接收者ID, 好友ID或群ID
+	Name       string `json:"name,omitempty" bson:"name,omitempty"`               // 接收者名称, 好友名称或群名称
 }
 
 type Mention struct {
@@ -64,6 +67,10 @@ type Login struct {
 // 表情消息
 type Emoticon struct {
 	EmoticonId string `json:"emoticon_id,omitempty" bson:"emoticon_id,omitempty" v:"required"`
+	Url        string `json:"url,omitempty" bson:"url,omitempty" v:"required"`       // 图片地址
+	Width      int    `json:"width,omitempty" bson:"width,omitempty" v:"required"`   // 图片宽度
+	Height     int    `json:"height,omitempty" bson:"height,omitempty" v:"required"` // 图片高度
+	Size       int    `json:"size,omitempty" bson:"size,omitempty" v:"required"`     // 图片大小
 }
 
 // 位置消息
@@ -98,20 +105,20 @@ type Vote struct {
 
 // 位置消息
 type Location struct {
-	Longitude   string `json:"longitude,omitempty" bson:"longitude,omitempty" v:"required"`   // 地理位置 经度
-	Latitude    string `json:"latitude,omitempty" bson:"latitude,omitempty" v:"required"`    // 地理位置 纬度
+	Longitude   string `json:"longitude,omitempty" bson:"longitude,omitempty" v:"required"`     // 地理位置 经度
+	Latitude    string `json:"latitude,omitempty" bson:"latitude,omitempty" v:"required"`       // 地理位置 纬度
 	Description string `json:"description,omitempty" bson:"description,omitempty" v:"required"` // 位置描述
 }
 
 // 转发消息
 type Forward struct {
 	MsgType         string `json:"msg_type,omitempty" bson:"msg_type,omitempty"`
-	Mode            int    `json:"mode,omitempty" bson:"mode,omitempty" v:"required"`          // 转发模式
-	MessageIds      []int  `json:"message_ids,omitempty" bson:"message_ids,omitempty" v:"required"`   // 消息ID
-	Gids            []int  `json:"gids,omitempty" bson:"gids,omitempty"`                       // 群ID列表
-	Uids            []int  `json:"uids,omitempty" bson:"uids,omitempty"`                       // 好友ID列表
+	Mode            int    `json:"mode,omitempty" bson:"mode,omitempty" v:"required"`               // 转发模式
+	MessageIds      []int  `json:"message_ids,omitempty" bson:"message_ids,omitempty" v:"required"` // 消息ID
+	Gids            []int  `json:"gids,omitempty" bson:"gids,omitempty"`                            // 群ID列表
+	Uids            []int  `json:"uids,omitempty" bson:"uids,omitempty"`                            // 好友ID列表
 	RecordId        int    `json:"record_id,omitempty" bson:"record_id,omitempty" v:"min:0"`        // 上次查询的最小消息ID
-	Limit           int    `json:"limit,omitempty" bson:"limit,omitempty" v:"required|max:100"` // 数据行数
+	Limit           int    `json:"limit,omitempty" bson:"limit,omitempty" v:"required|max:100"`     // 数据行数
 	ForwardMode     int    `json:"forward_mode,omitempty" bson:"forward_mode,omitempty" v:"required|in:1,2"`
 	RecordsIds      string `json:"records_ids,omitempty" bson:"records_ids,omitempty" v:"required"`
 	ReceiveUserIds  string `json:"receive_user_ids,omitempty" bson:"receive_user_ids,omitempty"`
@@ -125,10 +132,10 @@ type Text struct {
 
 // 图片消息
 type Image struct {
-	Url    string `json:"url,omitempty" bson:"url,omitempty" v:"required"`    // 图片地址
-	Width  int    `json:"width,omitempty" bson:"width,omitempty" v:"required"`  // 图片宽度
+	Url    string `json:"url,omitempty" bson:"url,omitempty" v:"required"`       // 图片地址
+	Width  int    `json:"width,omitempty" bson:"width,omitempty" v:"required"`   // 图片宽度
 	Height int    `json:"height,omitempty" bson:"height,omitempty" v:"required"` // 图片高度
-	Size   int    `json:"size,omitempty" bson:"size,omitempty" v:"required"`   // 图片大小
+	Size   int    `json:"size,omitempty" bson:"size,omitempty" v:"required"`     // 图片大小
 }
 
 // 语音消息
@@ -143,15 +150,23 @@ type Video struct {
 	Url      string `json:"url,omitempty" bson:"url,omitempty" v:"required"`
 	Duration int    `json:"duration,omitempty" bson:"duration,omitempty" v:"required"`
 	Size     int    `json:"size,omitempty" bson:"size,omitempty" v:"required"` // 视频大小
-	Cover    string `json:"cover,omitempty" bson:"cover,omitempty"`             // 封面图
+	Cover    string `json:"cover,omitempty" bson:"cover,omitempty"`            // 封面图
 }
 
 // 文件消息
 type File struct {
 	UploadId string `json:"upload_id,omitempty" bson:"upload_id,omitempty" v:"required"`
-	Name     string `json:"name,omitempty" bson:"name,omitempty"`   // 文件名称
-	Drive    int    `json:"drive,omitempty" bson:"drive,omitempty"`  // 文件存储方式
+	Name     string `json:"name,omitempty" bson:"name,omitempty"`     // 文件名称
+	Drive    int    `json:"drive,omitempty" bson:"drive,omitempty"`   // 文件存储方式
 	Suffix   string `json:"suffix,omitempty" bson:"suffix,omitempty"` // 文件后缀
-	Size     int    `json:"size,omitempty" bson:"size,omitempty"`   // 文件大小
-	Path     string `json:"path,omitempty" bson:"path,omitempty"`   // 文件路径
+	Size     int    `json:"size,omitempty" bson:"size,omitempty"`     // 文件大小
+	Path     string `json:"path,omitempty" bson:"path,omitempty"`     // 文件路径
+}
+
+type Reply struct {
+	MsgId    string `json:"msg_id,omitempty" bson:"msg_id,omitempty"`
+	MsgType  string `json:"msg_type,omitempty" bson:"msg_type,omitempty"` // text: 文字, image: 图片
+	Content  string `json:"content,omitempty" bson:"content,omitempty"`   // 文字或图片链接
+	UserId   int    `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	Nickname string `json:"nickname,omitempty" bson:"nickname,omitempty"`
 }

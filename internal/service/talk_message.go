@@ -17,8 +17,6 @@ type (
 		VerifyPermission(ctx context.Context, info *model.VerifyInfo) error
 		// 发送消息
 		SendMessage(ctx context.Context, message *model.Message) (err error)
-		TextMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
-		ImageMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
 		// 发送系统消息
 		SendSysMessage(ctx context.Context, message *model.SysMessage) error
 		// 发送通知消息
@@ -87,6 +85,18 @@ type (
 		Collect(ctx context.Context, params model.MessageCollectReq) error
 		// 发送消息接口
 		Publish(ctx context.Context, params model.MessagePublishReq) error
+		TextMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		CodeMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		ImageMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		VoiceMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		VideoMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		FileMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		VoteMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		MixedMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		ForwardMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		EmoticonMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		CardMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
+		LocationMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error)
 	}
 )
 
