@@ -24,26 +24,6 @@ type Message struct {
 	Location *Location `json:"location,omitempty" bson:"location,omitempty"`
 }
 
-type SysMessage struct {
-	MsgId    string    `json:"msg_id,omitempty" bson:"msg_id,omitempty"`
-	MsgType  string    `json:"msg_type,omitempty" bson:"msg_type,omitempty"`
-	TalkType int       `json:"talk_type,omitempty" bson:"talk_type,omitempty"` // 对话类型 1:私聊 2:群聊
-	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`       // 发送者
-	Receiver *Receiver `json:"receiver,omitempty" bson:"receiver,omitempty"`   // 接收者
-
-	Text *Text `json:"text,omitempty" bson:"text,omitempty"`
-}
-
-type NoticeMessage struct {
-	MsgId    string    `json:"msg_id,omitempty" bson:"msg_id,omitempty"`
-	MsgType  string    `json:"msg_type,omitempty" bson:"msg_type,omitempty"`
-	TalkType int       `json:"talk_type,omitempty" bson:"talk_type,omitempty"` // 对话类型 1:私聊 2:群聊
-	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`       // 发送者
-	Receiver *Receiver `json:"receiver,omitempty" bson:"receiver,omitempty"`   // 接收者
-
-	Login *Login `json:"login,omitempty" bson:"login,omitempty"`
-}
-
 type Sender struct {
 	Id   int    `json:"id,omitempty" bson:"id,omitempty"`     // 发送者ID
 	Name string `json:"name,omitempty" bson:"name,omitempty"` // 发送者名称
@@ -59,16 +39,6 @@ type Receiver struct {
 type Mention struct {
 	Type int   `json:"type,omitempty" bson:"type,omitempty"` // 提及类型, 1: 所有人, 2: 指定人
 	Uids []int `json:"uids,omitempty" bson:"uids,omitempty"`
-}
-
-// 登录消息
-type Login struct {
-	IP       string `json:"ip,omitempty" bson:"ip,omitempty"`             // 登录IP
-	Address  string `json:"address,omitempty" bson:"address,omitempty"`   // 登录地址
-	Platform string `json:"platform,omitempty" bson:"platform,omitempty"` // 登录平台
-	Agent    string `json:"agent,omitempty" bson:"agent,omitempty"`       // 登录设备
-	Reason   string `json:"reason,omitempty" bson:"reason,omitempty"`     // 登录原因
-	Datetime string `json:"datetime,omitempty" bson:"datetime,omitempty"` // 登录时间
 }
 
 // 表情消息
@@ -119,8 +89,9 @@ type Location struct {
 
 // 转发消息
 type Forward struct {
-	RecordsIds []int          `json:"records_ids,omitempty"` // 消息列表
-	Items      []*ForwardItem `json:"items,omitempty"`       // 消息快照
+	TalkType   int            `json:"talk_type,omitempty" bson:"talk_type,omitempty"`
+	RecordsIds []int          `json:"records_ids,omitempty" bson:"records_ids,omitempty"` // 消息列表
+	Items      []*ForwardItem `json:"items,omitempty" bson:"items,omitempty"`             // 消息快照
 }
 
 type ForwardItem struct {

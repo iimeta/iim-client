@@ -100,11 +100,11 @@ type TalkRecordLocation struct {
 }
 
 type TalkRecordForward struct {
-	TalkType   int              `json:"talk_type"`   // 对话类型
-	UserId     int              `json:"user_id"`     // 发送者ID
-	ReceiverId int              `json:"receiver_id"` // 接收者ID
-	RecordsIds []int            `json:"records_ids"` // 消息列表
-	Records    []map[string]any `json:"records"`     // 消息快照
+	TalkType   int                 `json:"talk_type"`   // 对话类型
+	UserId     int                 `json:"user_id"`     // 发送者ID
+	ReceiverId int                 `json:"receiver_id"` // 接收者ID
+	RecordsIds []int               `json:"records_ids"` // 消息列表
+	Records    []map[string]string `json:"records"`     // 消息快照
 }
 
 type TalkRecordLogin struct {

@@ -164,15 +164,14 @@ func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) 
 // 发送系统消息
 func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMessage) error {
 
-	uid := service.Session().GetUid(ctx)
-
 	var data *model.TalkRecord
+
 	switch message.MsgType {
 	case consts.MsgSysText:
 		data = &model.TalkRecord{
 			TalkType:   message.Receiver.TalkType,
 			MsgType:    consts.ChatMsgSysText,
-			UserId:     uid,
+			UserId:     message.Sender.Id,
 			ReceiverId: message.Receiver.ReceiverId,
 			Content:    html.EscapeString(message.Text.Content),
 		}
@@ -291,7 +290,6 @@ func (s *sTalkMessage) SendFile(ctx context.Context, uid int, req *model.Message
 	}
 
 	data := &model.TalkRecord{
-		MsgId:      gmd5.MustEncryptString(req.UploadId),
 		TalkType:   req.Receiver.TalkType,
 		UserId:     uid,
 		ReceiverId: req.Receiver.ReceiverId,
@@ -967,6 +965,14 @@ func (s *sTalkMessage) MultiMergeForward(ctx context.Context, uid int, params *m
 		ids = append(ids, id)
 	}
 
+	forwardItems := make([]*model.ForwardItem, 0)
+	for _, record := range tmpRecords {
+		forwardItems = append(forwardItems, &model.ForwardItem{
+			Nickname: record["nickname"],
+			Text:     record["text"],
+		})
+	}
+
 	extra := gjson.MustEncodeString(model.TalkRecordForward{
 		RecordsIds: ids,
 		Records:    tmpRecords,
@@ -984,6 +990,11 @@ func (s *sTalkMessage) MultiMergeForward(ctx context.Context, uid int, params *m
 			UserId:     uid,
 			ReceiverId: item["receiver_id"],
 			Extra:      extra,
+			Forward: &model.Forward{
+				TalkType:   item["talk_type"],
+				RecordsIds: ids,
+				Items:      forwardItems,
+			},
 		}
 
 		if data.TalkType == consts.ChatGroupMode {
@@ -1058,6 +1069,19 @@ func (s *sTalkMessage) MultiSplitForward(ctx context.Context, uid int, params *m
 				Content:    item.Content,
 				Sequence:   sequences[i],
 				Extra:      item.Extra,
+				Text:       item.Text,
+				Code:       item.Code,
+				Image:      item.Image,
+				Voice:      item.Voice,
+				Video:      item.Video,
+				File:       item.File,
+				Vote:       item.Vote,
+				Mixed:      item.Mixed,
+				Forward:    item.Forward,
+				Emoticon:   item.Emoticon,
+				Card:       item.Card,
+				Location:   item.Location,
+				Login:      item.Login,
 			}
 			items = append(items, records)
 			recordIds = append(recordIds, records.RecordId)
@@ -1090,7 +1114,7 @@ type forwardItem struct {
 }
 
 // 聚合转发数据
-func aggregation(ctx context.Context, params *model.ForwardMessageReq) ([]map[string]any, error) {
+func aggregation(ctx context.Context, params *model.ForwardMessageReq) ([]map[string]string, error) {
 
 	ids := params.MessageIds
 	if len(ids) > 3 {
@@ -1127,9 +1151,9 @@ func aggregation(ctx context.Context, params *model.ForwardMessageReq) ([]map[st
 		})
 	}
 
-	data := make([]map[string]any, 0)
+	data := make([]map[string]string, 0)
 	for _, row := range rows {
-		item := map[string]any{
+		item := map[string]string{
 			"nickname": row.Nickname,
 		}
 
@@ -1460,7 +1484,6 @@ func (s *sTalkMessage) onSendFile(ctx context.Context, req ...*model.MessageFile
 	}
 
 	message := &model.Message{
-		MsgId:    gmd5.MustEncryptString(fileMessageReq.UploadId),
 		TalkType: fileMessageReq.Receiver.TalkType,
 		Sender: &model.Sender{
 			Id: service.Session().GetUid(ctx),
@@ -1905,7 +1928,6 @@ func (s *sTalkMessage) VideoMessageHandler(ctx context.Context, message *model.M
 func (s *sTalkMessage) FileMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error) {
 
 	data := &model.TalkRecord{
-		MsgId:      gmd5.MustEncryptString(message.File.UploadId),
 		TalkType:   message.TalkType,
 		UserId:     message.Sender.Id,
 		ReceiverId: message.Receiver.ReceiverId,

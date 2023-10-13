@@ -226,11 +226,15 @@ func (s *sTalkSession) List(ctx context.Context) (*model.SessionListRes, error) 
 		}
 
 		if session.TalkType == 1 {
-			session.UserAvatar = userMap[talkSession.ReceiverId].Avatar
-			session.Nickname = userMap[talkSession.ReceiverId].Nickname
+			if userMap[talkSession.ReceiverId] != nil {
+				session.UserAvatar = userMap[talkSession.ReceiverId].Avatar
+				session.Nickname = userMap[talkSession.ReceiverId].Nickname
+			}
 		} else if session.TalkType == 2 {
-			session.GroupName = groupMap[talkSession.ReceiverId].GroupName
-			session.GroupAvatar = groupMap[talkSession.ReceiverId].Avatar
+			if groupMap[talkSession.ReceiverId] != nil {
+				session.GroupName = groupMap[talkSession.ReceiverId].GroupName
+				session.GroupAvatar = groupMap[talkSession.ReceiverId].Avatar
+			}
 		}
 
 		data = append(data, session)
