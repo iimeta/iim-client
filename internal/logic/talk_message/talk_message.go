@@ -196,24 +196,23 @@ func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMes
 // 发送通知消息
 func (s *sTalkMessage) SendNoticeMessage(ctx context.Context, message *model.NoticeMessage) error {
 
-	uid := service.Session().GetUid(ctx)
-
 	var data *model.TalkRecord
 	switch message.MsgType {
-	case consts.MsgTypeLogin:
+	case consts.MsgNoticeLogin:
 		data = &model.TalkRecord{
-			TalkType:   consts.ChatPrivateMode,
+			TalkType:   message.TalkType,
 			MsgType:    consts.ChatMsgTypeLogin,
-			UserId:     1, // todo 登录助手
-			ReceiverId: uid,
+			UserId:     message.Sender.Id,
+			ReceiverId: message.Receiver.ReceiverId,
 			Extra: gjson.MustEncodeString(&model.TalkRecordLogin{
-				IP:       message.Login.Ip,
+				IP:       message.Login.IP,
 				Platform: message.Login.Platform,
 				Agent:    message.Login.Agent,
 				Address:  message.Login.Address,
 				Reason:   message.Login.Reason,
 				Datetime: gtime.Datetime(),
 			}),
+			Login: message.Login,
 		}
 	}
 
@@ -262,44 +261,6 @@ func (s *sTalkMessage) SendImage(ctx context.Context, uid int, req *model.ImageM
 			Url:    req.Url,
 			Width:  req.Width,
 			Height: req.Height,
-		}),
-	}
-
-	return s.save(ctx, data)
-}
-
-// 语音文件消息
-func (s *sTalkMessage) SendVoice(ctx context.Context, uid int, req *model.VoiceMessageReq) error {
-
-	data := &model.TalkRecord{
-		TalkType:   req.Receiver.TalkType,
-		MsgType:    consts.ChatMsgTypeAudio,
-		UserId:     uid,
-		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordAudio{
-			Suffix:   gfile.ExtName(req.Url),
-			Size:     req.Size,
-			Url:      req.Url,
-			Duration: 0,
-		}),
-	}
-
-	return s.save(ctx, data)
-}
-
-// 视频文件消息
-func (s *sTalkMessage) SendVideo(ctx context.Context, uid int, req *model.VideoMessageReq) error {
-
-	data := &model.TalkRecord{
-		TalkType:   req.Receiver.TalkType,
-		MsgType:    consts.ChatMsgTypeVideo,
-		UserId:     uid,
-		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordVideo{
-			Cover:    req.Cover,
-			Size:     req.Size,
-			Url:      req.Url,
-			Duration: req.Duration,
 		}),
 	}
 
@@ -368,23 +329,6 @@ func (s *sTalkMessage) SendFile(ctx context.Context, uid int, req *model.Message
 	return s.save(ctx, data)
 }
 
-// 代码消息
-func (s *sTalkMessage) SendCode(ctx context.Context, uid int, req *model.CodeMessageReq) error {
-
-	data := &model.TalkRecord{
-		TalkType:   req.Receiver.TalkType,
-		MsgType:    consts.ChatMsgTypeCode,
-		UserId:     uid,
-		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordCode{
-			Lang: req.Lang,
-			Code: req.Code,
-		}),
-	}
-
-	return s.save(ctx, data)
-}
-
 // 投票消息
 func (s *sTalkMessage) SendVote(ctx context.Context, uid int, req *model.MessageVoteReq) error {
 
@@ -438,185 +382,6 @@ func (s *sTalkMessage) SendVote(ctx context.Context, uid int, req *model.Message
 	return nil
 }
 
-// 表情消息
-func (s *sTalkMessage) SendEmoticon(ctx context.Context, uid int, req *model.EmoticonMessageReq) error {
-
-	emoticon := new(entity.EmoticonItem)
-	if err := dao.FindOne(ctx, dao.Emoticon.Database, do.EMOTICON_ITEM_COLLECTION, bson.M{"_id": req.EmoticonId, "user_id": uid}, &emoticon); err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return errors.New("表情信息不存在")
-		}
-
-		logger.Error(ctx, err)
-		return err
-	}
-
-	data := &model.TalkRecord{
-		TalkType:   req.Receiver.TalkType,
-		MsgType:    consts.ChatMsgTypeImage,
-		UserId:     uid,
-		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordImage{
-			Url:    emoticon.Url,
-			Width:  0,
-			Height: 0,
-		}),
-	}
-
-	return s.save(ctx, data)
-}
-
-// 转发消息
-func (s *sTalkMessage) SendForward(ctx context.Context, uid int, req *model.ForwardMessageReq) error {
-
-	// 验证转发消息合法性
-	if err := s.Verify(ctx, uid, req); err != nil {
-		logger.Error(ctx, err)
-		return err
-	}
-
-	var (
-		err   error
-		items []*model.ForwardRecord
-	)
-
-	// 发送方式 1:逐条发送 2:合并发送
-	if req.Mode == 1 {
-		items, err = s.MultiSplitForward(ctx, uid, req)
-	} else {
-		items, err = s.MultiMergeForward(ctx, uid, req)
-	}
-
-	if err != nil {
-		logger.Error(ctx, err)
-		return err
-	}
-
-	for _, record := range items {
-		if record.TalkType == consts.ChatPrivateMode {
-			s.unreadStorage.Incr(ctx, consts.ChatPrivateMode, uid, record.ReceiverId)
-		} else if record.TalkType == consts.ChatGroupMode {
-			pipe := redis.Pipeline(ctx)
-			for _, uid := range dao.GroupMember.GetMemberIds(ctx, record.ReceiverId) {
-				s.unreadStorage.PipeIncr(ctx, pipe, consts.ChatGroupMode, record.ReceiverId, uid)
-			}
-			if _, err := pipe.Exec(ctx); err != nil {
-				logger.Error(ctx, err)
-			}
-		}
-
-		_ = s.messageStorage.Set(ctx, record.TalkType, uid, record.ReceiverId, &cache.LastCacheMessage{
-			Content:  "[转发消息]",
-			Datetime: gtime.Datetime(),
-		})
-	}
-
-	pipe := redis.Pipeline(ctx)
-
-	for _, item := range items {
-		data := gjson.MustEncodeString(map[string]any{
-			"event": consts.SubEventImMessage,
-			"data": gjson.MustEncodeString(map[string]any{
-				"sender_id":   uid,
-				"receiver_id": item.ReceiverId,
-				"talk_type":   item.TalkType,
-				"record_id":   item.RecordId,
-			}),
-		})
-
-		pipe.Publish(ctx, consts.ImTopicChat, data)
-	}
-
-	_, _ = redis.Pipelined(ctx, pipe)
-
-	return nil
-}
-
-// 位置消息
-func (s *sTalkMessage) SendLocation(ctx context.Context, uid int, req *model.LocationMessageReq) error {
-
-	data := &model.TalkRecord{
-		TalkType:   req.Receiver.TalkType,
-		MsgType:    consts.ChatMsgTypeLocation,
-		UserId:     uid,
-		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordLocation{
-			Longitude:   req.Longitude,
-			Latitude:    req.Latitude,
-			Description: req.Description,
-		}),
-	}
-
-	return s.save(ctx, data)
-}
-
-// 推送用户名片消息
-func (s *sTalkMessage) SendBusinessCard(ctx context.Context, uid int, req *model.CardMessageReq) error {
-
-	data := &model.TalkRecord{
-		TalkType:   req.Receiver.TalkType,
-		MsgType:    consts.ChatMsgTypeCard,
-		UserId:     uid,
-		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordCard{
-			UserId: req.UserId,
-		}),
-	}
-
-	return s.save(ctx, data)
-}
-
-// 推送用户登录消息
-func (s *sTalkMessage) SendLogin(ctx context.Context, uid int, req *model.LoginMessageReq) error {
-
-	robot, err := dao.Robot.GetLoginRobot(ctx)
-	if err != nil {
-		logger.Error(ctx, err)
-		return err
-	}
-
-	data := &model.TalkRecord{
-		TalkType:   consts.ChatPrivateMode,
-		MsgType:    consts.ChatMsgTypeLogin,
-		UserId:     robot.UserId,
-		ReceiverId: uid,
-		Extra: gjson.MustEncodeString(&model.TalkRecordLogin{
-			IP:       req.Ip,
-			Platform: req.Platform,
-			Agent:    req.Agent,
-			Address:  req.Address,
-			Reason:   req.Reason,
-			Datetime: gtime.Datetime(),
-		}),
-	}
-
-	return s.save(ctx, data)
-}
-
-// 图文消息
-func (s *sTalkMessage) SendMixedMessage(ctx context.Context, uid int, req *model.MixedMessageReq) error {
-
-	items := make([]*model.MixedMessage, 0)
-
-	for _, item := range req.Items {
-		items = append(items, &model.MixedMessage{
-			Type:    item.Type,
-			Content: item.Content,
-		})
-	}
-
-	data := &model.TalkRecord{
-		TalkType:   req.Receiver.TalkType,
-		MsgType:    consts.ChatMsgTypeMixed,
-		QuoteId:    req.QuoteId,
-		UserId:     uid,
-		ReceiverId: req.Receiver.ReceiverId,
-		Extra:      gjson.MustEncodeString(model.TalkRecordMixed{Items: items}),
-	}
-
-	return s.save(ctx, data)
-}
-
 // 推送其它消息
 func (s *sTalkMessage) SendSysOther(ctx context.Context, data *model.TalkRecord) error {
 	return s.save(ctx, data)
@@ -666,122 +431,6 @@ func (s *sTalkMessage) Revoke(ctx context.Context, params model.MessageRevokeReq
 	return nil
 }
 
-// 投票处理
-func (s *sTalkMessage) HandleVote(ctx context.Context, params model.MessageVoteHandleReq) (*model.VoteStatistics, error) {
-
-	uid := service.Session().GetUid(ctx)
-
-	talkRecords, err := dao.TalkRecords.FindByRecordId(ctx, params.RecordId)
-	if err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	talkRecordsVote, err := dao.TalkRecordsVote.FindOne(ctx, bson.M{"record_id": talkRecords.RecordId})
-	if err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	if talkRecords.MsgType != consts.ChatMsgTypeVote {
-		return nil, errors.Newf("当前记录不属于投票信息[%d]", talkRecords.MsgType)
-	}
-
-	if talkRecords.TalkType == consts.ChatGroupMode {
-		count, err := dao.GroupMember.CountDocuments(ctx, bson.M{"group_id": talkRecords.ReceiverId, "user_id": uid, "is_quit": 0})
-		if err != nil {
-			logger.Error(ctx, err)
-			return nil, err
-		}
-
-		if count == 0 {
-			return nil, errors.New("暂无投票权限")
-		}
-	}
-
-	count, err := dao.CountDocuments(ctx, dao.TalkRecordsVote.Database, do.TALK_RECORDS_VOTE_ANSWER_COLLECTION, bson.M{"vote_id": talkRecordsVote.Id, "user_id": uid})
-	if err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	if count > 0 {
-		return nil, errors.Newf("重复投票[%d]", talkRecordsVote.Id)
-	}
-
-	options := strings.Split(params.Options, ",")
-	sort.Strings(options)
-
-	var answerOptions map[string]any
-	if err := gjson.Unmarshal([]byte(talkRecordsVote.AnswerOption), &answerOptions); err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	for _, option := range options {
-		if _, ok := answerOptions[option]; !ok {
-			return nil, errors.Newf("投票选项不合法[%s]", option)
-		}
-	}
-
-	if talkRecordsVote.AnswerMode == consts.VoteAnswerModeSingleChoice {
-		options = options[:1]
-	}
-
-	answers := make([]interface{}, 0, len(options))
-	for _, option := range options {
-		answers = append(answers, &do.TalkRecordsVoteAnswer{
-			VoteId: talkRecordsVote.Id,
-			UserId: uid,
-			Option: option,
-		})
-	}
-
-	if err = dao.TalkRecordsVote.UpdateById(ctx, talkRecordsVote.Id, bson.M{
-		"$inc": bson.M{
-			"answered_num": 1,
-		},
-	}); err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	if talkRecordsVote, err := dao.TalkRecordsVote.FindById(ctx, talkRecordsVote.Id); err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	} else if talkRecordsVote.AnsweredNum >= talkRecordsVote.AnswerNum {
-		if err = dao.TalkRecordsVote.UpdateById(ctx, talkRecordsVote.Id, bson.M{
-			"status": 1,
-		}); err != nil {
-			logger.Error(ctx, err)
-			return nil, err
-		}
-	}
-
-	if _, err = dao.Inserts(ctx, dao.TalkRecordsVote.Database, answers); err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	if _, err = dao.TalkRecordsVote.SetVoteAnswerUser(ctx, talkRecordsVote.Id); err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	if _, err = dao.TalkRecordsVote.SetVoteStatistics(ctx, talkRecordsVote.Id); err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	info, err := dao.TalkRecordsVote.GetVoteStatistics(ctx, talkRecordsVote.Id)
-	if err != nil {
-		logger.Error(ctx, err)
-		return nil, err
-	}
-
-	return info, nil
-}
-
 func (s *sTalkMessage) save(ctx context.Context, data *model.TalkRecord) error {
 
 	if data.RecordId == 0 {
@@ -824,6 +473,8 @@ func (s *sTalkMessage) save(ctx context.Context, data *model.TalkRecord) error {
 		Emoticon: data.Emoticon,
 		Card:     data.Card,
 		Location: data.Location,
+
+		Login: data.Login,
 	})
 
 	if err != nil {
@@ -983,64 +634,6 @@ func (s *sTalkMessage) afterHandle(ctx context.Context, record *model.TalkRecord
 	}
 }
 
-// 发送文本消息
-func (s *sTalkMessage) Text(ctx context.Context, params model.TextMessageReq) error {
-
-	uid := service.Session().GetUid(ctx)
-
-	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
-		TalkType:          params.TalkType,
-		UserId:            uid,
-		ReceiverId:        params.ReceiverId,
-		IsVerifyGroupMute: true,
-	}); err != nil {
-		logger.Error(ctx, err)
-		return err
-	}
-
-	if err := s.SendText(ctx, uid, &model.TextMessageReq{
-		Content: params.Text,
-		Receiver: &model.Receiver{
-			TalkType:   params.TalkType,
-			ReceiverId: params.ReceiverId,
-		},
-	}); err != nil {
-		logger.Error(ctx, err)
-		return err
-	}
-
-	return nil
-}
-
-// 发送代码块消息
-func (s *sTalkMessage) Code(ctx context.Context, params model.CodeMessageReq) error {
-
-	uid := service.Session().GetUid(ctx)
-	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
-		TalkType:          params.TalkType,
-		UserId:            uid,
-		ReceiverId:        params.ReceiverId,
-		IsVerifyGroupMute: true,
-	}); err != nil {
-		logger.Error(ctx, err)
-		return err
-	}
-
-	if err := s.SendCode(ctx, uid, &model.CodeMessageReq{
-		Lang: params.Lang,
-		Code: params.Code,
-		Receiver: &model.Receiver{
-			TalkType:   params.TalkType,
-			ReceiverId: params.ReceiverId,
-		},
-	}); err != nil {
-		logger.Error(ctx, err)
-		return err
-	}
-
-	return nil
-}
-
 // 发送图片消息
 func (s *sTalkMessage) Image(ctx context.Context, params model.ImageMessageReq) error {
 
@@ -1181,108 +774,120 @@ func (s *sTalkMessage) Vote(ctx context.Context, params model.MessageVoteReq) er
 	return nil
 }
 
-// 发送表情包消息
-func (s *sTalkMessage) Emoticon(ctx context.Context, params model.EmoticonMessageReq) error {
+// 投票处理
+func (s *sTalkMessage) HandleVote(ctx context.Context, params model.MessageVoteHandleReq) (*model.VoteStatistics, error) {
 
 	uid := service.Session().GetUid(ctx)
-	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
-		TalkType:          params.TalkType,
-		UserId:            uid,
-		ReceiverId:        params.ReceiverId,
-		IsVerifyGroupMute: true,
-	}); err != nil {
+
+	talkRecords, err := dao.TalkRecords.FindByRecordId(ctx, params.RecordId)
+	if err != nil {
 		logger.Error(ctx, err)
-		return err
+		return nil, err
 	}
 
-	if err := s.SendEmoticon(ctx, uid, &model.EmoticonMessageReq{
-		EmoticonId: params.EmoticonId,
-		Receiver: &model.Receiver{
-			TalkType:   params.TalkType,
-			ReceiverId: params.ReceiverId,
+	talkRecordsVote, err := dao.TalkRecordsVote.FindOne(ctx, bson.M{"record_id": talkRecords.RecordId})
+	if err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	if talkRecords.MsgType != consts.ChatMsgTypeVote {
+		return nil, errors.Newf("当前记录不属于投票信息[%d]", talkRecords.MsgType)
+	}
+
+	if talkRecords.TalkType == consts.ChatGroupMode {
+		count, err := dao.GroupMember.CountDocuments(ctx, bson.M{"group_id": talkRecords.ReceiverId, "user_id": uid, "is_quit": 0})
+		if err != nil {
+			logger.Error(ctx, err)
+			return nil, err
+		}
+
+		if count == 0 {
+			return nil, errors.New("暂无投票权限")
+		}
+	}
+
+	count, err := dao.CountDocuments(ctx, dao.TalkRecordsVote.Database, do.TALK_RECORDS_VOTE_ANSWER_COLLECTION, bson.M{"vote_id": talkRecordsVote.Id, "user_id": uid})
+	if err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	if count > 0 {
+		return nil, errors.Newf("重复投票[%d]", talkRecordsVote.Id)
+	}
+
+	options := strings.Split(params.Options, ",")
+	sort.Strings(options)
+
+	var answerOptions map[string]any
+	if err := gjson.Unmarshal([]byte(talkRecordsVote.AnswerOption), &answerOptions); err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	for _, option := range options {
+		if _, ok := answerOptions[option]; !ok {
+			return nil, errors.Newf("投票选项不合法[%s]", option)
+		}
+	}
+
+	if talkRecordsVote.AnswerMode == consts.VoteAnswerModeSingleChoice {
+		options = options[:1]
+	}
+
+	answers := make([]interface{}, 0, len(options))
+	for _, option := range options {
+		answers = append(answers, &do.TalkRecordsVoteAnswer{
+			VoteId: talkRecordsVote.Id,
+			UserId: uid,
+			Option: option,
+		})
+	}
+
+	if err = dao.TalkRecordsVote.UpdateById(ctx, talkRecordsVote.Id, bson.M{
+		"$inc": bson.M{
+			"answered_num": 1,
 		},
 	}); err != nil {
 		logger.Error(ctx, err)
-		return err
+		return nil, err
 	}
 
-	return nil
-}
-
-// 发送转发消息
-func (s *sTalkMessage) Forward(ctx context.Context, params model.ForwardMessageReq) error {
-
-	if params.ReceiveGroupIds == "" && params.ReceiveUserIds == "" {
-		return errors.New("receive_user_ids 和 receive_group_ids 不能都为空")
-	}
-
-	uid := service.Session().GetUid(ctx)
-	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
-		TalkType:   params.TalkType,
-		UserId:     service.Session().GetUid(ctx),
-		ReceiverId: params.ReceiverId,
-	}); err != nil {
+	if talkRecordsVote, err := dao.TalkRecordsVote.FindById(ctx, talkRecordsVote.Id); err != nil {
 		logger.Error(ctx, err)
-		return err
+		return nil, err
+	} else if talkRecordsVote.AnsweredNum >= talkRecordsVote.AnswerNum {
+		if err = dao.TalkRecordsVote.UpdateById(ctx, talkRecordsVote.Id, bson.M{
+			"status": 1,
+		}); err != nil {
+			logger.Error(ctx, err)
+			return nil, err
+		}
 	}
 
-	data := &model.ForwardMessageReq{
-		Mode:       params.ForwardMode,
-		MessageIds: make([]int, 0),
-		Gids:       make([]int, 0),
-		Uids:       make([]int, 0),
-		Receiver: &model.Receiver{
-			TalkType:   params.TalkType,
-			ReceiverId: params.ReceiverId,
-		},
-	}
-
-	for _, id := range util.ParseIds(params.RecordsIds) {
-		data.MessageIds = append(data.MessageIds, id)
-	}
-
-	for _, id := range util.ParseIds(params.ReceiveUserIds) {
-		data.Uids = append(data.Uids, id)
-	}
-
-	for _, id := range util.ParseIds(params.ReceiveGroupIds) {
-		data.Gids = append(data.Gids, id)
-	}
-
-	if err := s.SendForward(ctx, uid, data); err != nil {
+	if _, err = dao.Inserts(ctx, dao.TalkRecordsVote.Database, answers); err != nil {
 		logger.Error(ctx, err)
-		return err
+		return nil, err
 	}
 
-	return nil
-}
-
-// 发送用户名片消息
-func (s *sTalkMessage) Card(ctx context.Context, params model.CardMessageReq) error {
-
-	uid := service.Session().GetUid(ctx)
-	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
-		TalkType:          params.TalkType,
-		UserId:            uid,
-		ReceiverId:        params.ReceiverId,
-		IsVerifyGroupMute: true,
-	}); err != nil {
+	if _, err = dao.TalkRecordsVote.SetVoteAnswerUser(ctx, talkRecordsVote.Id); err != nil {
 		logger.Error(ctx, err)
-		return err
+		return nil, err
 	}
 
-	if err := s.SendBusinessCard(ctx, uid, &model.CardMessageReq{
-		UserId: params.ReceiverId,
-		Receiver: &model.Receiver{
-			TalkType:   params.TalkType,
-			ReceiverId: params.ReceiverId,
-		},
-	}); err != nil {
+	if _, err = dao.TalkRecordsVote.SetVoteStatistics(ctx, talkRecordsVote.Id); err != nil {
 		logger.Error(ctx, err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	info, err := dao.TalkRecordsVote.GetVoteStatistics(ctx, talkRecordsVote.Id)
+	if err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	return info, nil
 }
 
 // 删除消息记录
@@ -1295,36 +900,6 @@ func (s *sTalkMessage) Delete(ctx context.Context, params model.MessageDeleteReq
 		RecordIds:  params.RecordIds,
 	}); err != nil {
 		logger.Error(ctx)
-		return err
-	}
-
-	return nil
-}
-
-// 发送位置消息
-func (s *sTalkMessage) Location(ctx context.Context, params model.LocationMessageReq) error {
-
-	uid := service.Session().GetUid(ctx)
-	if err := s.VerifyPermission(ctx, &model.VerifyInfo{
-		TalkType:          params.TalkType,
-		UserId:            uid,
-		ReceiverId:        params.ReceiverId,
-		IsVerifyGroupMute: true,
-	}); err != nil {
-		logger.Error(ctx, err)
-		return err
-	}
-
-	if err := s.SendLocation(ctx, uid, &model.LocationMessageReq{
-		Longitude:   params.Longitude,
-		Latitude:    params.Latitude,
-		Description: "", // todo 需完善
-		Receiver: &model.Receiver{
-			TalkType:   params.TalkType,
-			ReceiverId: params.ReceiverId,
-		},
-	}); err != nil {
-		logger.Error(ctx, err)
 		return err
 	}
 
@@ -1573,6 +1148,8 @@ func aggregation(ctx context.Context, params *model.ForwardMessageReq) ([]map[st
 			item["text"] = "【文件消息】"
 		case consts.ChatMsgTypeLocation:
 			item["text"] = "【位置消息】"
+		case consts.ChatMsgTypeForward:
+			item["text"] = "【转发消息】"
 		}
 
 		data = append(data, item)
@@ -2500,7 +2077,7 @@ func (s *sTalkMessage) CardMessageHandler(ctx context.Context, message *model.Me
 func (s *sTalkMessage) LocationMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error) {
 
 	data := &model.TalkRecord{
-		TalkType:   message.Receiver.TalkType,
+		TalkType:   message.TalkType,
 		MsgType:    consts.ChatMsgTypeLocation,
 		UserId:     message.Sender.Id,
 		ReceiverId: message.Receiver.ReceiverId,

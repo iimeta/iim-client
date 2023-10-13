@@ -18,23 +18,28 @@ type Message struct {
 	File     *File     `json:"file,omitempty" bson:"file,omitempty"`
 	Vote     *Vote     `json:"vote,omitempty" bson:"vote,omitempty"`
 	Mixed    *Mixed    `json:"mixed,omitempty" bson:"mixed,omitempty"`
+	Forward  *Forward  `json:"forward,omitempty" bson:"forward,omitempty"`
 	Emoticon *Emoticon `json:"emoticon,omitempty" bson:"emoticon,omitempty"`
 	Card     *Card     `json:"card,omitempty" bson:"card,omitempty"`
 	Location *Location `json:"location,omitempty" bson:"location,omitempty"`
 }
 
 type SysMessage struct {
+	MsgId    string    `json:"msg_id,omitempty" bson:"msg_id,omitempty"`
 	MsgType  string    `json:"msg_type,omitempty" bson:"msg_type,omitempty"`
-	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`     // 发送者
-	Receiver *Receiver `json:"receiver,omitempty" bson:"receiver,omitempty"` // 接收者
+	TalkType int       `json:"talk_type,omitempty" bson:"talk_type,omitempty"` // 对话类型 1:私聊 2:群聊
+	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`       // 发送者
+	Receiver *Receiver `json:"receiver,omitempty" bson:"receiver,omitempty"`   // 接收者
 
 	Text *Text `json:"text,omitempty" bson:"text,omitempty"`
 }
 
 type NoticeMessage struct {
+	MsgId    string    `json:"msg_id,omitempty" bson:"msg_id,omitempty"`
 	MsgType  string    `json:"msg_type,omitempty" bson:"msg_type,omitempty"`
-	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`     // 发送者
-	Receiver *Receiver `json:"receiver,omitempty" bson:"receiver,omitempty"` // 接收者
+	TalkType int       `json:"talk_type,omitempty" bson:"talk_type,omitempty"` // 对话类型 1:私聊 2:群聊
+	Sender   *Sender   `json:"sender,omitempty" bson:"sender,omitempty"`       // 发送者
+	Receiver *Receiver `json:"receiver,omitempty" bson:"receiver,omitempty"`   // 接收者
 
 	Login *Login `json:"login,omitempty" bson:"login,omitempty"`
 }
@@ -46,7 +51,7 @@ type Sender struct {
 
 type Receiver struct {
 	TalkType   int    `json:"talk_type,omitempty" bson:"talk_type,omitempty"`     // 对话类型 1:私聊 2:群聊 todo
-	ReceiverId int    `json:"receiver_id,omitempty" bson:"receiver_id,omitempty"` // 接收者ID, 好友ID或群ID
+	ReceiverId int    `json:"receiver_id,omitempty" bson:"receiver_id,omitempty"` // 接收者ID, 好友ID或群ID todo
 	Id         int    `json:"id,omitempty" bson:"id,omitempty"`                   // 接收者ID, 好友ID或群ID
 	Name       string `json:"name,omitempty" bson:"name,omitempty"`               // 接收者名称, 好友名称或群名称
 }
@@ -58,11 +63,12 @@ type Mention struct {
 
 // 登录消息
 type Login struct {
-	Ip       string `json:"ip,omitempty" bson:"ip,omitempty"`
-	Address  string `json:"address,omitempty" bson:"address,omitempty"`
-	Platform string `json:"platform,omitempty" bson:"platform,omitempty"`
-	Agent    string `json:"agent,omitempty" bson:"agent,omitempty"`
-	Reason   string `json:"reason,omitempty" bson:"reason,omitempty"`
+	IP       string `json:"ip,omitempty" bson:"ip,omitempty"`             // 登录IP
+	Address  string `json:"address,omitempty" bson:"address,omitempty"`   // 登录地址
+	Platform string `json:"platform,omitempty" bson:"platform,omitempty"` // 登录平台
+	Agent    string `json:"agent,omitempty" bson:"agent,omitempty"`       // 登录设备
+	Reason   string `json:"reason,omitempty" bson:"reason,omitempty"`     // 登录原因
+	Datetime string `json:"datetime,omitempty" bson:"datetime,omitempty"` // 登录时间
 }
 
 // 表情消息
@@ -113,17 +119,13 @@ type Location struct {
 
 // 转发消息
 type Forward struct {
-	MsgType         string `json:"msg_type,omitempty" bson:"msg_type,omitempty"`
-	Mode            int    `json:"mode,omitempty" bson:"mode,omitempty" v:"required"`               // 转发模式
-	MessageIds      []int  `json:"message_ids,omitempty" bson:"message_ids,omitempty" v:"required"` // 消息ID
-	Gids            []int  `json:"gids,omitempty" bson:"gids,omitempty"`                            // 群ID列表
-	Uids            []int  `json:"uids,omitempty" bson:"uids,omitempty"`                            // 好友ID列表
-	RecordId        int    `json:"record_id,omitempty" bson:"record_id,omitempty" v:"min:0"`        // 上次查询的最小消息ID
-	Limit           int    `json:"limit,omitempty" bson:"limit,omitempty" v:"required|max:100"`     // 数据行数
-	ForwardMode     int    `json:"forward_mode,omitempty" bson:"forward_mode,omitempty" v:"required|in:1,2"`
-	RecordsIds      string `json:"records_ids,omitempty" bson:"records_ids,omitempty" v:"required"`
-	ReceiveUserIds  string `json:"receive_user_ids,omitempty" bson:"receive_user_ids,omitempty"`
-	ReceiveGroupIds string `json:"receive_group_ids,omitempty" bson:"receive_group_ids,omitempty"`
+	RecordsIds []int          `json:"records_ids,omitempty"` // 消息列表
+	Items      []*ForwardItem `json:"items,omitempty"`       // 消息快照
+}
+
+type ForwardItem struct {
+	Nickname string `json:"nickname,omitempty" bson:"nickname,omitempty"`
+	Text     string `json:"text,omitempty" bson:"text,omitempty"`
 }
 
 // 文本消息

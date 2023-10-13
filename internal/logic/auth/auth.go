@@ -175,12 +175,24 @@ func (s *sAuth) Login(ctx context.Context, params model.LoginReq) (*model.LoginR
 		}
 
 		// 推送登录消息
-		if err = service.TalkMessage().SendLogin(ctx, user.UserId, &model.LoginMessageReq{
-			Ip:       ip,
-			Address:  address,
-			Platform: params.Platform,
-			Agent:    g.RequestFromCtx(ctx).GetHeader("user-agent"),
-			Reason:   "常用设备登录",
+		if err = service.TalkMessage().SendNoticeMessage(ctx, &model.NoticeMessage{
+			TalkType: consts.ChatPrivateMode,
+			MsgType:  consts.MsgNoticeLogin,
+			Sender: &model.Sender{
+				Id: loginRobot.UserId,
+			},
+			Receiver: &model.Receiver{
+				Id:         user.UserId,
+				ReceiverId: user.UserId,
+			},
+			Login: &model.Login{
+				IP:       ip,
+				Platform: params.Platform,
+				Agent:    g.RequestFromCtx(ctx).GetHeader("user-agent"),
+				Address:  address,
+				Reason:   "常用设备登录",
+				Datetime: gtime.Datetime(),
+			},
 		}); err != nil {
 			logger.Error(ctx, err)
 		}

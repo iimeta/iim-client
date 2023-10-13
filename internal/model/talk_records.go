@@ -53,6 +53,8 @@ type TalkRecord struct {
 	Emoticon *Emoticon `json:"emoticon,omitempty"`
 	Card     *Card     `json:"card,omitempty"`
 	Location *Location `json:"location,omitempty"`
+
+	Login *Login `json:"login,omitempty"`
 }
 
 type TalkRecordsItem struct {

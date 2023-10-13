@@ -84,9 +84,12 @@ type TalkRecords struct {
 	File     *model.File     `json:"file,omitempty" bson:"file,omitempty"`
 	Vote     *model.Vote     `json:"vote,omitempty" bson:"vote,omitempty"`
 	Mixed    *model.Mixed    `json:"mixed,omitempty" bson:"mixed,omitempty"`
+	Forward  *model.Forward  `json:"forward,omitempty" bson:"forward,omitempty"`
 	Emoticon *model.Emoticon `json:"emoticon,omitempty" bson:"emoticon,omitempty"`
 	Card     *model.Card     `json:"card,omitempty" bson:"card,omitempty"`
 	Location *model.Location `json:"location,omitempty" bson:"location,omitempty"`
+
+	Login *model.Login `json:"login,omitempty" bson:"login,omitempty"`
 }
 
 type TalkRecordsVote struct {

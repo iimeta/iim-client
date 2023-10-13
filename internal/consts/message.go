@@ -13,7 +13,6 @@ const (
 	MsgTypeEmoticon = "emoticon" // 表情消息
 	MsgTypeCard     = "card"     // 名片消息
 	MsgTypeLocation = "location" // 位置消息
-	MsgTypeLogin    = "login"    // 登录消息
 )
 
 const (
@@ -30,4 +29,8 @@ const (
 	MsgSysGroupMemberCancelMuted = "sys_group_member_cancel_muted" // 群成员解除禁言
 	MsgSysGroupNotice            = "sys_group_notice"              // 编辑群公告
 	MsgSysGroupTransfer          = "sys_group_transfer"            // 变更群主
+)
+
+const (
+	MsgNoticeLogin = "login" // 登录消息
 )
