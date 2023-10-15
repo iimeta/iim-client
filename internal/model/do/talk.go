@@ -89,6 +89,19 @@ type TalkRecords struct {
 	Card     *model.Card     `json:"card,omitempty" bson:"card,omitempty"`
 	Location *model.Location `json:"location,omitempty" bson:"location,omitempty"`
 
+	GroupCreate            *model.GroupCreate            `json:"group_create,omitempty" bson:"group_create,omitempty"`
+	GroupJoin              *model.GroupJoin              `json:"group_join,omitempty" bson:"group_join,omitempty"`
+	GroupTransfer          *model.GroupTransfer          `json:"group_transfer,omitempty" bson:"group_transfer,omitempty"`
+	GroupMuted             *model.GroupMuted             `json:"group_muted,omitempty" bson:"group_muted,omitempty"`
+	GroupCancelMuted       *model.GroupCancelMuted       `json:"group_cancel_muted,omitempty" bson:"group_cancel_muted,omitempty"`
+	GroupMemberMuted       *model.GroupMemberMuted       `json:"group_member_muted,omitempty" bson:"group_member_muted,omitempty"`
+	GroupMemberCancelMuted *model.GroupMemberCancelMuted `json:"group_member_cancel_muted,omitempty" bson:"group_member_cancel_muted,omitempty"`
+	GroupDismissed         *model.GroupDismissed         `json:"group_dismissed,omitempty" bson:"group_dismissed,omitempty"`
+	GroupMemberQuit        *model.GroupMemberQuit        `json:"group_member_quit,omitempty" bson:"group_member_quit,omitempty"`
+	GroupMemberKicked      *model.GroupMemberKicked      `json:"group_member_kicked,omitempty" bson:"group_member_kicked,omitempty"`
+	GroupMessageRevoke     *model.GroupMessageRevoke     `json:"group_message_revoke,omitempty" bson:"group_message_revoke,omitempty"`
+	GroupNotice            *model.GroupNotice            `json:"group_notice,omitempty" bson:"group_notice,omitempty"`
+
 	Login *model.Login `json:"login,omitempty" bson:"login,omitempty"`
 }
 

@@ -81,6 +81,7 @@ var ChatMsgTypeMapping = map[int]string{
 	ChatMsgSysGroupMemberMuted:       "[群成员禁言消息]",
 	ChatMsgSysGroupMemberCancelMuted: "[群成员解除禁言消息]",
 	ChatMsgSysGroupNotice:            "[群公告]",
+	ChatMsgSysGroupTransfer:          "[群主变更]",
 }
 
 const (

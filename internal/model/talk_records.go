@@ -55,6 +55,19 @@ type TalkRecord struct {
 	Location *Location `json:"location,omitempty"`
 
 	Login *Login `json:"login,omitempty"`
+
+	GroupCreate            *GroupCreate            `json:"group_create,omitempty"`
+	GroupJoin              *GroupJoin              `json:"group_join,omitempty"`
+	GroupTransfer          *GroupTransfer          `json:"group_transfer,omitempty"`
+	GroupMuted             *GroupMuted             `json:"group_muted,omitempty"`
+	GroupCancelMuted       *GroupCancelMuted       `json:"group_cancel_muted,omitempty"`
+	GroupMemberMuted       *GroupMemberMuted       `json:"group_member_muted,omitempty"`
+	GroupMemberCancelMuted *GroupMemberCancelMuted `json:"group_member_cancel_muted,omitempty"`
+	GroupDismissed         *GroupDismissed         `json:"group_dismissed,omitempty"`
+	GroupMemberQuit        *GroupMemberQuit        `json:"group_member_quit,omitempty"`
+	GroupMemberKicked      *GroupMemberKicked      `json:"group_member_kicked,omitempty"`
+	GroupMessageRevoke     *GroupMessageRevoke     `json:"group_message_revoke,omitempty"`
+	GroupNotice            *GroupNotice            `json:"group_notice,omitempty"`
 }
 
 type TalkRecordsItem struct {

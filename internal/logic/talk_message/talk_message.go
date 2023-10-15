@@ -151,6 +151,8 @@ func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) 
 		data, err = s.CardMessageHandler(ctx, message)
 	case consts.MsgTypeLocation:
 		data, err = s.LocationMessageHandler(ctx, message)
+	default:
+		return errors.New("未知消息类型")
 	}
 
 	if err != nil {
@@ -169,11 +171,12 @@ func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMes
 	switch message.MsgType {
 	case consts.MsgSysText:
 		data = &model.TalkRecord{
-			TalkType:   message.Receiver.TalkType,
+			TalkType:   message.TalkType,
 			MsgType:    consts.ChatMsgSysText,
 			UserId:     message.Sender.Id,
 			ReceiverId: message.Receiver.ReceiverId,
 			Content:    html.EscapeString(message.Text.Content),
+			Text:       message.Text,
 		}
 	case consts.MsgSysGroupCreate:
 	case consts.MsgSysGroupMemberJoin:
@@ -182,11 +185,61 @@ func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMes
 	case consts.MsgSysGroupMessageRevoke:
 	case consts.MsgSysGroupDismissed:
 	case consts.MsgSysGroupMuted:
+		data = &model.TalkRecord{
+			MsgType:    consts.ChatMsgSysGroupMuted,
+			TalkType:   message.TalkType,
+			UserId:     message.Sender.Id,
+			ReceiverId: message.Receiver.ReceiverId,
+			Extra:      gjson.MustEncodeString(message.GroupMuted),
+			GroupMuted: message.GroupMuted,
+		}
 	case consts.MsgSysGroupCancelMuted:
+		data = &model.TalkRecord{
+			MsgType:          consts.ChatMsgSysGroupCancelMuted,
+			TalkType:         message.TalkType,
+			UserId:           message.Sender.Id,
+			ReceiverId:       message.Receiver.ReceiverId,
+			Extra:            gjson.MustEncodeString(message.GroupCancelMuted),
+			GroupCancelMuted: message.GroupCancelMuted,
+		}
 	case consts.MsgSysGroupMemberMuted:
+		data = &model.TalkRecord{
+			MsgType:          consts.ChatMsgSysGroupMemberMuted,
+			TalkType:         message.TalkType,
+			UserId:           message.Sender.Id,
+			ReceiverId:       message.Receiver.ReceiverId,
+			Extra:            gjson.MustEncodeString(message.GroupMemberMuted),
+			GroupMemberMuted: message.GroupMemberMuted,
+		}
 	case consts.MsgSysGroupMemberCancelMuted:
+		data = &model.TalkRecord{
+			MsgType:                consts.ChatMsgSysGroupMemberCancelMuted,
+			TalkType:               message.TalkType,
+			UserId:                 message.Sender.Id,
+			ReceiverId:             message.Receiver.ReceiverId,
+			Extra:                  gjson.MustEncodeString(message.GroupMemberCancelMuted),
+			GroupMemberCancelMuted: message.GroupMemberCancelMuted,
+		}
 	case consts.MsgSysGroupNotice:
+		data = &model.TalkRecord{
+			MsgType:     consts.ChatMsgSysGroupNotice,
+			TalkType:    message.TalkType,
+			UserId:      message.Sender.Id,
+			ReceiverId:  message.Receiver.ReceiverId,
+			Extra:       gjson.MustEncodeString(message.GroupNotice),
+			GroupNotice: message.GroupNotice,
+		}
 	case consts.MsgSysGroupTransfer:
+		data = &model.TalkRecord{
+			MsgType:       consts.ChatMsgSysGroupTransfer,
+			TalkType:      message.TalkType,
+			UserId:        message.Sender.Id,
+			ReceiverId:    message.Receiver.ReceiverId,
+			Extra:         gjson.MustEncodeString(message.GroupTransfer),
+			GroupTransfer: message.GroupTransfer,
+		}
+	default:
+		return errors.New("未知消息类型")
 	}
 
 	return s.save(ctx, data)
@@ -213,20 +266,8 @@ func (s *sTalkMessage) SendNoticeMessage(ctx context.Context, message *model.Not
 			}),
 			Login: message.Login,
 		}
-	}
-
-	return s.save(ctx, data)
-}
-
-// 系统文本消息
-func (s *sTalkMessage) SendSystemText(ctx context.Context, uid int, req *model.TextMessageReq) error {
-
-	data := &model.TalkRecord{
-		TalkType:   req.Receiver.TalkType,
-		MsgType:    consts.ChatMsgSysText,
-		UserId:     uid,
-		ReceiverId: req.Receiver.ReceiverId,
-		Content:    html.EscapeString(req.Content),
+	default:
+		return errors.New("未知消息类型")
 	}
 
 	return s.save(ctx, data)
@@ -380,11 +421,6 @@ func (s *sTalkMessage) SendVote(ctx context.Context, uid int, req *model.Message
 	return nil
 }
 
-// 推送其它消息
-func (s *sTalkMessage) SendSysOther(ctx context.Context, data *model.TalkRecord) error {
-	return s.save(ctx, data)
-}
-
 // 撤回消息
 func (s *sTalkMessage) Revoke(ctx context.Context, params model.MessageRevokeReq) error {
 
@@ -471,6 +507,19 @@ func (s *sTalkMessage) save(ctx context.Context, data *model.TalkRecord) error {
 		Emoticon: data.Emoticon,
 		Card:     data.Card,
 		Location: data.Location,
+
+		GroupCreate:            data.GroupCreate,
+		GroupJoin:              data.GroupJoin,
+		GroupTransfer:          data.GroupTransfer,
+		GroupMuted:             data.GroupMuted,
+		GroupCancelMuted:       data.GroupCancelMuted,
+		GroupMemberMuted:       data.GroupMemberMuted,
+		GroupMemberCancelMuted: data.GroupMemberCancelMuted,
+		GroupDismissed:         data.GroupDismissed,
+		GroupMemberQuit:        data.GroupMemberQuit,
+		GroupMemberKicked:      data.GroupMemberKicked,
+		GroupMessageRevoke:     data.GroupMessageRevoke,
+		GroupNotice:            data.GroupNotice,
 
 		Login: data.Login,
 	})

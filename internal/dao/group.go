@@ -156,6 +156,11 @@ func (d *GroupDao) Create(ctx context.Context, create *do.GroupCreate) (int, err
 			OwnerName: user.Nickname,
 			Members:   addMembers,
 		}),
+		GroupCreate: &model.GroupCreate{
+			OwnerId:   user.UserId,
+			OwnerName: user.Nickname,
+			Members:   addMembers,
+		},
 	}
 
 	if _, err = TalkRecords.Insert(ctx, &record); err != nil {
@@ -242,6 +247,10 @@ func (d *GroupDao) Secede(ctx context.Context, groupId int, uid int) error {
 			OwnerId:   user.UserId,
 			OwnerName: user.Nickname,
 		}),
+		GroupMemberQuit: &model.GroupMemberQuit{
+			OwnerId:   user.UserId,
+			OwnerName: user.Nickname,
+		},
 	}
 
 	if err = GroupMember.UpdateOne(ctx, bson.M{"group_id": groupId, "user_id": uid}, bson.M{
@@ -356,13 +365,17 @@ func (d *GroupDao) Invite(ctx context.Context, invite *do.GroupInvite) error {
 		ReceiverId: invite.GroupId,
 		MsgType:    consts.ChatMsgSysGroupMemberJoin,
 		Sequence:   Sequence.Get(ctx, 0, invite.GroupId),
+		Extra: gjson.MustEncodeString(&model.TalkRecordGroupJoin{
+			OwnerId:   memberMaps[invite.UserId].UserId,
+			OwnerName: memberMaps[invite.UserId].Nickname,
+			Members:   members,
+		}),
+		GroupJoin: &model.GroupJoin{
+			OwnerId:   memberMaps[invite.UserId].UserId,
+			OwnerName: memberMaps[invite.UserId].Nickname,
+			Members:   members,
+		},
 	}
-
-	record.Extra = gjson.MustEncodeString(&model.TalkRecordGroupJoin{
-		OwnerId:   memberMaps[invite.UserId].UserId,
-		OwnerName: memberMaps[invite.UserId].Nickname,
-		Members:   members,
-	})
 
 	// 删除已存在成员记录
 	if _, err = GroupMember.DeleteMany(ctx, bson.M{"group_id": invite.GroupId, "user_id": bson.M{"$in": invite.MemberIds}, "is_quit": consts.GroupMemberQuitStatusYes}); err != nil {
@@ -468,6 +481,11 @@ func (d *GroupDao) RemoveMember(ctx context.Context, remove *do.GroupMemberRemov
 			OwnerName: memberMaps[remove.UserId].Nickname,
 			Members:   members,
 		}),
+		GroupMemberKicked: &model.GroupMemberKicked{
+			OwnerId:   memberMaps[remove.UserId].UserId,
+			OwnerName: memberMaps[remove.UserId].Nickname,
+			Members:   members,
+		},
 	}
 
 	if err = GroupMember.UpdateMany(ctx, bson.M{"group_id": remove.GroupId, "user_id": bson.M{"$in": remove.MemberIds}, "is_quit": 0}, bson.M{

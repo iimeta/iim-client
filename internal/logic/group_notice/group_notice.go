@@ -2,7 +2,6 @@ package group_notice
 
 import (
 	"context"
-	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/dao"
@@ -101,17 +100,22 @@ func (s *sGroupNotice) CreateAndUpdate(ctx context.Context, params model.NoticeE
 		}
 	}
 
-	_ = service.TalkMessage().SendSysOther(ctx, &model.TalkRecord{
-		TalkType:   consts.TalkRecordTalkTypeGroup,
-		MsgType:    consts.ChatMsgSysGroupNotice,
-		UserId:     uid,
-		ReceiverId: params.GroupId,
-		Extra: gjson.MustEncodeString(model.TalkRecordGroupNotice{
+	_ = service.TalkMessage().SendSysMessage(ctx, &model.SysMessage{
+		MsgType:  consts.MsgSysGroupNotice,
+		TalkType: consts.TalkRecordTalkTypeGroup,
+		Sender: &model.Sender{
+			Id: uid,
+		},
+		Receiver: &model.Receiver{
+			Id:         params.GroupId,
+			ReceiverId: params.GroupId,
+		},
+		GroupNotice: &model.GroupNotice{
 			OwnerId:   uid,
 			OwnerName: "", // todo
 			Title:     params.Title,
 			Content:   params.Content,
-		}),
+		},
 	})
 
 	return nil

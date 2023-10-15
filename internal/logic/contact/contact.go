@@ -63,11 +63,18 @@ func (s *sContact) Delete(ctx context.Context, params model.ContactDeleteReq) er
 	}
 
 	// 解除好友关系后需添加一条聊天记录
-	_ = service.TalkMessage().SendSystemText(ctx, uid, &model.TextMessageReq{
-		Content: "你与对方已经解除了好友关系",
+	_ = service.TalkMessage().SendSysMessage(ctx, &model.SysMessage{
+		MsgType:  consts.MsgSysText,
+		TalkType: consts.ChatPrivateMode,
+		Sender: &model.Sender{
+			Id: uid,
+		},
 		Receiver: &model.Receiver{
-			TalkType:   consts.ChatPrivateMode,
+			Id:         params.FriendId,
 			ReceiverId: params.FriendId,
+		},
+		Text: &model.Text{
+			Content: "你与对方已经解除了好友关系",
 		},
 	})
 

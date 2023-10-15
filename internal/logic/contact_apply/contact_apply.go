@@ -185,11 +185,18 @@ func (s *sContactApply) Accept(ctx context.Context, params model.ApplyAcceptReq)
 		return nil, err
 	}
 
-	err = service.TalkMessage().SendSystemText(ctx, applyInfo.UserId, &model.TextMessageReq{
-		Content: "你们已成为好友, 可以开始聊天咯",
+	err = service.TalkMessage().SendSysMessage(ctx, &model.SysMessage{
+		MsgType:  consts.MsgSysText,
+		TalkType: consts.ChatPrivateMode,
+		Sender: &model.Sender{
+			Id: applyInfo.UserId,
+		},
 		Receiver: &model.Receiver{
-			TalkType:   consts.ChatPrivateMode,
+			Id:         applyInfo.FriendId,
 			ReceiverId: applyInfo.FriendId,
+		},
+		Text: &model.Text{
+			Content: "你们已成为好友, 可以开始聊天咯",
 		},
 	})
 

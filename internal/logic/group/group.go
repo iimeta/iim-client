@@ -3,7 +3,6 @@ package group
 import (
 	"context"
 	"fmt"
-	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/dao"
 	"github.com/iimeta/iim-client/internal/errors"
@@ -64,11 +63,18 @@ func (s *sGroup) Dismiss(ctx context.Context, params model.GroupDismissReq) erro
 		return errors.New("群聊解散失败")
 	}
 
-	_ = service.TalkMessage().SendSystemText(ctx, uid, &model.TextMessageReq{
-		Content: "群聊已被群主解散",
+	_ = service.TalkMessage().SendSysMessage(ctx, &model.SysMessage{
+		MsgType:  consts.MsgSysText,
+		TalkType: consts.ChatGroupMode,
+		Sender: &model.Sender{
+			Id: uid,
+		},
 		Receiver: &model.Receiver{
-			TalkType:   consts.ChatGroupMode,
+			Id:         params.GroupId,
 			ReceiverId: params.GroupId,
+		},
+		Text: &model.Text{
+			Content: "群聊已被群主解散",
 		},
 	})
 
@@ -168,11 +174,18 @@ func (s *sGroup) Setting(ctx context.Context, params model.GroupSettingReq) erro
 		return err
 	}
 
-	_ = service.TalkMessage().SendSystemText(ctx, uid, &model.TextMessageReq{
-		Content: "群主或管理员修改了群信息",
+	_ = service.TalkMessage().SendSysMessage(ctx, &model.SysMessage{
+		MsgType:  consts.MsgSysText,
+		TalkType: consts.ChatGroupMode,
+		Sender: &model.Sender{
+			Id: uid,
+		},
 		Receiver: &model.Receiver{
-			TalkType:   consts.ChatGroupMode,
+			Id:         params.GroupId,
 			ReceiverId: params.GroupId,
+		},
+		Text: &model.Text{
+			Content: "群主或管理员修改了群信息",
 		},
 	})
 
@@ -488,12 +501,22 @@ func (s *sGroup) Handover(ctx context.Context, params model.GroupHandoverReq) er
 		}
 	}
 
-	_ = service.TalkMessage().SendSysOther(ctx, &model.TalkRecord{
-		MsgType:    consts.ChatMsgSysGroupTransfer,
-		TalkType:   consts.TalkRecordTalkTypeGroup,
-		UserId:     uid,
-		ReceiverId: params.GroupId,
-		Extra:      gjson.MustEncodeString(extra),
+	_ = service.TalkMessage().SendSysMessage(ctx, &model.SysMessage{
+		MsgType:  consts.MsgSysGroupTransfer,
+		TalkType: consts.TalkRecordTalkTypeGroup,
+		Sender: &model.Sender{
+			Id: uid,
+		},
+		Receiver: &model.Receiver{
+			Id:         params.GroupId,
+			ReceiverId: params.GroupId,
+		},
+		GroupTransfer: &model.GroupTransfer{
+			OldOwnerId:   extra.OldOwnerId,
+			OldOwnerName: extra.OldOwnerName,
+			NewOwnerId:   extra.NewOwnerId,
+			NewOwnerName: extra.NewOwnerName,
+		},
 	})
 
 	return nil
@@ -537,12 +560,6 @@ func (s *sGroup) NoSpeak(ctx context.Context, params model.GroupNoSpeakReq) erro
 		return errors.New("设置群成员禁言状态失败")
 	}
 
-	data := &model.TalkRecord{
-		TalkType:   consts.TalkRecordTalkTypeGroup,
-		UserId:     uid,
-		ReceiverId: params.GroupId,
-	}
-
 	members := make([]*model.TalkGroupMember, 0)
 	if user, err := dao.User.FindUserByUserId(ctx, params.UserId); err != nil {
 		logger.Error(ctx, err)
@@ -560,23 +577,31 @@ func (s *sGroup) NoSpeak(ctx context.Context, params model.GroupNoSpeakReq) erro
 		return err
 	}
 
-	if status == 1 {
-		data.MsgType = consts.ChatMsgSysGroupMemberMuted
-		data.Extra = gjson.MustEncodeString(model.TalkRecordGroupMemberCancelMuted{
-			OwnerId:   uid,
-			OwnerName: user.Nickname,
-			Members:   members,
-		})
-	} else {
-		data.MsgType = consts.ChatMsgSysGroupMemberCancelMuted
-		data.Extra = gjson.MustEncodeString(model.TalkRecordGroupMemberCancelMuted{
-			OwnerId:   uid,
-			OwnerName: user.Nickname,
-			Members:   members,
-		})
+	msgType := consts.MsgSysGroupMemberMuted
+	if status != 1 {
+		msgType = consts.MsgSysGroupMemberCancelMuted
 	}
 
-	_ = service.TalkMessage().SendSysOther(ctx, data)
+	_ = service.TalkMessage().SendSysMessage(ctx, &model.SysMessage{
+		MsgType:  msgType,
+		TalkType: consts.TalkRecordTalkTypeGroup,
+		Sender: &model.Sender{
+			Id: uid,
+		},
+		Receiver: &model.Receiver{
+			Id:         params.GroupId,
+			ReceiverId: params.GroupId,
+		},
+		GroupMemberMuted: &model.GroupMemberMuted{
+			OwnerId:   uid,
+			OwnerName: user.Nickname,
+			Members:   members,
+		}, GroupMemberCancelMuted: &model.GroupMemberCancelMuted{
+			OwnerId:   uid,
+			OwnerName: user.Nickname,
+			Members:   members,
+		},
+	})
 
 	return nil
 }
@@ -618,29 +643,39 @@ func (s *sGroup) Mute(ctx context.Context, params model.GroupMuteReq) error {
 		return err
 	}
 
-	var extra any
-	var msgType int
 	if params.Mode == 1 {
-		msgType = consts.ChatMsgSysGroupMuted
-		extra = model.TalkRecordGroupMuted{
-			OwnerId:   user.UserId,
-			OwnerName: user.Nickname,
-		}
+		_ = service.TalkMessage().SendSysMessage(ctx, &model.SysMessage{
+			MsgType:  consts.MsgSysGroupMuted,
+			TalkType: consts.TalkRecordTalkTypeGroup,
+			Sender: &model.Sender{
+				Id: uid,
+			},
+			Receiver: &model.Receiver{
+				Id:         params.GroupId,
+				ReceiverId: params.GroupId,
+			},
+			GroupMuted: &model.GroupMuted{
+				OwnerId:   user.UserId,
+				OwnerName: user.Nickname,
+			},
+		})
 	} else {
-		msgType = consts.ChatMsgSysGroupCancelMuted
-		extra = model.TalkRecordGroupCancelMuted{
-			OwnerId:   user.UserId,
-			OwnerName: user.Nickname,
-		}
+		_ = service.TalkMessage().SendSysMessage(ctx, &model.SysMessage{
+			MsgType:  consts.MsgSysGroupCancelMuted,
+			TalkType: consts.TalkRecordTalkTypeGroup,
+			Sender: &model.Sender{
+				Id: uid,
+			},
+			Receiver: &model.Receiver{
+				Id:         params.GroupId,
+				ReceiverId: params.GroupId,
+			},
+			GroupCancelMuted: &model.GroupCancelMuted{
+				OwnerId:   user.UserId,
+				OwnerName: user.Nickname,
+			},
+		})
 	}
-
-	_ = service.TalkMessage().SendSysOther(ctx, &model.TalkRecord{
-		MsgType:    msgType,
-		TalkType:   consts.TalkRecordTalkTypeGroup,
-		UserId:     uid,
-		ReceiverId: params.GroupId,
-		Extra:      gjson.MustEncodeString(extra),
-	})
 
 	return nil
 }
