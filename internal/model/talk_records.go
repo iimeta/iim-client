@@ -54,8 +54,6 @@ type TalkRecord struct {
 	Card     *Card     `json:"card,omitempty"`
 	Location *Location `json:"location,omitempty"`
 
-	Login *Login `json:"login,omitempty"`
-
 	GroupCreate            *GroupCreate            `json:"group_create,omitempty"`
 	GroupJoin              *GroupJoin              `json:"group_join,omitempty"`
 	GroupTransfer          *GroupTransfer          `json:"group_transfer,omitempty"`
@@ -68,6 +66,8 @@ type TalkRecord struct {
 	GroupMemberKicked      *GroupMemberKicked      `json:"group_member_kicked,omitempty"`
 	GroupMessageRevoke     *GroupMessageRevoke     `json:"group_message_revoke,omitempty"`
 	GroupNotice            *GroupNotice            `json:"group_notice,omitempty"`
+
+	Login *Login `json:"login,omitempty"`
 }
 
 type TalkRecordsItem struct {
@@ -86,6 +86,35 @@ type TalkRecordsItem struct {
 	Content    string `json:"content"`
 	CreatedAt  string `json:"created_at"`
 	Extra      any    `json:"extra"` // 额外参数
+
+	Reply *Reply `json:"reply,omitempty"`
+
+	Text     *Text     `json:"text,omitempty"`
+	Code     *Code     `json:"code,omitempty"`
+	Image    *Image    `json:"image,omitempty"`
+	Voice    *Voice    `json:"voice,omitempty"`
+	Video    *Video    `json:"video,omitempty"`
+	File     *File     `json:"file,omitempty"`
+	Vote     *Vote     `json:"vote,omitempty"`
+	Mixed    *Mixed    `json:"mixed,omitempty"`
+	Emoticon *Emoticon `json:"emoticon,omitempty"`
+	Card     *Card     `json:"card,omitempty"`
+	Location *Location `json:"location,omitempty"`
+
+	GroupCreate            *GroupCreate            `json:"group_create,omitempty"`
+	GroupJoin              *GroupJoin              `json:"group_join,omitempty"`
+	GroupTransfer          *GroupTransfer          `json:"group_transfer,omitempty"`
+	GroupMuted             *GroupMuted             `json:"group_muted,omitempty"`
+	GroupCancelMuted       *GroupCancelMuted       `json:"group_cancel_muted,omitempty"`
+	GroupMemberMuted       *GroupMemberMuted       `json:"group_member_muted,omitempty"`
+	GroupMemberCancelMuted *GroupMemberCancelMuted `json:"group_member_cancel_muted,omitempty"`
+	GroupDismissed         *GroupDismissed         `json:"group_dismissed,omitempty"`
+	GroupMemberQuit        *GroupMemberQuit        `json:"group_member_quit,omitempty"`
+	GroupMemberKicked      *GroupMemberKicked      `json:"group_member_kicked,omitempty"`
+	GroupMessageRevoke     *GroupMessageRevoke     `json:"group_message_revoke,omitempty"`
+	GroupNotice            *GroupNotice            `json:"group_notice,omitempty"`
+
+	Login *Login `json:"login,omitempty"`
 }
 
 type TalkGroupMember struct {

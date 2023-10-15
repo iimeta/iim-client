@@ -242,6 +242,35 @@ func (d *TalkRecordsDao) HandleTalkRecords(ctx context.Context, items []*model.T
 			Content:    item.Content,
 			CreatedAt:  item.CreatedAt,
 			Extra:      make(map[string]any),
+
+			Reply: item.Reply,
+
+			Text:     item.Text,
+			Code:     item.Code,
+			Image:    item.Image,
+			Voice:    item.Voice,
+			Video:    item.Video,
+			File:     item.File,
+			Vote:     item.Vote,
+			Mixed:    item.Mixed,
+			Emoticon: item.Emoticon,
+			Card:     item.Card,
+			Location: item.Location,
+
+			GroupCreate:            item.GroupCreate,
+			GroupJoin:              item.GroupJoin,
+			GroupTransfer:          item.GroupTransfer,
+			GroupMuted:             item.GroupMuted,
+			GroupCancelMuted:       item.GroupCancelMuted,
+			GroupMemberMuted:       item.GroupMemberMuted,
+			GroupMemberCancelMuted: item.GroupMemberCancelMuted,
+			GroupDismissed:         item.GroupDismissed,
+			GroupMemberQuit:        item.GroupMemberQuit,
+			GroupMemberKicked:      item.GroupMemberKicked,
+			GroupMessageRevoke:     item.GroupMessageRevoke,
+			GroupNotice:            item.GroupNotice,
+
+			Login: item.Login,
 		}
 
 		_ = gjson.Unmarshal(gjson.MustEncode(item.Extra), &data.Extra)

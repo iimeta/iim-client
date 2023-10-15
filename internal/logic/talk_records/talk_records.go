@@ -78,6 +78,35 @@ func (s *sTalkRecords) GetTalkRecords(ctx context.Context, opt *model.QueryTalkR
 				Content:    records.Content,
 				CreatedAt:  util.FormatDatetime(records.CreatedAt),
 				Extra:      make(map[string]any),
+
+				Reply: records.Reply,
+
+				Text:     records.Text,
+				Code:     records.Code,
+				Image:    records.Image,
+				Voice:    records.Voice,
+				Video:    records.Video,
+				File:     records.File,
+				Vote:     records.Vote,
+				Mixed:    records.Mixed,
+				Emoticon: records.Emoticon,
+				Card:     records.Card,
+				Location: records.Location,
+
+				GroupCreate:            records.GroupCreate,
+				GroupJoin:              records.GroupJoin,
+				GroupTransfer:          records.GroupTransfer,
+				GroupMuted:             records.GroupMuted,
+				GroupCancelMuted:       records.GroupCancelMuted,
+				GroupMemberMuted:       records.GroupMemberMuted,
+				GroupMemberCancelMuted: records.GroupMemberCancelMuted,
+				GroupDismissed:         records.GroupDismissed,
+				GroupMemberQuit:        records.GroupMemberQuit,
+				GroupMemberKicked:      records.GroupMemberKicked,
+				GroupMessageRevoke:     records.GroupMessageRevoke,
+				GroupNotice:            records.GroupNotice,
+
+				Login: records.Login,
 			}
 
 			if records.Extra != "" {
