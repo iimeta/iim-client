@@ -161,6 +161,13 @@ func (d *GroupDao) Create(ctx context.Context, create *do.GroupCreate) (int, err
 			OwnerName: user.Nickname,
 			Members:   addMembers,
 		},
+		Sender: &model.Sender{
+			Id: user.UserId,
+		},
+		Receiver: &model.Receiver{
+			Id:         group.GroupId,
+			ReceiverId: group.GroupId,
+		},
 	}
 
 	if _, err = TalkRecords.Insert(ctx, &record); err != nil {
@@ -250,6 +257,13 @@ func (d *GroupDao) Secede(ctx context.Context, groupId int, uid int) error {
 		GroupMemberQuit: &model.GroupMemberQuit{
 			OwnerId:   user.UserId,
 			OwnerName: user.Nickname,
+		},
+		Sender: &model.Sender{
+			Id: uid,
+		},
+		Receiver: &model.Receiver{
+			Id:         groupId,
+			ReceiverId: groupId,
 		},
 	}
 
@@ -375,6 +389,13 @@ func (d *GroupDao) Invite(ctx context.Context, invite *do.GroupInvite) error {
 			OwnerName: memberMaps[invite.UserId].Nickname,
 			Members:   members,
 		},
+		Sender: &model.Sender{
+			Id: invite.UserId,
+		},
+		Receiver: &model.Receiver{
+			Id:         invite.GroupId,
+			ReceiverId: invite.GroupId,
+		},
 	}
 
 	// 删除已存在成员记录
@@ -485,6 +506,13 @@ func (d *GroupDao) RemoveMember(ctx context.Context, remove *do.GroupMemberRemov
 			OwnerId:   memberMaps[remove.UserId].UserId,
 			OwnerName: memberMaps[remove.UserId].Nickname,
 			Members:   members,
+		},
+		Sender: &model.Sender{
+			Id: remove.UserId,
+		},
+		Receiver: &model.Receiver{
+			Id:         remove.GroupId,
+			ReceiverId: remove.GroupId,
 		},
 	}
 

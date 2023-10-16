@@ -16,7 +16,7 @@ type (
 		// 注册接口
 		Register(ctx context.Context, params model.RegisterReq) error
 		// 登录接口
-		Login(ctx context.Context, params model.LoginReq) (*model.LoginRes, error)
+		Login(ctx context.Context, params model.LoginReq) (res *model.LoginRes, err error)
 		// 退出登录接口
 		Logout(ctx context.Context) error
 		// 账号找回接口

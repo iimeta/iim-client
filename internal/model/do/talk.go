@@ -74,7 +74,10 @@ type TalkRecords struct {
 	CreatedAt  int64  `bson:"created_at"`  // 创建时间
 	UpdatedAt  int64  `bson:"updated_at"`  // 更新时间
 
-	Reply *model.Reply `json:"reply,omitempty" bson:"reply,omitempty"`
+	Sender   *model.Sender   `json:"sender,omitempty" bson:"sender,omitempty"`     // 发送者
+	Receiver *model.Receiver `json:"receiver,omitempty" bson:"receiver,omitempty"` // 接收者
+	Mention  *model.Mention  `json:"mention,omitempty" bson:"mention,omitempty"`
+	Reply    *model.Reply    `json:"reply,omitempty" bson:"reply,omitempty"`
 
 	Text     *model.Text     `json:"text,omitempty" bson:"text,omitempty"`
 	Code     *model.Code     `json:"code,omitempty" bson:"code,omitempty"`

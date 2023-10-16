@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"fmt"
 	"github.com/iimeta/iim-client/internal/config"
 	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/dao"
@@ -9,6 +10,7 @@ import (
 	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/service"
 	"github.com/iimeta/iim-client/utility/logger"
+	"github.com/iimeta/iim-client/utility/redis"
 )
 
 type sCommon struct{}
@@ -23,6 +25,20 @@ func New() service.ICommon {
 
 // 发送短信验证码
 func (s *sCommon) SmsCode(ctx context.Context, params model.SendSmsReq) (*model.SendSmsRes, error) {
+
+	if !config.Cfg.App.Debug {
+		defer func() {
+			val, _ := redis.Incr(ctx, fmt.Sprintf(consts.LOCK_CODE, params.Mobile))
+			if val == 1 {
+				_, _ = redis.Expire(ctx, fmt.Sprintf(consts.LOCK_CODE, params.Mobile), 30*60) // 锁定30分钟
+			}
+		}()
+
+		val, err := redis.GetInt(ctx, fmt.Sprintf(consts.LOCK_CODE, params.Mobile))
+		if err == nil && val >= 5 {
+			return nil, errors.New("发送验证码过于频繁, 请稍后再试")
+		}
+	}
 
 	switch params.Channel {
 	// 需要判断账号是否存在
@@ -60,6 +76,20 @@ func (s *sCommon) SmsCode(ctx context.Context, params model.SendSmsReq) (*model.
 
 // 发送邮件验证码
 func (s *sCommon) EmailCode(ctx context.Context, params model.SendEmailReq) (*model.SendEmailRes, error) {
+
+	if !config.Cfg.App.Debug {
+		defer func() {
+			val, _ := redis.Incr(ctx, fmt.Sprintf(consts.LOCK_CODE, params.Email))
+			if val == 1 {
+				_, _ = redis.Expire(ctx, fmt.Sprintf(consts.LOCK_CODE, params.Email), 30*60) // 锁定30分钟
+			}
+		}()
+
+		val, err := redis.GetInt(ctx, fmt.Sprintf(consts.LOCK_CODE, params.Email))
+		if err == nil && val >= 5 {
+			return nil, errors.New("发送验证码过于频繁, 请稍后再试")
+		}
+	}
 
 	switch params.Channel {
 	// 需要判断账号是否存在

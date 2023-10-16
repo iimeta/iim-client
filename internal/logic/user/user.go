@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/dao"
 	"github.com/iimeta/iim-client/internal/model"
@@ -10,6 +11,7 @@ import (
 	"github.com/iimeta/iim-client/internal/service"
 	"github.com/iimeta/iim-client/utility/crypto"
 	"github.com/iimeta/iim-client/utility/logger"
+	"github.com/iimeta/iim-client/utility/redis"
 	"github.com/iimeta/iim-client/utility/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -71,9 +73,25 @@ func (s *sUser) ChangeDetail(ctx context.Context, params model.UserDetailUpdateR
 }
 
 // 修改密码接口
-func (s *sUser) ChangePassword(ctx context.Context, params model.UserPasswordUpdateReq) error {
+func (s *sUser) ChangePassword(ctx context.Context, params model.UserPasswordUpdateReq) (err error) {
 
 	uid := service.Session().GetUid(ctx)
+
+	defer func() {
+		if err != nil {
+			val, _ := redis.Incr(ctx, fmt.Sprintf(consts.LOCK_CHANGE_PASSWORD, uid))
+			if val == 1 {
+				_, _ = redis.Expire(ctx, fmt.Sprintf(consts.LOCK_CHANGE_PASSWORD, uid), 30*60) // 锁定30分钟
+			}
+		} else {
+			_, _ = redis.Del(ctx, fmt.Sprintf(consts.LOCK_CHANGE_PASSWORD, uid))
+		}
+	}()
+
+	val, err := redis.GetInt(ctx, fmt.Sprintf(consts.LOCK_CHANGE_PASSWORD, uid))
+	if err == nil && val >= 5 {
+		return errors.New("失败次数过多, 请稍后再试")
+	}
 
 	user, err := dao.User.FindUserByUserId(ctx, uid)
 	if err != nil || user.Id == "" {

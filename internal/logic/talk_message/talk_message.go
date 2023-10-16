@@ -177,6 +177,8 @@ func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMes
 			ReceiverId: message.Receiver.ReceiverId,
 			Content:    html.EscapeString(message.Text.Content),
 			Text:       message.Text,
+			Sender:     message.Sender,
+			Receiver:   message.Receiver,
 		}
 	case consts.MsgSysGroupCreate:
 	case consts.MsgSysGroupMemberJoin:
@@ -192,6 +194,8 @@ func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMes
 			ReceiverId: message.Receiver.ReceiverId,
 			Extra:      gjson.MustEncodeString(message.GroupMuted),
 			GroupMuted: message.GroupMuted,
+			Sender:     message.Sender,
+			Receiver:   message.Receiver,
 		}
 	case consts.MsgSysGroupCancelMuted:
 		data = &model.TalkRecord{
@@ -201,6 +205,8 @@ func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMes
 			ReceiverId:       message.Receiver.ReceiverId,
 			Extra:            gjson.MustEncodeString(message.GroupCancelMuted),
 			GroupCancelMuted: message.GroupCancelMuted,
+			Sender:           message.Sender,
+			Receiver:         message.Receiver,
 		}
 	case consts.MsgSysGroupMemberMuted:
 		data = &model.TalkRecord{
@@ -210,6 +216,8 @@ func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMes
 			ReceiverId:       message.Receiver.ReceiverId,
 			Extra:            gjson.MustEncodeString(message.GroupMemberMuted),
 			GroupMemberMuted: message.GroupMemberMuted,
+			Sender:           message.Sender,
+			Receiver:         message.Receiver,
 		}
 	case consts.MsgSysGroupMemberCancelMuted:
 		data = &model.TalkRecord{
@@ -219,6 +227,8 @@ func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMes
 			ReceiverId:             message.Receiver.ReceiverId,
 			Extra:                  gjson.MustEncodeString(message.GroupMemberCancelMuted),
 			GroupMemberCancelMuted: message.GroupMemberCancelMuted,
+			Sender:                 message.Sender,
+			Receiver:               message.Receiver,
 		}
 	case consts.MsgSysGroupNotice:
 		data = &model.TalkRecord{
@@ -228,6 +238,8 @@ func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMes
 			ReceiverId:  message.Receiver.ReceiverId,
 			Extra:       gjson.MustEncodeString(message.GroupNotice),
 			GroupNotice: message.GroupNotice,
+			Sender:      message.Sender,
+			Receiver:    message.Receiver,
 		}
 	case consts.MsgSysGroupTransfer:
 		data = &model.TalkRecord{
@@ -237,6 +249,8 @@ func (s *sTalkMessage) SendSysMessage(ctx context.Context, message *model.SysMes
 			ReceiverId:    message.Receiver.ReceiverId,
 			Extra:         gjson.MustEncodeString(message.GroupTransfer),
 			GroupTransfer: message.GroupTransfer,
+			Sender:        message.Sender,
+			Receiver:      message.Receiver,
 		}
 	default:
 		return errors.New("未知消息类型")
@@ -264,7 +278,9 @@ func (s *sTalkMessage) SendNoticeMessage(ctx context.Context, message *model.Not
 				Reason:   message.Login.Reason,
 				Datetime: gtime.Datetime(),
 			}),
-			Login: message.Login,
+			Login:    message.Login,
+			Sender:   message.Sender,
+			Receiver: message.Receiver,
 		}
 	default:
 		return errors.New("未知消息类型")
@@ -382,9 +398,14 @@ func (s *sTalkMessage) SendVote(ctx context.Context, uid int, req *model.Message
 
 	s.loadSequence(ctx, data)
 
+	answerOptions := make([]*model.AnswerOption, 0)
 	options := make(map[string]string)
 	for i, value := range req.Options {
 		options[fmt.Sprintf("%c", 65+i)] = value
+		answerOptions = append(answerOptions, &model.AnswerOption{
+			Key:   fmt.Sprintf("%c", 65+i),
+			Value: value,
+		})
 	}
 
 	num := dao.GroupMember.CountMemberTotal(ctx, req.Receiver.ReceiverId)
@@ -397,6 +418,13 @@ func (s *sTalkMessage) SendVote(ctx context.Context, uid int, req *model.Message
 		MsgType:    data.MsgType,
 		UserId:     data.UserId,
 		ReceiverId: data.ReceiverId,
+		Vote: &model.Vote{
+			Title:         req.Title,
+			AnswerMode:    req.Mode,
+			Anonymous:     req.Anonymous,
+			AnswerOptions: answerOptions,
+			AnswerNum:     int(num),
+		},
 	})
 	if err != nil {
 		logger.Error(ctx, err)
@@ -494,7 +522,10 @@ func (s *sTalkMessage) save(ctx context.Context, data *model.TalkRecord) error {
 		Content:    data.Content,
 		Extra:      data.Extra,
 
-		Reply: data.Reply,
+		Sender:   data.Sender,
+		Receiver: data.Receiver,
+		Mention:  data.Mention,
+		Reply:    data.Reply,
 
 		Text:     data.Text,
 		Code:     data.Code,
@@ -901,12 +932,29 @@ func (s *sTalkMessage) HandleVote(ctx context.Context, params model.MessageVoteH
 		return nil, err
 	}
 
+	if err = dao.TalkRecords.UpdateById(ctx, talkRecords.Id, bson.M{
+		"$inc": bson.M{
+			"vote.answered_num": 1,
+		},
+	}); err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
 	if talkRecordsVote, err := dao.TalkRecordsVote.FindById(ctx, talkRecordsVote.Id); err != nil {
 		logger.Error(ctx, err)
 		return nil, err
 	} else if talkRecordsVote.AnsweredNum >= talkRecordsVote.AnswerNum {
+
 		if err = dao.TalkRecordsVote.UpdateById(ctx, talkRecordsVote.Id, bson.M{
 			"status": 1,
+		}); err != nil {
+			logger.Error(ctx, err)
+			return nil, err
+		}
+
+		if err = dao.TalkRecords.UpdateById(ctx, talkRecords.Id, bson.M{
+			"vote.status": 1,
 		}); err != nil {
 			logger.Error(ctx, err)
 			return nil, err
@@ -1044,6 +1092,13 @@ func (s *sTalkMessage) MultiMergeForward(ctx context.Context, uid int, params *m
 				RecordsIds: ids,
 				Items:      forwardItems,
 			},
+			Sender: &model.Sender{
+				Id: uid,
+			},
+			Receiver: &model.Receiver{
+				Id:         item["receiver_id"],
+				ReceiverId: item["receiver_id"],
+			},
 		}
 
 		if data.TalkType == consts.ChatGroupMode {
@@ -1131,6 +1186,8 @@ func (s *sTalkMessage) MultiSplitForward(ctx context.Context, uid int, params *m
 				Card:       item.Card,
 				Location:   item.Location,
 				Login:      item.Login,
+				Sender:     item.Sender,
+				Receiver:   item.Receiver,
 			}
 			items = append(items, records)
 			recordIds = append(recordIds, records.RecordId)
@@ -1307,12 +1364,6 @@ func (s *sTalkMessage) onSendText(ctx context.Context) error {
 		return err
 	}
 
-	//err = s.SendText(ctx, service.Session().GetUid(ctx), textMessageReq)
-	//if err != nil {
-	//	logger.Error(ctx, err)
-	//	return err
-	//}
-
 	if err = s.SendMessage(ctx, &model.Message{
 		TalkType: textMessageReq.Receiver.TalkType,
 		MsgType:  consts.MsgTypeText,
@@ -1327,6 +1378,7 @@ func (s *sTalkMessage) onSendText(ctx context.Context) error {
 		Text: &model.Text{
 			Content: util.EscapeHtml(textMessageReq.Content),
 		},
+		Mention: textMessageReq.Mention,
 	}); err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -1383,12 +1435,6 @@ func (s *sTalkMessage) onSendImage(ctx context.Context) error {
 		return err
 	}
 
-	//err = s.SendImage(ctx, service.Session().GetUid(ctx), imageMessageReq)
-	//if err != nil {
-	//	logger.Error(ctx, err)
-	//	return err
-	//}
-
 	if err = s.SendMessage(ctx, &model.Message{
 		TalkType: imageMessageReq.Receiver.TalkType,
 		MsgType:  consts.MsgTypeImage,
@@ -1423,12 +1469,6 @@ func (s *sTalkMessage) onSendVoice(ctx context.Context) error {
 		return err
 	}
 
-	//err = s.SendVoice(ctx, service.Session().GetUid(ctx), voiceMessageReq)
-	//if err != nil {
-	//	logger.Error(ctx, err)
-	//	return err
-	//}
-
 	if err = s.SendMessage(ctx, &model.Message{
 		TalkType: voiceMessageReq.Receiver.TalkType,
 		MsgType:  consts.MsgTypeVoice,
@@ -1461,12 +1501,6 @@ func (s *sTalkMessage) onSendVideo(ctx context.Context) error {
 		logger.Error(ctx, err)
 		return err
 	}
-
-	//err = s.SendVideo(ctx, service.Session().GetUid(ctx), videoMessageReq)
-	//if err != nil {
-	//	logger.Error(ctx, err)
-	//	return err
-	//}
 
 	if err = s.SendMessage(ctx, &model.Message{
 		TalkType: videoMessageReq.Receiver.TalkType,
@@ -1590,12 +1624,6 @@ func (s *sTalkMessage) onSendCode(ctx context.Context) error {
 		return err
 	}
 
-	//err = s.SendCode(ctx, service.Session().GetUid(ctx), codeMessageReq)
-	//if err != nil {
-	//	logger.Error(ctx, err)
-	//	return err
-	//}
-
 	if err = s.SendMessage(ctx, &model.Message{
 		TalkType: codeMessageReq.Receiver.TalkType,
 		MsgType:  consts.MsgTypeCode,
@@ -1627,12 +1655,6 @@ func (s *sTalkMessage) onSendLocation(ctx context.Context) error {
 		logger.Error(ctx, err)
 		return err
 	}
-
-	//err = s.SendLocation(ctx, service.Session().GetUid(ctx), locationMessageReq)
-	//if err != nil {
-	//	logger.Error(ctx, err)
-	//	return err
-	//}
 
 	if err = s.SendMessage(ctx, &model.Message{
 		TalkType: locationMessageReq.Receiver.TalkType,
@@ -1667,12 +1689,6 @@ func (s *sTalkMessage) onSendForward(ctx context.Context) error {
 		return err
 	}
 
-	//err = s.SendForward(ctx, service.Session().GetUid(ctx), forwardMessageReq)
-	//if err != nil {
-	//	logger.Error(ctx, err)
-	//	return err
-	//}
-
 	if err = s.SendMessage(ctx, &model.Message{
 		TalkType: forwardMessageReq.Receiver.TalkType,
 		MsgType:  consts.MsgTypeForward,
@@ -1700,12 +1716,6 @@ func (s *sTalkMessage) onSendEmoticon(ctx context.Context) error {
 		logger.Error(ctx, err)
 		return err
 	}
-
-	//err = s.SendEmoticon(ctx, service.Session().GetUid(ctx), emoticonMessageReq)
-	//if err != nil {
-	//	logger.Error(ctx, err)
-	//	return err
-	//}
 
 	emoticon := new(entity.EmoticonItem)
 	if err := dao.FindOne(ctx, dao.Emoticon.Database, do.EMOTICON_ITEM_COLLECTION, bson.M{"_id": emoticonMessageReq.EmoticonId, "user_id": service.Session().GetUid(ctx)}, &emoticon); err != nil {
@@ -1777,12 +1787,6 @@ func (s *sTalkMessage) onSendCard(ctx context.Context) error {
 		return err
 	}
 
-	//err = s.SendBusinessCard(ctx, service.Session().GetUid(ctx), cardMessageReq)
-	//if err != nil {
-	//	logger.Error(ctx, err)
-	//	return err
-	//}
-
 	if err = s.SendMessage(ctx, &model.Message{
 		TalkType: cardMessageReq.Receiver.TalkType,
 		MsgType:  consts.MsgTypeCard,
@@ -1813,12 +1817,6 @@ func (s *sTalkMessage) onMixedMessage(ctx context.Context) error {
 		logger.Error(ctx, err)
 		return err
 	}
-
-	//err = s.SendMixedMessage(ctx, service.Session().GetUid(ctx), mixedMessageReq)
-	//if err != nil {
-	//	logger.Error(ctx, err)
-	//	return err
-	//}
 
 	items := make([]*model.MixedItem, 0)
 
@@ -1895,6 +1893,12 @@ func (s *sTalkMessage) TextMessageHandler(ctx context.Context, message *model.Me
 		ReceiverId: message.Receiver.ReceiverId,
 		Content:    util.EscapeHtml(message.Text.Content),
 		Text:       message.Text,
+		Sender:     message.Sender,
+		Receiver:   message.Receiver,
+	}
+
+	if message.Mention != nil && len(message.Mention.Uids) > 0 {
+		data.Mention = message.Mention
 	}
 
 	return data, nil
@@ -1905,13 +1909,16 @@ func (s *sTalkMessage) CodeMessageHandler(ctx context.Context, message *model.Me
 	data := &model.TalkRecord{
 		TalkType:   message.TalkType,
 		MsgType:    consts.ChatMsgTypeCode,
+		QuoteId:    message.QuoteId,
 		UserId:     message.Sender.Id,
 		ReceiverId: message.Receiver.ReceiverId,
 		Extra: gjson.MustEncodeString(&model.TalkRecordCode{
 			Lang: message.Code.Lang,
 			Code: message.Code.Code,
 		}),
-		Code: message.Code,
+		Code:     message.Code,
+		Sender:   message.Sender,
+		Receiver: message.Receiver,
 	}
 
 	return data, nil
@@ -1930,7 +1937,9 @@ func (s *sTalkMessage) ImageMessageHandler(ctx context.Context, message *model.M
 			Width:  message.Image.Width,
 			Height: message.Image.Height,
 		}),
-		Image: message.Image,
+		Image:    message.Image,
+		Sender:   message.Sender,
+		Receiver: message.Receiver,
 	}
 
 	return data, nil
@@ -1941,6 +1950,7 @@ func (s *sTalkMessage) VoiceMessageHandler(ctx context.Context, message *model.M
 	data := &model.TalkRecord{
 		TalkType:   message.TalkType,
 		MsgType:    consts.ChatMsgTypeAudio,
+		QuoteId:    message.QuoteId,
 		UserId:     message.Sender.Id,
 		ReceiverId: message.Receiver.ReceiverId,
 		Extra: gjson.MustEncodeString(&model.TalkRecordAudio{
@@ -1949,7 +1959,9 @@ func (s *sTalkMessage) VoiceMessageHandler(ctx context.Context, message *model.M
 			Url:      message.Voice.Url,
 			Duration: 0,
 		}),
-		Voice: message.Voice,
+		Voice:    message.Voice,
+		Sender:   message.Sender,
+		Receiver: message.Receiver,
 	}
 
 	return data, nil
@@ -1960,6 +1972,7 @@ func (s *sTalkMessage) VideoMessageHandler(ctx context.Context, message *model.M
 	data := &model.TalkRecord{
 		TalkType:   message.TalkType,
 		MsgType:    consts.ChatMsgTypeVideo,
+		QuoteId:    message.QuoteId,
 		UserId:     message.Sender.Id,
 		ReceiverId: message.Receiver.ReceiverId,
 		Extra: gjson.MustEncodeString(&model.TalkRecordVideo{
@@ -1968,7 +1981,9 @@ func (s *sTalkMessage) VideoMessageHandler(ctx context.Context, message *model.M
 			Url:      message.Video.Url,
 			Duration: message.Video.Duration,
 		}),
-		Video: message.Video,
+		Video:    message.Video,
+		Sender:   message.Sender,
+		Receiver: message.Receiver,
 	}
 
 	return data, nil
@@ -1978,9 +1993,10 @@ func (s *sTalkMessage) FileMessageHandler(ctx context.Context, message *model.Me
 
 	data := &model.TalkRecord{
 		TalkType:   message.TalkType,
+		MsgType:    consts.ChatMsgTypeFile,
+		QuoteId:    message.QuoteId,
 		UserId:     message.Sender.Id,
 		ReceiverId: message.Receiver.ReceiverId,
-		MsgType:    consts.ChatMsgTypeFile,
 		Extra: gjson.MustEncodeString(&model.TalkRecordFile{
 			Drive:  message.File.Drive,
 			Name:   message.File.Name,
@@ -1988,7 +2004,9 @@ func (s *sTalkMessage) FileMessageHandler(ctx context.Context, message *model.Me
 			Size:   message.File.Size,
 			Path:   message.File.Path,
 		}),
-		File: message.File,
+		File:     message.File,
+		Sender:   message.Sender,
+		Receiver: message.Receiver,
 	}
 
 	return data, nil
@@ -1997,13 +2015,16 @@ func (s *sTalkMessage) FileMessageHandler(ctx context.Context, message *model.Me
 func (s *sTalkMessage) VoteMessageHandler(ctx context.Context, message *model.Message) (*model.TalkRecord, error) {
 
 	data := &model.TalkRecord{
-		RecordId:   core.IncrRecordId(ctx),
-		MsgId:      util.NewMsgId(),
 		TalkType:   consts.ChatGroupMode,
 		MsgType:    consts.ChatMsgTypeVote,
+		QuoteId:    message.QuoteId,
+		RecordId:   core.IncrRecordId(ctx),
+		MsgId:      util.NewMsgId(),
 		UserId:     message.Sender.Id,
 		ReceiverId: message.Receiver.ReceiverId,
 		Vote:       message.Vote,
+		Sender:     message.Sender,
+		Receiver:   message.Receiver,
 	}
 
 	return data, nil
@@ -2035,6 +2056,8 @@ func (s *sTalkMessage) MixedMessageHandler(ctx context.Context, message *model.M
 		ReceiverId: message.Receiver.ReceiverId,
 		Extra:      gjson.MustEncodeString(model.TalkRecordMixed{Items: items}),
 		Mixed:      message.Mixed,
+		Sender:     message.Sender,
+		Receiver:   message.Receiver,
 	}
 
 	return data, nil
@@ -2116,6 +2139,7 @@ func (s *sTalkMessage) EmoticonMessageHandler(ctx context.Context, message *mode
 	data := &model.TalkRecord{
 		TalkType:   message.TalkType,
 		MsgType:    consts.ChatMsgTypeImage,
+		QuoteId:    message.QuoteId,
 		UserId:     message.Sender.Id,
 		ReceiverId: message.Receiver.ReceiverId,
 		Extra: gjson.MustEncodeString(&model.TalkRecordImage{
@@ -2124,6 +2148,8 @@ func (s *sTalkMessage) EmoticonMessageHandler(ctx context.Context, message *mode
 			Height: 0,
 		}),
 		Emoticon: message.Emoticon,
+		Sender:   message.Sender,
+		Receiver: message.Receiver,
 	}
 
 	return data, nil
@@ -2134,12 +2160,15 @@ func (s *sTalkMessage) CardMessageHandler(ctx context.Context, message *model.Me
 	data := &model.TalkRecord{
 		TalkType:   message.TalkType,
 		MsgType:    consts.ChatMsgTypeCard,
+		QuoteId:    message.QuoteId,
 		UserId:     message.Sender.Id,
 		ReceiverId: message.Receiver.ReceiverId,
 		Extra: gjson.MustEncodeString(&model.TalkRecordCard{
 			UserId: message.Card.UserId,
 		}),
-		Card: message.Card,
+		Card:     message.Card,
+		Sender:   message.Sender,
+		Receiver: message.Receiver,
 	}
 
 	return data, nil
@@ -2150,6 +2179,7 @@ func (s *sTalkMessage) LocationMessageHandler(ctx context.Context, message *mode
 	data := &model.TalkRecord{
 		TalkType:   message.TalkType,
 		MsgType:    consts.ChatMsgTypeLocation,
+		QuoteId:    message.QuoteId,
 		UserId:     message.Sender.Id,
 		ReceiverId: message.Receiver.ReceiverId,
 		Extra: gjson.MustEncodeString(&model.TalkRecordLocation{
@@ -2157,6 +2187,8 @@ func (s *sTalkMessage) LocationMessageHandler(ctx context.Context, message *mode
 			Latitude:    message.Location.Latitude,
 			Description: message.Location.Description,
 		}),
+		Sender:   message.Sender,
+		Receiver: message.Receiver,
 	}
 
 	return data, nil

@@ -66,7 +66,7 @@ func Auth(r *ghttp.Request, secret string, guard string, storage IStorage) {
 	r.SetCtxVar(UID_KEY, uid)
 
 	if gstr.HasPrefix(r.GetHeader("Content-Type"), "application/json") {
-		logger.Debugf(r.GetCtx(), "url: %s, body: %s", r.GetUrl(), r.GetBodyString())
+		logger.Debugf(r.GetCtx(), "url: %s, request body: %s", r.GetUrl(), r.GetBodyString())
 	} else {
 		logger.Debugf(r.GetCtx(), "url: %s, Content-Type: %s", r.GetUrl(), r.GetHeader("Content-Type"))
 	}

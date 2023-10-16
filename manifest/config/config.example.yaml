@@ -63,8 +63,8 @@ app:
 # Jwt配置
 jwt:
   secret: 836c3fea9nba4e045d1bd0fbcc5
-  expires_time: 3600
-  buffer_time: 3600
+  expires_time: 259200
+  buffer_time: 28800
 
 # 跨域配置
 cors:

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -194,9 +195,13 @@ func MiddlewareHandlerResponse(r *ghttp.Request) {
 		}
 	}
 
-	r.Response.WriteJson(DefaultHandlerResponse{
+	data := DefaultHandlerResponse{
 		Code:    code.Code(),
 		Message: msg,
 		Data:    res,
-	})
+	}
+
+	logger.Debugf(r.GetCtx(), "url: %s, response body: %s", r.GetUrl(), gjson.MustEncodeString(data))
+
+	r.Response.WriteJson(data)
 }

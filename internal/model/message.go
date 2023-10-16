@@ -74,10 +74,18 @@ type Code struct {
 
 // 投票消息接口请求参数
 type Vote struct {
-	Mode      int      `json:"mode,omitempty" bson:"mode,omitempty" v:"in:0,1"`
-	Anonymous int      `json:"anonymous,omitempty" bson:"anonymous,omitempty" v:"in:0,1"`
-	Title     string   `json:"title,omitempty" bson:"title,omitempty" v:"required"`
-	Options   []string `json:"options,omitempty" bson:"options,omitempty"`
+	Title         string          `json:"title,omitempty" bson:"title,omitempty" v:"required"`       // 投票标题
+	AnswerMode    int             `json:"answer_mode,omitempty" bson:"answer_mode,omitempty"`        // 答题模式[0:单选;1:多选;]
+	Anonymous     int             `json:"anonymous,omitempty" bson:"anonymous,omitempty" v:"in:0,1"` // 匿名投票[0:否;1:是;]
+	AnswerOptions []*AnswerOption `json:"answer_options,omitempty" bson:"answer_options,omitempty"`  // 答题选项
+	AnswerNum     int             `json:"answer_num,omitempty" bson:"answer_num,omitempty"`          // 应答人数
+	AnsweredNum   int             `json:"answered_num,omitempty" bson:"answered_num,omitempty"`      // 已答人数
+	Status        int             `json:"status,omitempty" bson:"status,omitempty"`                  // 投票状态[0:投票中;1:已完成;]
+}
+
+type AnswerOption struct {
+	Key   string `json:"key,omitempty" bson:"key,omitempty"`
+	Value string `json:"value,omitempty" bson:"value,omitempty"`
 }
 
 // 位置消息

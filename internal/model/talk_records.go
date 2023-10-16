@@ -40,7 +40,10 @@ type TalkRecord struct {
 	CreatedAt  string `json:"created_at"`  // 创建时间
 	UpdatedAt  string `json:"updated_at"`  // 更新时间
 
-	Reply *Reply `json:"reply,omitempty"`
+	Sender   *Sender   `json:"sender,omitempty"`   // 发送者
+	Receiver *Receiver `json:"receiver,omitempty"` // 接收者
+	Mention  *Mention  `json:"mention,omitempty"`
+	Reply    *Reply    `json:"reply,omitempty"`
 
 	Text     *Text     `json:"text,omitempty"`
 	Code     *Code     `json:"code,omitempty"`
@@ -87,7 +90,10 @@ type TalkRecordsItem struct {
 	CreatedAt  string `json:"created_at"`
 	Extra      any    `json:"extra"` // 额外参数
 
-	Reply *Reply `json:"reply,omitempty"`
+	Sender   *Sender   `json:"sender,omitempty"`   // 发送者
+	Receiver *Receiver `json:"receiver,omitempty"` // 接收者
+	Mention  *Mention  `json:"mention,omitempty"`
+	Reply    *Reply    `json:"reply,omitempty"`
 
 	Text     *Text     `json:"text,omitempty"`
 	Code     *Code     `json:"code,omitempty"`

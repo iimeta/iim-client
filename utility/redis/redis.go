@@ -157,6 +157,10 @@ func SetNX(ctx context.Context, key string, value interface{}) (bool, error) {
 	return master.SetNX(ctx, key, value)
 }
 
+func Expire(ctx context.Context, key string, seconds int64, option ...gredis.ExpireOption) (int64, error) {
+	return master.Expire(ctx, key, seconds, option...)
+}
+
 func Pipeline(ctx context.Context) redis.Pipeliner {
 	var pipe redis.Pipeliner
 	pipe = Client.Pipeline()

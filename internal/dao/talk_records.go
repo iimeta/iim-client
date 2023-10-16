@@ -243,7 +243,10 @@ func (d *TalkRecordsDao) HandleTalkRecords(ctx context.Context, items []*model.T
 			CreatedAt:  item.CreatedAt,
 			Extra:      make(map[string]any),
 
-			Reply: item.Reply,
+			Sender:   item.Sender,
+			Receiver: item.Receiver,
+			Mention:  item.Mention,
+			Reply:    item.Reply,
 
 			Text:     item.Text,
 			Code:     item.Code,

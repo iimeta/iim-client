@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/grand"
@@ -134,7 +135,23 @@ func (s *sAuth) Register(ctx context.Context, params model.RegisterReq) error {
 }
 
 // 登录接口
-func (s *sAuth) Login(ctx context.Context, params model.LoginReq) (*model.LoginRes, error) {
+func (s *sAuth) Login(ctx context.Context, params model.LoginReq) (res *model.LoginRes, err error) {
+
+	defer func() {
+		if err != nil {
+			val, _ := redis.Incr(ctx, fmt.Sprintf(consts.LOCK_LOGIN, params.Account))
+			if val == 1 {
+				_, _ = redis.Expire(ctx, fmt.Sprintf(consts.LOCK_LOGIN, params.Account), 30*60) // 锁定30分钟
+			}
+		} else {
+			_, _ = redis.Del(ctx, fmt.Sprintf(consts.LOCK_LOGIN, params.Account))
+		}
+	}()
+
+	val, err := redis.GetInt(ctx, fmt.Sprintf(consts.LOCK_LOGIN, params.Account))
+	if err == nil && val >= 5 {
+		return nil, errors.New("登录失败次数过多, 请稍后再试")
+	}
 
 	accountInfo, err := dao.User.FindAccount(ctx, params.Account)
 	if err != nil {

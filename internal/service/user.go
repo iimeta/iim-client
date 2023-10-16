@@ -18,7 +18,7 @@ type (
 		// 修改用户信息
 		ChangeDetail(ctx context.Context, params model.UserDetailUpdateReq) error
 		// 修改密码接口
-		ChangePassword(ctx context.Context, params model.UserPasswordUpdateReq) error
+		ChangePassword(ctx context.Context, params model.UserPasswordUpdateReq) (err error)
 		// 用户设置
 		Setting(ctx context.Context) (*model.UserSettingRes, error)
 		// 换绑手机号
