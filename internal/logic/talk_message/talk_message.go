@@ -64,7 +64,15 @@ func New() service.ITalkMessage {
 func (s *sTalkMessage) VerifyPermission(ctx context.Context, info *model.VerifyInfo) error {
 
 	// 判断对方是否是自己
-	if info.TalkType == consts.ChatPrivateMode && info.ReceiverId == service.Session().GetUid(ctx) {
+	if info.TalkType == consts.ChatPrivateMode && info.ReceiverId == info.UserId {
+		return nil
+	}
+
+	// 判断发送人是否为机器人 todo
+	if robot, err := dao.Robot.GetRobotByUserId(ctx, info.UserId); err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
+		logger.Error(ctx, err)
+		return err
+	} else if robot != nil {
 		return nil
 	}
 
@@ -115,7 +123,7 @@ func (s *sTalkMessage) SendMessage(ctx context.Context, message *model.Message) 
 
 	if err = s.VerifyPermission(ctx, &model.VerifyInfo{
 		TalkType:          message.TalkType,
-		UserId:            service.Session().GetUid(ctx),
+		UserId:            message.Sender.Id,
 		ReceiverId:        message.Receiver.ReceiverId,
 		IsVerifyGroupMute: true,
 	}); err != nil {
@@ -289,40 +297,6 @@ func (s *sTalkMessage) SendNoticeMessage(ctx context.Context, message *model.Not
 	return s.save(ctx, data)
 }
 
-// 文本消息
-func (s *sTalkMessage) SendText(ctx context.Context, uid int, req *model.TextMessageReq) error {
-
-	data := &model.TalkRecord{
-		TalkType:   req.Receiver.TalkType,
-		MsgType:    consts.ChatMsgTypeText,
-		QuoteId:    req.QuoteId,
-		UserId:     uid,
-		ReceiverId: req.Receiver.ReceiverId,
-		Content:    util.EscapeHtml(req.Content),
-	}
-
-	return s.save(ctx, data)
-}
-
-// 图片文件消息
-func (s *sTalkMessage) SendImage(ctx context.Context, uid int, req *model.ImageMessageReq) error {
-
-	data := &model.TalkRecord{
-		TalkType:   req.Receiver.TalkType,
-		MsgType:    consts.ChatMsgTypeImage,
-		QuoteId:    req.QuoteId,
-		UserId:     uid,
-		ReceiverId: req.Receiver.ReceiverId,
-		Extra: gjson.MustEncodeString(&model.TalkRecordImage{
-			Url:    req.Url,
-			Width:  req.Width,
-			Height: req.Height,
-		}),
-	}
-
-	return s.save(ctx, data)
-}
-
 // 文件消息
 func (s *sTalkMessage) SendFile(ctx context.Context, uid int, req *model.MessageFileReq) error {
 
@@ -424,6 +398,13 @@ func (s *sTalkMessage) SendVote(ctx context.Context, uid int, req *model.Message
 			Anonymous:     req.Anonymous,
 			AnswerOptions: answerOptions,
 			AnswerNum:     int(num),
+		},
+		Sender: &model.Sender{
+			Id: data.UserId,
+		},
+		Receiver: &model.Receiver{
+			Id:         data.ReceiverId,
+			ReceiverId: data.ReceiverId,
 		},
 	})
 	if err != nil {
@@ -725,9 +706,9 @@ func (s *sTalkMessage) Image(ctx context.Context, params model.ImageMessageReq) 
 		return errors.New("上传文件格式不正确,仅支持 png、jpg、jpeg、gif 及 webp")
 	}
 
-	// 判断上传文件大小(5M)
-	if file.Size > 5<<20 {
-		return errors.New("上传文件大小不能超过5M")
+	// 判断上传文件大小(20M)
+	if file.Size > 20<<20 {
+		return errors.New("上传文件大小不能超过20M")
 	}
 
 	if err = s.VerifyPermission(ctx, &model.VerifyInfo{
@@ -757,11 +738,18 @@ func (s *sTalkMessage) Image(ctx context.Context, params model.ImageMessageReq) 
 		return err
 	}
 
-	if err = s.SendImage(ctx, service.Session().GetUid(ctx), &model.ImageMessageReq{
-		Url:    s.Filesystem.Default.PublicUrl(filePath),
-		Width:  meta.Width,
-		Height: meta.Height,
-		Size:   int(file.Size),
+	if err = s.SendMessage(ctx, &model.Message{
+		MsgType:  consts.MsgTypeImage,
+		TalkType: params.TalkType,
+		Image: &model.Image{
+			Url:    s.Filesystem.Default.PublicUrl(filePath),
+			Width:  meta.Width,
+			Height: meta.Height,
+			Size:   int(file.Size),
+		},
+		Sender: &model.Sender{
+			Id: service.Session().GetUid(ctx),
+		},
 		Receiver: &model.Receiver{
 			TalkType:   params.TalkType,
 			ReceiverId: params.ReceiverId,
@@ -1687,6 +1675,30 @@ func (s *sTalkMessage) onSendForward(ctx context.Context) error {
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
+	}
+
+	for _, uid := range forwardMessageReq.Uids {
+		if err := s.VerifyPermission(ctx, &model.VerifyInfo{
+			TalkType:          consts.ChatPrivateMode,
+			UserId:            service.Session().GetUid(ctx),
+			ReceiverId:        uid,
+			IsVerifyGroupMute: true,
+		}); err != nil {
+			logger.Error(ctx, err)
+			return err
+		}
+	}
+
+	for _, gid := range forwardMessageReq.Gids {
+		if err := s.VerifyPermission(ctx, &model.VerifyInfo{
+			TalkType:          consts.ChatGroupMode,
+			UserId:            service.Session().GetUid(ctx),
+			ReceiverId:        gid,
+			IsVerifyGroupMute: true,
+		}); err != nil {
+			logger.Error(ctx, err)
+			return err
+		}
 	}
 
 	if err = s.SendMessage(ctx, &model.Message{

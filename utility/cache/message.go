@@ -68,7 +68,7 @@ func (m *MessageStorage) name(talkType int, sender int, receive int) string {
 		sender = 0
 	}
 
-	if sender > receive {
+	if sender > receive { // todo 不明白有何用
 		sender, receive = receive, sender
 	}
 

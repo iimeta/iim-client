@@ -222,7 +222,6 @@ type GroupMember struct {
 	IsMute   int    `json:"is_mute"`
 	UserCard string `json:"user_card"`
 	Motto    string `json:"motto"` // 座右铭
-
 }
 
 type GroupOvert struct {

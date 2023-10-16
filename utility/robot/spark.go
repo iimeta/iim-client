@@ -78,10 +78,18 @@ func (o *spark) Chat(ctx context.Context, senderId, receiverId, talkType int, te
 	response, err := sdk.SparkChat(ctx, model, fmt.Sprintf("%d", receiverId), messages)
 	if err != nil {
 		logger.Error(ctx, err)
-		if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
-			Content: err.Error() + ", 发生错误, 请联系作者处理...",
+		if err = service.TalkMessage().SendMessage(ctx, &model2.Message{
+			MsgType:  consts.MsgTypeText,
+			TalkType: talkType,
+			Text: &model2.Text{
+				Content: err.Error() + ", 发生错误, 请联系作者处理...",
+			},
+			Sender: &model2.Sender{
+				Id: senderId,
+			},
 			Receiver: &model2.Receiver{
 				TalkType:   talkType,
+				Id:         receiverId,
 				ReceiverId: receiverId,
 			},
 		}); err != nil {
@@ -124,10 +132,18 @@ func (o *spark) Chat(ctx context.Context, senderId, receiverId, talkType int, te
 		}
 	}
 
-	if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
-		Content: content,
+	if err = service.TalkMessage().SendMessage(ctx, &model2.Message{
+		MsgType:  consts.MsgTypeText,
+		TalkType: talkType,
+		Text: &model2.Text{
+			Content: content,
+		},
+		Sender: &model2.Sender{
+			Id: senderId,
+		},
 		Receiver: &model2.Receiver{
 			TalkType:   talkType,
+			Id:         receiverId,
 			ReceiverId: receiverId,
 		},
 	}); err != nil {

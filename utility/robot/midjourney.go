@@ -7,6 +7,7 @@ import (
 	"github.com/gogf/gf/v2/os/grpool"
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/iimeta/iim-client/internal/config"
+	"github.com/iimeta/iim-client/internal/consts"
 	model2 "github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/service"
 	"github.com/iimeta/iim-client/utility/logger"
@@ -50,10 +51,18 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 	text = gstr.TrimLeftStr(text, "/imagine")
 	text = strings.TrimSpace(text)
 
-	if err := service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
-		Content: "您的请求已收到, 请耐心等待1-5分钟, 精彩马上为您呈献...",
+	if err := service.TalkMessage().SendMessage(ctx, &model2.Message{
+		MsgType:  consts.MsgTypeText,
+		TalkType: talkType,
+		Text: &model2.Text{
+			Content: "您的请求已收到, 请耐心等待1-5分钟, 精彩马上为您呈献...",
+		},
+		Sender: &model2.Sender{
+			Id: senderId,
+		},
 		Receiver: &model2.Receiver{
 			TalkType:   talkType,
+			Id:         receiverId,
 			ReceiverId: receiverId,
 		},
 	}); err != nil {
@@ -79,10 +88,18 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 
 	if err != nil || imageURL == "" {
 		logger.Error(ctx, err)
-		if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
-			Content: err.Error(),
+		if err = service.TalkMessage().SendMessage(ctx, &model2.Message{
+			MsgType:  consts.MsgTypeText,
+			TalkType: talkType,
+			Text: &model2.Text{
+				Content: err.Error(),
+			},
+			Sender: &model2.Sender{
+				Id: senderId,
+			},
 			Receiver: &model2.Receiver{
 				TalkType:   talkType,
+				Id:         receiverId,
 				ReceiverId: receiverId,
 			},
 		}); err != nil {
@@ -126,10 +143,18 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 			originalUrl, err := url.Parse(imageURL)
 			if err != nil {
 				logger.Error(ctx, err)
-				if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
-					Content: err.Error(),
+				if err = service.TalkMessage().SendMessage(ctx, &model2.Message{
+					MsgType:  consts.MsgTypeText,
+					TalkType: talkType,
+					Text: &model2.Text{
+						Content: err.Error(),
+					},
+					Sender: &model2.Sender{
+						Id: senderId,
+					},
 					Receiver: &model2.Receiver{
 						TalkType:   talkType,
+						Id:         receiverId,
 						ReceiverId: receiverId,
 					},
 				}); err != nil {
@@ -147,10 +172,18 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 			imgBytes := util.HttpDownloadFile(ctx, imageURL, false)
 
 			if len(imgBytes) == 0 {
-				if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
-					Content: err.Error(),
+				if err = service.TalkMessage().SendMessage(ctx, &model2.Message{
+					MsgType:  consts.MsgTypeText,
+					TalkType: talkType,
+					Text: &model2.Text{
+						Content: err.Error(),
+					},
+					Sender: &model2.Sender{
+						Id: senderId,
+					},
 					Receiver: &model2.Receiver{
 						TalkType:   talkType,
+						Id:         receiverId,
 						ReceiverId: receiverId,
 					},
 				}); err != nil {
@@ -178,13 +211,21 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 
 	logger.Infof(ctx, "SendImage imageURL: %s, Width: %d, Height: %d, Size: %d", imageURL, imageInfo.Width, imageInfo.Height, imageInfo.Size)
 
-	if err := service.TalkMessage().SendImage(ctx, senderId, &model2.ImageMessageReq{
-		Url:    imageURL,
-		Width:  imageInfo.Width,
-		Height: imageInfo.Height,
-		Size:   imageInfo.Size,
+	if err := service.TalkMessage().SendMessage(ctx, &model2.Message{
+		MsgType:  consts.MsgTypeImage,
+		TalkType: talkType,
+		Image: &model2.Image{
+			Url:    imageURL,
+			Width:  imageInfo.Width,
+			Height: imageInfo.Height,
+			Size:   imageInfo.Size,
+		},
+		Sender: &model2.Sender{
+			Id: senderId,
+		},
 		Receiver: &model2.Receiver{
 			TalkType:   talkType,
+			Id:         receiverId,
 			ReceiverId: receiverId,
 		},
 	}); err != nil {
@@ -202,10 +243,18 @@ func (m *midjourney) Image(ctx context.Context, senderId, receiverId, talkType i
 		content += fmt.Sprintf("第四张: UPSCALE::4::%s , VARIATION::4::%s\n", taskId, taskId)
 		content += fmt.Sprintf("操作说明: UPSCALE为放大, VARIATION为微调, 示例: UPSCALE::1::%s\n", taskId)
 
-		if err := service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
-			Content: content,
+		if err = service.TalkMessage().SendMessage(ctx, &model2.Message{
+			MsgType:  consts.MsgTypeText,
+			TalkType: talkType,
+			Text: &model2.Text{
+				Content: content,
+			},
+			Sender: &model2.Sender{
+				Id: senderId,
+			},
 			Receiver: &model2.Receiver{
 				TalkType:   talkType,
+				Id:         receiverId,
 				ReceiverId: receiverId,
 			},
 		}); err != nil {

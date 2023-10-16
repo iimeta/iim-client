@@ -126,10 +126,18 @@ func (o *openAI) Chat(ctx context.Context, senderId, receiverId, talkType int, t
 			}
 		}
 
-		if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
-			Content: err.Error(),
+		if err = service.TalkMessage().SendMessage(ctx, &model2.Message{
+			MsgType:  consts.MsgTypeText,
+			TalkType: talkType,
+			Text: &model2.Text{
+				Content: err.Error(),
+			},
+			Sender: &model2.Sender{
+				Id: senderId,
+			},
 			Receiver: &model2.Receiver{
 				TalkType:   talkType,
+				Id:         receiverId,
 				ReceiverId: receiverId,
 			},
 		}); err != nil {
@@ -172,10 +180,18 @@ func (o *openAI) Chat(ctx context.Context, senderId, receiverId, talkType int, t
 		}
 	}
 
-	if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
-		Content: content,
+	if err = service.TalkMessage().SendMessage(ctx, &model2.Message{
+		MsgType:  consts.MsgTypeText,
+		TalkType: talkType,
+		Text: &model2.Text{
+			Content: content,
+		},
+		Sender: &model2.Sender{
+			Id: senderId,
+		},
 		Receiver: &model2.Receiver{
 			TalkType:   talkType,
+			Id:         receiverId,
 			ReceiverId: receiverId,
 		},
 	}); err != nil {
@@ -202,10 +218,18 @@ func (o *openAI) Image(ctx context.Context, senderId, receiverId, talkType int, 
 	imgBase64, err := sdk.GenImageBase64(ctx, text)
 	if err != nil {
 		logger.Error(ctx, err)
-		if err = service.TalkMessage().SendText(ctx, senderId, &model2.TextMessageReq{
-			Content: err.Error(),
+		if err = service.TalkMessage().SendMessage(ctx, &model2.Message{
+			MsgType:  consts.MsgTypeText,
+			TalkType: talkType,
+			Text: &model2.Text{
+				Content: err.Error(),
+			},
+			Sender: &model2.Sender{
+				Id: senderId,
+			},
 			Receiver: &model2.Receiver{
 				TalkType:   talkType,
+				Id:         receiverId,
 				ReceiverId: receiverId,
 			},
 		}); err != nil {
@@ -235,13 +259,21 @@ func (o *openAI) Image(ctx context.Context, senderId, receiverId, talkType int, 
 
 	url := domain.String() + "/" + imageInfo.FilePath
 
-	if err := service.TalkMessage().SendImage(ctx, senderId, &model2.ImageMessageReq{
-		Url:    url,
-		Width:  imageInfo.Width,
-		Height: imageInfo.Height,
-		Size:   imageInfo.Size,
+	if err := service.TalkMessage().SendMessage(ctx, &model2.Message{
+		MsgType:  consts.MsgTypeImage,
+		TalkType: talkType,
+		Image: &model2.Image{
+			Url:    url,
+			Width:  imageInfo.Width,
+			Height: imageInfo.Height,
+			Size:   imageInfo.Size,
+		},
+		Sender: &model2.Sender{
+			Id: senderId,
+		},
 		Receiver: &model2.Receiver{
 			TalkType:   talkType,
+			Id:         receiverId,
 			ReceiverId: receiverId,
 		},
 	}); err != nil {

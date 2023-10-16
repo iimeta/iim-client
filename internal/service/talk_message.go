@@ -21,10 +21,6 @@ type (
 		SendSysMessage(ctx context.Context, message *model.SysMessage) error
 		// 发送通知消息
 		SendNoticeMessage(ctx context.Context, message *model.NoticeMessage) error
-		// 文本消息
-		SendText(ctx context.Context, uid int, req *model.TextMessageReq) error
-		// 图片文件消息
-		SendImage(ctx context.Context, uid int, req *model.ImageMessageReq) error
 		// 文件消息
 		SendFile(ctx context.Context, uid int, req *model.MessageFileReq) error
 		// 投票消息

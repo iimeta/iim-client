@@ -20,7 +20,14 @@ func New() service.ISession {
 
 // 获取会话中UserId
 func (s *sSession) GetUid(ctx context.Context) int {
-	return ctx.Value("uid").(int)
+
+	uid := ctx.Value("uid")
+	if uid == nil {
+		logger.Error(ctx, "uid is nil")
+		return 0
+	}
+
+	return uid.(int)
 }
 
 // 获取会话中用户信息

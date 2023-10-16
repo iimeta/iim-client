@@ -281,6 +281,18 @@ func (s *sTalkSession) List(ctx context.Context) (*model.SessionListRes, error) 
 			value.Avatar = item.GroupAvatar
 		}
 
+		// 临时解决数据越权问题 todo
+		if item.TalkType == 2 {
+			if err := service.TalkMessage().VerifyPermission(ctx, &model.VerifyInfo{
+				TalkType:   item.TalkType,
+				UserId:     uid,
+				ReceiverId: item.ReceiverId,
+			}); err != nil {
+				items = append(items, value)
+				continue
+			}
+		}
+
 		// 查询缓存消息
 		if msg, err := s.MessageStorage.Get(ctx, item.TalkType, uid, item.ReceiverId); err == nil {
 			value.MsgText = msg.Content

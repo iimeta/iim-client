@@ -18,7 +18,6 @@ import (
 	"github.com/iimeta/iim-client/utility/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"time"
 )
 
 var Group = NewGroupDao()
@@ -518,7 +517,7 @@ func (d *GroupDao) RemoveMember(ctx context.Context, remove *do.GroupMemberRemov
 
 	if err = GroupMember.UpdateMany(ctx, bson.M{"group_id": remove.GroupId, "user_id": bson.M{"$in": remove.MemberIds}, "is_quit": 0}, bson.M{
 		"is_quit":    1,
-		"updated_at": time.Now(),
+		"updated_at": gtime.Timestamp(),
 	}); err != nil {
 		return err
 	}
@@ -529,6 +528,12 @@ func (d *GroupDao) RemoveMember(ctx context.Context, remove *do.GroupMemberRemov
 	}
 
 	d.relation.BatchDelGroupRelation(ctx, remove.MemberIds, remove.GroupId)
+
+	if err = TalkSession.UpdateMany(ctx, bson.M{"user_id": bson.M{"$in": remove.MemberIds}, "receiver_id": remove.GroupId}, bson.M{
+		"updated_at": gtime.Timestamp(),
+	}); err != nil {
+		return err
+	}
 
 	pipe := redis.Pipeline(ctx)
 
