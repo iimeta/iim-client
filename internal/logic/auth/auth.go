@@ -116,7 +116,7 @@ func (s *sAuth) Register(ctx context.Context, params model.RegisterReq) error {
 						MsgType:  consts.MsgSysText,
 						TalkType: consts.ChatPrivateMode,
 						Sender: &model.Sender{
-							Id: applyInfo.UserId,
+							Id: uid,
 						},
 						Receiver: &model.Receiver{
 							Id:         applyInfo.FriendId,
