@@ -11,7 +11,7 @@ require (
 	github.com/iimeta/iim-server v1.0.0
 	github.com/redis/go-redis/v9 v9.2.1
 	github.com/sashabaranov/go-openai v1.16.0
-	github.com/tencentyun/cos-go-sdk-v5 v0.7.43
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.45
 	github.com/tjfoc/gmsm v1.4.1
 	go.mongodb.org/mongo-driver v1.12.1
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df

@@ -88,45 +88,20 @@ func (s *sAuth) Register(ctx context.Context, params model.RegisterReq) error {
 		ctx = context.WithValue(ctx, middleware.UID_KEY, user.UserId)
 
 		for _, uid := range value.Ints() {
-
-			applyId, err := service.ContactApply().Create(ctx, model.ApplyCreateReq{
+			if applyId, err := service.ContactApply().Create(ctx, model.ApplyCreateReq{
 				ContactApply: model.ContactApply{
 					UserId:   user.UserId,
 					Remark:   user.Email,
 					FriendId: uid,
 				},
-			})
-
-			if err != nil {
-				logger.Error(ctx, err)
-			} else {
-
-				applyInfo, err := service.ContactApply().Accept(ctx, model.ApplyAcceptReq{
+			}); err == nil {
+				_, _ = service.ContactApply().Accept(ctx, model.ApplyAcceptReq{
 					ContactApply: model.ContactApply{
 						Remark:  user.Nickname,
 						ApplyId: applyId,
 						UserId:  uid,
 					},
 				})
-
-				if err != nil {
-					logger.Error(ctx, err)
-				} else {
-					err = service.TalkMessage().SendSysMessage(ctx, &model.SysMessage{
-						MsgType:  consts.MsgSysText,
-						TalkType: consts.ChatPrivateMode,
-						Sender: &model.Sender{
-							Id: uid,
-						},
-						Receiver: &model.Receiver{
-							Id:         applyInfo.FriendId,
-							ReceiverId: applyInfo.FriendId,
-						},
-						Text: &model.Text{
-							Content: "你们已成为好友, 可以开始聊天咯",
-						},
-					})
-				}
 			}
 		}
 	}
