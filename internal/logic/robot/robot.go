@@ -3,6 +3,7 @@ package robot
 import (
 	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/os/grpool"
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/dao"
@@ -56,7 +57,6 @@ func (s *sRobot) GetRobotByUserId(ctx context.Context, userId int) (*model.Robot
 func (s *sRobot) RobotReply(ctx context.Context, uid int, textMessageReq *model.TextMessageReq) {
 
 	talkType := textMessageReq.Receiver.TalkType
-	senderId := textMessageReq.Receiver.ReceiverId
 	receiverId := uid
 	mentionNickname := ""
 
@@ -64,26 +64,13 @@ func (s *sRobot) RobotReply(ctx context.Context, uid int, textMessageReq *model.
 		if len(textMessageReq.Mention.Uids) == 0 {
 			return
 		}
-		senderId = textMessageReq.Mention.Uids[0]
 		receiverId = textMessageReq.Receiver.ReceiverId
 	}
 
-	robots, isNeed := sdk.Robot.IsNeedRobotReply(ctx, append(textMessageReq.Mention.Uids, senderId)...)
+	robots, isNeed := sdk.Robot.IsNeedRobotReply(ctx, append(textMessageReq.Mention.Uids, textMessageReq.Receiver.ReceiverId)...)
 	if isNeed {
 
-		prompt := textMessageReq.Content
-
-		if talkType == 2 {
-			content := gstr.Split(prompt, " ")
-			if len(content) > 1 {
-				prompt = content[1]
-			} else {
-				content = gstr.Split(prompt, " ")
-				if len(content) > 1 {
-					prompt = content[1]
-				}
-			}
-		}
+		prompt := textMessageReq.Text
 
 		if len(prompt) == 0 {
 			return
@@ -104,140 +91,30 @@ func (s *sRobot) RobotReply(ctx context.Context, uid int, textMessageReq *model.
 
 		// 机器人回复
 		for _, robot := range robots {
-			switch robot.ModelType {
-			case sdk.MODEL_TYPE_TEXT:
+			robot := robot
+			_ = grpool.AddWithRecover(ctx, func(ctx context.Context) {
 
-				message := sdk.NewMessage()
-				message.Corp = robot.Corp
-				message.Model = robot.Model
-				message.ModelType = robot.ModelType
-				message.Prompt = prompt
-				message.Key = robot.Key
-				message.Proxy = robot.Proxy
-				message.IsWithContext = session.IsOpenContext == 0
+				switch robot.ModelType {
+				case sdk.MODEL_TYPE_TEXT:
 
-				content := ""
-				text, err := sdk.Robot.Text(ctx, robot, uid, message)
-				if err != nil {
-					logger.Error(ctx, err)
-					content = err.Error()
-				} else {
-					content = text.Content
-				}
+					message := sdk.NewMessage()
+					message.Prompt = prompt
+					message.Stype = talkType
+					message.Sid = session.Id
+					message.IsWithContext = session.IsOpenContext == 0
 
-				if talkType == 2 {
-					content += "\n@" + mentionNickname
-				}
-
-				if err = service.TalkMessage().SendMessage(ctx, &model.Message{
-					MsgType:  consts.MsgTypeText,
-					TalkType: talkType,
-					Text: &model.Text{
-						Content: content,
-					},
-					Sender: &model.Sender{
-						Id: senderId,
-					},
-					Receiver: &model.Receiver{
-						TalkType:   talkType,
-						Id:         receiverId,
-						ReceiverId: receiverId,
-					},
-				}); err != nil {
-					logger.Error(ctx, err)
-					return
-				}
-
-			case sdk.MODEL_TYPE_IMAGE:
-
-				prompt = gstr.Replace(prompt, "\n", "")
-				prompt = gstr.Replace(prompt, "\r", "")
-				prompt = gstr.TrimLeftStr(prompt, "/mj")
-				prompt = gstr.TrimLeftStr(prompt, "/imagine")
-				prompt = strings.TrimSpace(prompt)
-
-				if err := service.TalkMessage().SendMessage(ctx, &model.Message{
-					MsgType:  consts.MsgTypeText,
-					TalkType: talkType,
-					Text: &model.Text{
-						Content: "您的请求已收到, 请耐心等待1-5分钟, 精彩马上为您呈献...",
-					},
-					Sender: &model.Sender{
-						Id: senderId,
-					},
-					Receiver: &model.Receiver{
-						TalkType:   talkType,
-						Id:         receiverId,
-						ReceiverId: receiverId,
-					},
-				}); err != nil {
-					logger.Error(ctx, err)
-				}
-
-				message := sdk.NewMessage()
-				message.Corp = robot.Corp
-				message.Model = robot.Model
-				message.ModelType = robot.ModelType
-				message.Prompt = prompt
-				message.Key = robot.Key
-				message.Proxy = robot.Proxy
-				message.IsSave = true
-
-				image, err := sdk.Robot.Image(ctx, robot, uid, message)
-				if err != nil {
-					logger.Error(ctx, err)
-					if err = service.TalkMessage().SendMessage(ctx, &model.Message{
-						MsgType:  consts.MsgTypeText,
-						TalkType: talkType,
-						Text: &model.Text{
-							Content: err.Error(),
-						},
-						Sender: &model.Sender{
-							Id: senderId,
-						},
-						Receiver: &model.Receiver{
-							TalkType:   talkType,
-							Id:         receiverId,
-							ReceiverId: receiverId,
-						},
-					}); err != nil {
+					content := ""
+					text, err := sdk.Robot.Text(ctx, robot, message)
+					if err != nil {
 						logger.Error(ctx, err)
-						return
+						content = err.Error()
+					} else {
+						content = text.Content
 					}
-					return
-				}
 
-				if err := service.TalkMessage().SendMessage(ctx, &model.Message{
-					MsgType:  consts.MsgTypeImage,
-					TalkType: talkType,
-					Image: &model.Image{
-						Url:    image.Url,
-						Width:  image.Width,
-						Height: image.Height,
-						Size:   image.Size,
-					},
-					Sender: &model.Sender{
-						Id: senderId,
-					},
-					Receiver: &model.Receiver{
-						TalkType:   talkType,
-						Id:         receiverId,
-						ReceiverId: receiverId,
-					},
-				}); err != nil {
-					logger.Error(ctx, err)
-				}
-
-				if !gstr.HasPrefix(prompt, "UPSCALE") {
-
-					taskId := image.TaskId
-					content := fmt.Sprintf("Prompt: %s\n", prompt)
-					content += fmt.Sprintf("Result: 任务ID: %s, 您可以回复以下内容对图片进行相应操作:\n", taskId)
-					content += fmt.Sprintf("第一张: UPSCALE::1::%s , VARIATION::1::%s\n", taskId, taskId)
-					content += fmt.Sprintf("第二张: UPSCALE::2::%s , VARIATION::2::%s\n", taskId, taskId)
-					content += fmt.Sprintf("第三张: UPSCALE::3::%s , VARIATION::3::%s\n", taskId, taskId)
-					content += fmt.Sprintf("第四张: UPSCALE::4::%s , VARIATION::4::%s\n", taskId, taskId)
-					content += fmt.Sprintf("操作说明: UPSCALE为放大, VARIATION为微调, 示例: UPSCALE::1::%s\n", taskId)
+					if talkType == 2 {
+						content += "\n@" + mentionNickname
+					}
 
 					if err = service.TalkMessage().SendMessage(ctx, &model.Message{
 						MsgType:  consts.MsgTypeText,
@@ -246,7 +123,7 @@ func (s *sRobot) RobotReply(ctx context.Context, uid int, textMessageReq *model.
 							Content: content,
 						},
 						Sender: &model.Sender{
-							Id: senderId,
+							Id: robot.UserId,
 						},
 						Receiver: &model.Receiver{
 							TalkType:   talkType,
@@ -257,9 +134,128 @@ func (s *sRobot) RobotReply(ctx context.Context, uid int, textMessageReq *model.
 						logger.Error(ctx, err)
 						return
 					}
+
+				case sdk.MODEL_TYPE_IMAGE:
+
+					content := "您的请求已收到, 请耐心等待1-5分钟, 精彩马上为您呈献..."
+
+					if talkType == 2 {
+						content += "\n@" + mentionNickname
+					}
+
+					if err := service.TalkMessage().SendMessage(ctx, &model.Message{
+						MsgType:  consts.MsgTypeText,
+						TalkType: talkType,
+						Text: &model.Text{
+							Content: content,
+						},
+						Sender: &model.Sender{
+							Id: robot.UserId,
+						},
+						Receiver: &model.Receiver{
+							TalkType:   talkType,
+							Id:         receiverId,
+							ReceiverId: receiverId,
+						},
+					}); err != nil {
+						logger.Error(ctx, err)
+					}
+
+					if robot.Corp == "Midjourney" {
+						prompt = gstr.Replace(prompt, "\n", "")
+						prompt = gstr.Replace(prompt, "\r", "")
+						prompt = gstr.TrimLeftStr(prompt, "/mj")
+						prompt = gstr.TrimLeftStr(prompt, "/imagine")
+						prompt = strings.TrimSpace(prompt)
+					}
+
+					message := sdk.NewMessage()
+					message.Prompt = prompt
+					message.Stype = talkType
+					message.Sid = session.Id
+					message.IsSave = true
+
+					image, err := sdk.Robot.Image(ctx, robot, message)
+					if err != nil {
+						logger.Error(ctx, err)
+						if err = service.TalkMessage().SendMessage(ctx, &model.Message{
+							MsgType:  consts.MsgTypeText,
+							TalkType: talkType,
+							Text: &model.Text{
+								Content: err.Error(),
+							},
+							Sender: &model.Sender{
+								Id: robot.UserId,
+							},
+							Receiver: &model.Receiver{
+								TalkType:   talkType,
+								Id:         receiverId,
+								ReceiverId: receiverId,
+							},
+						}); err != nil {
+							logger.Error(ctx, err)
+							return
+						}
+						return
+					}
+
+					if err := service.TalkMessage().SendMessage(ctx, &model.Message{
+						MsgType:  consts.MsgTypeImage,
+						TalkType: talkType,
+						Image: &model.Image{
+							Url:    image.Url,
+							Width:  image.Width,
+							Height: image.Height,
+							Size:   image.Size,
+						},
+						Sender: &model.Sender{
+							Id: robot.UserId,
+						},
+						Receiver: &model.Receiver{
+							TalkType:   talkType,
+							Id:         receiverId,
+							ReceiverId: receiverId,
+						},
+					}); err != nil {
+						logger.Error(ctx, err)
+					}
+
+					if robot.Corp == "Midjourney" && !gstr.HasPrefix(prompt, "UPSCALE") {
+
+						taskId := image.TaskId
+						content := fmt.Sprintf("Prompt: %s\n", prompt)
+						content += fmt.Sprintf("Result: 任务ID: %s, 您可以回复以下内容对图片进行相应操作:\n", taskId)
+						content += fmt.Sprintf("第一张: UPSCALE::1::%s , VARIATION::1::%s\n", taskId, taskId)
+						content += fmt.Sprintf("第二张: UPSCALE::2::%s , VARIATION::2::%s\n", taskId, taskId)
+						content += fmt.Sprintf("第三张: UPSCALE::3::%s , VARIATION::3::%s\n", taskId, taskId)
+						content += fmt.Sprintf("第四张: UPSCALE::4::%s , VARIATION::4::%s\n", taskId, taskId)
+						content += fmt.Sprintf("操作说明: UPSCALE为放大, VARIATION为微调, 示例: UPSCALE::1::%s", taskId)
+
+						if talkType == 2 {
+							content += "\n@" + mentionNickname
+						}
+
+						if err = service.TalkMessage().SendMessage(ctx, &model.Message{
+							MsgType:  consts.MsgTypeText,
+							TalkType: talkType,
+							Text: &model.Text{
+								Content: content,
+							},
+							Sender: &model.Sender{
+								Id: robot.UserId,
+							},
+							Receiver: &model.Receiver{
+								TalkType:   talkType,
+								Id:         receiverId,
+								ReceiverId: receiverId,
+							},
+						}); err != nil {
+							logger.Error(ctx, err)
+							return
+						}
+					}
 				}
-			}
+			}, nil)
 		}
-		//robot.RobotReply(ctx, robotInfo, senderId, receiverId, textMessageReq.Receiver.TalkType, textMessageReq.Content, session.IsOpenContext, mentions...)
 	}
 }

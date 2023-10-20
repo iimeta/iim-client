@@ -148,6 +148,8 @@ ernie_bot:
       url: https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant
     ernie-bot:
       url: https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions
+    ernie-bot-4:
+      url: https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro
   apps:
     - 111:
         api_key: xxx
