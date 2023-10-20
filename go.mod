@@ -4,10 +4,11 @@ go 1.21
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0
-	github.com/gogf/gf/contrib/nosql/redis/v2 v2.5.2
-	github.com/gogf/gf/v2 v2.5.2
+	github.com/gogf/gf/contrib/nosql/redis/v2 v2.5.5
+	github.com/gogf/gf/v2 v2.5.5
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/gorilla/websocket v1.5.0
+	github.com/iimeta/iim-sdk v0.0.0-20231020105337-d5e3d277ebab
 	github.com/iimeta/iim-server v1.0.0
 	github.com/redis/go-redis/v9 v9.2.1
 	github.com/sashabaranov/go-openai v1.16.0
@@ -57,11 +58,11 @@ require (
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
-	golang.org/x/crypto v0.11.0 // indirect
-	golang.org/x/net v0.12.0 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.10.0 // indirect
-	golang.org/x/text v0.11.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

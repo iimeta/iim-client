@@ -14,6 +14,7 @@ import (
 type (
 	IRobot interface {
 		GetRobotByUserId(ctx context.Context, userId int) (*model.Robot, error)
+		RobotReply(ctx context.Context, uid int, textMessageReq *model.TextMessageReq)
 	}
 )
 

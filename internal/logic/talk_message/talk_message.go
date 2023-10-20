@@ -25,7 +25,6 @@ import (
 	"github.com/iimeta/iim-client/utility/filesystem"
 	"github.com/iimeta/iim-client/utility/logger"
 	"github.com/iimeta/iim-client/utility/redis"
-	"github.com/iimeta/iim-client/utility/robot"
 	"github.com/iimeta/iim-client/utility/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -1376,38 +1375,7 @@ func (s *sTalkMessage) onSendText(ctx context.Context) error {
 
 	// todo 检查是否需要机器人回复
 	_ = grpool.AddWithRecover(gctx.New(), func(ctx context.Context) {
-
-		senderId := textMessageReq.Receiver.ReceiverId
-		receiverId := uid
-
-		if textMessageReq.Receiver.TalkType == 2 {
-			if len(textMessageReq.Mention.Uids) == 0 {
-				return
-			}
-			senderId = textMessageReq.Mention.Uids[0]
-			receiverId = textMessageReq.Receiver.ReceiverId
-		}
-
-		robotInfo, isNeed := robot.IsNeedRobotReply(ctx, senderId, textMessageReq.Mention.Uids)
-		if isNeed {
-			mentions := make([]string, 0)
-			if textMessageReq.Receiver.TalkType == 2 {
-				user, err := dao.User.FindUserByUserId(ctx, uid)
-				if err != nil {
-					logger.Error(ctx, err)
-					return
-				}
-				mentions = append(mentions, user.Nickname)
-			}
-
-			session, err := service.TalkSession().FindBySession(ctx, uid, textMessageReq.Receiver.ReceiverId, textMessageReq.Receiver.TalkType)
-			if err != nil {
-				return
-			}
-
-			// 机器人回复
-			robot.RobotReply(ctx, robotInfo, senderId, receiverId, textMessageReq.Receiver.TalkType, textMessageReq.Content, session.IsOpenContext, mentions...)
-		}
+		service.Robot().RobotReply(ctx, uid, textMessageReq)
 	}, nil)
 
 	return nil
