@@ -21,7 +21,7 @@ var (
 )
 
 type IStorage interface {
-	// IsBlackList 判断是否是黑名单
+	// 判断是否是黑名单
 	IsBlackList(ctx context.Context, token string) bool
 }
 
@@ -31,7 +31,6 @@ type JSession struct {
 	ExpiresAt int64  `json:"expires_at"`
 }
 
-// Auth 授权中间件
 func Auth(r *ghttp.Request, secret string, guard string, storage IStorage) {
 
 	token := AuthHeaderToken(r)

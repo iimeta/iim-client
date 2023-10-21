@@ -29,6 +29,8 @@ type (
 		OpenContext(ctx context.Context, params model.SessionOpenContextReq) error
 		// 获取会话
 		FindBySession(ctx context.Context, uid int, receiverId int, talkType int) (*model.TalkSession, error)
+		// 清空上下文
+		ClearContext(ctx context.Context, params model.SessionClearContextReq) (err error)
 	}
 )
 

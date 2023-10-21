@@ -18,6 +18,7 @@ import (
 	"github.com/iimeta/iim-client/utility/logger"
 	"github.com/iimeta/iim-client/utility/redis"
 	"github.com/iimeta/iim-client/utility/util"
+	"github.com/iimeta/iim-sdk/sdk"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"strconv"
@@ -348,4 +349,88 @@ func (s *sTalkSession) FindBySession(ctx context.Context, uid int, receiverId in
 		IsTalk:        talkSession.IsTalk,
 		IsOpenContext: talkSession.IsOpenContext,
 	}, nil
+}
+
+// 清空上下文
+func (s *sTalkSession) ClearContext(ctx context.Context, params model.SessionClearContextReq) (err error) {
+
+	uid := service.Session().GetUid(ctx)
+
+	session, err := service.TalkSession().FindBySession(ctx, uid, params.ReceiverId, params.TalkType)
+	if err != nil {
+		logger.Error(ctx, err)
+		return err
+	}
+
+	defer func() {
+		if err == nil {
+			if params.TalkType == 2 {
+
+				ids := dao.GroupMember.GetMemberIds(ctx, params.ReceiverId)
+				robots, err := sdk.Robot.GetRobotsByUserIds(ctx, ids...)
+				if err != nil {
+					logger.Error(ctx, err)
+					return
+				}
+
+				for _, robot := range robots {
+					message := sdk.NewMessage()
+					message.Stype = params.TalkType
+					message.Sid = params.ReceiverId
+					_, err = sdk.Robot.ClearMessageContext(ctx, robot, message)
+					if err != nil {
+						logger.Error(ctx, err)
+						return
+					}
+				}
+
+			} else {
+
+				robot, err := sdk.Robot.GetRobotByUserId(ctx, params.ReceiverId)
+				if err != nil {
+					logger.Error(ctx, err)
+					return
+				}
+
+				message := sdk.NewMessage()
+				message.Stype = params.TalkType
+				message.Sid = session.Id
+				_, err = sdk.Robot.ClearMessageContext(ctx, robot, message)
+				if err != nil {
+					logger.Error(ctx, err)
+					return
+				}
+			}
+		}
+	}()
+
+	if params.TalkType == 2 {
+
+		memberInfo, err := dao.GroupMember.FindByUserId(ctx, params.ReceiverId, uid)
+		if err != nil {
+			if errors.Is(err, mongo.ErrNoDocuments) {
+				return errors.New("暂无权限操作, 需要群主/管理员权限")
+			}
+
+			logger.Error(ctx, err)
+			return errors.New("系统繁忙, 请稍后再试")
+		}
+
+		if memberInfo.Leader == 0 {
+			return errors.New("暂无权限操作, 需要群主/管理员权限")
+		}
+
+	} else {
+
+		// 判断对方是否是自己
+		if params.TalkType == consts.ChatPrivateMode && params.ReceiverId == uid {
+			return nil
+		}
+
+		if !dao.Contact.IsFriend(ctx, uid, params.ReceiverId, false) {
+			return errors.New("暂无权限操作")
+		}
+	}
+
+	return nil
 }

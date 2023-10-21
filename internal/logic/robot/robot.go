@@ -100,8 +100,13 @@ func (s *sRobot) RobotReply(ctx context.Context, uid int, textMessageReq *model.
 					message := sdk.NewMessage()
 					message.Prompt = prompt
 					message.Stype = talkType
-					message.Sid = session.Id
 					message.IsWithContext = session.IsOpenContext == 0
+
+					if talkType == 2 {
+						message.Sid = textMessageReq.Receiver.ReceiverId
+					} else {
+						message.Sid = session.Id
+					}
 
 					content := ""
 					text, err := sdk.Robot.Text(ctx, robot, message)
@@ -161,7 +166,7 @@ func (s *sRobot) RobotReply(ctx context.Context, uid int, textMessageReq *model.
 						logger.Error(ctx, err)
 					}
 
-					if robot.Corp == "Midjourney" {
+					if robot.Corp == sdk.CORP_MIDJOURNEY {
 						prompt = gstr.Replace(prompt, "\n", "")
 						prompt = gstr.Replace(prompt, "\r", "")
 						prompt = gstr.TrimLeftStr(prompt, "/mj")
@@ -172,17 +177,29 @@ func (s *sRobot) RobotReply(ctx context.Context, uid int, textMessageReq *model.
 					message := sdk.NewMessage()
 					message.Prompt = prompt
 					message.Stype = talkType
-					message.Sid = session.Id
 					message.IsSave = true
+
+					if talkType == 2 {
+						message.Sid = textMessageReq.Receiver.ReceiverId
+					} else {
+						message.Sid = session.Id
+					}
 
 					image, err := sdk.Robot.Image(ctx, robot, message)
 					if err != nil {
 						logger.Error(ctx, err)
+
+						content = err.Error()
+
+						if talkType == 2 {
+							content += "\n@" + mentionNickname
+						}
+
 						if err = service.TalkMessage().SendMessage(ctx, &model.Message{
 							MsgType:  consts.MsgTypeText,
 							TalkType: talkType,
 							Text: &model.Text{
-								Content: err.Error(),
+								Content: content,
 							},
 							Sender: &model.Sender{
 								Id: robot.UserId,
@@ -196,18 +213,34 @@ func (s *sRobot) RobotReply(ctx context.Context, uid int, textMessageReq *model.
 							logger.Error(ctx, err)
 							return
 						}
+
 						return
 					}
 
-					if err := service.TalkMessage().SendMessage(ctx, &model.Message{
-						MsgType:  consts.MsgTypeImage,
-						TalkType: talkType,
+					items := make([]*model.MixedItem, 0)
+					items = append(items, &model.MixedItem{
+						MsgType: consts.MsgTypeImage,
 						Image: &model.Image{
 							Url:    image.Url,
 							Width:  image.Width,
 							Height: image.Height,
 							Size:   image.Size,
 						},
+					})
+
+					if talkType == 2 {
+						items = append(items, &model.MixedItem{
+							MsgType: consts.MsgTypeText,
+							Text: &model.Text{
+								Content: "@" + mentionNickname,
+							},
+						})
+					}
+
+					if err := service.TalkMessage().SendMessage(ctx, &model.Message{
+						MsgType:  consts.MsgTypeMixed,
+						TalkType: talkType,
+						Mixed:    &model.Mixed{Items: items},
 						Sender: &model.Sender{
 							Id: robot.UserId,
 						},
@@ -220,7 +253,7 @@ func (s *sRobot) RobotReply(ctx context.Context, uid int, textMessageReq *model.
 						logger.Error(ctx, err)
 					}
 
-					if robot.Corp == "Midjourney" && !gstr.HasPrefix(prompt, "UPSCALE") {
+					if robot.Corp == sdk.CORP_MIDJOURNEY && !gstr.HasPrefix(prompt, "UPSCALE") {
 
 						taskId := image.TaskId
 						content := fmt.Sprintf("Prompt: %s\n", prompt)

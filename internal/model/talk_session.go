@@ -71,6 +71,7 @@ type SearchTalkSession struct {
 }
 
 type SessionClearContextReq struct {
+	TalkType   int `json:"talk_type"`
 	ReceiverId int `json:"receiver_id"`
 }
 

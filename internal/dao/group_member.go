@@ -100,7 +100,7 @@ func (d *GroupMemberDao) GetMemberIds(ctx context.Context, groupId int) []int {
 	return ids
 }
 
-// 获取所有群成员ID
+// 获取用户所有群ID
 func (d *GroupMemberDao) GetUserGroupIds(ctx context.Context, uid int) []int {
 
 	groupMemberList, err := d.Find(ctx, bson.M{"user_id": uid, "is_quit": bson.M{"$ne": consts.GroupMemberQuitStatusYes}})
