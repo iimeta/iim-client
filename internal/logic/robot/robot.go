@@ -61,10 +61,19 @@ func (s *sRobot) RobotReply(ctx context.Context, uid int, textMessageReq *model.
 	mentionNickname := ""
 
 	if talkType == 2 {
-		if len(textMessageReq.Mention.Uids) == 0 {
+
+		if textMessageReq.Mention.Type != 1 && len(textMessageReq.Mention.Uids) == 0 {
 			return
 		}
+
 		receiverId = textMessageReq.Receiver.ReceiverId
+
+		if textMessageReq.Mention.Type == 1 && dao.GroupMember.IsLeader(ctx, receiverId, uid) {
+			ids := dao.GroupMember.GetMemberIds(ctx, receiverId)
+			if ids != nil && len(ids) > 0 {
+				textMessageReq.Mention.Uids = ids
+			}
+		}
 	}
 
 	robots, isNeed := sdk.Robot.IsNeedRobotReply(ctx, append(textMessageReq.Mention.Uids, textMessageReq.Receiver.ReceiverId)...)

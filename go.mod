@@ -8,7 +8,7 @@ require (
 	github.com/gogf/gf/v2 v2.5.5
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/iimeta/iim-sdk v0.0.0-20231021110313-93721bca713a
+	github.com/iimeta/iim-sdk v0.0.0-20231022051839-835db2b448e4
 	github.com/iimeta/iim-server v1.0.0
 	github.com/redis/go-redis/v9 v9.2.1
 	github.com/sashabaranov/go-openai v1.16.0

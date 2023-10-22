@@ -405,21 +405,9 @@ func (s *sTalkSession) ClearContext(ctx context.Context, params model.SessionCle
 	}()
 
 	if params.TalkType == 2 {
-
-		memberInfo, err := dao.GroupMember.FindByUserId(ctx, params.ReceiverId, uid)
-		if err != nil {
-			if errors.Is(err, mongo.ErrNoDocuments) {
-				return errors.New("暂无权限操作, 需要群主/管理员权限")
-			}
-
-			logger.Error(ctx, err)
-			return errors.New("系统繁忙, 请稍后再试")
-		}
-
-		if memberInfo.Leader == 0 {
+		if !dao.GroupMember.IsLeader(ctx, params.ReceiverId, uid) {
 			return errors.New("暂无权限操作, 需要群主/管理员权限")
 		}
-
 	} else {
 
 		// 判断对方是否是自己
