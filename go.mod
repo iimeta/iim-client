@@ -2,10 +2,12 @@ module github.com/iimeta/iim-client
 
 go 1.21
 
+replace github.com/iimeta/iim-sdk => ../iim-sdk
+
 require (
 	github.com/bwmarrin/snowflake v0.3.0
-	github.com/gogf/gf/contrib/nosql/redis/v2 v2.5.5
-	github.com/gogf/gf/v2 v2.5.5
+	github.com/gogf/gf/contrib/nosql/redis/v2 v2.5.6
+	github.com/gogf/gf/v2 v2.5.6
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/iimeta/iim-sdk v0.0.0-20231022051839-835db2b448e4
