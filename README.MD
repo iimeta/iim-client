@@ -29,6 +29,10 @@
 6. Windows启动服务, 双击: start.bat
 7. 访问: http://ip:8000/ 如: http://localhost:8000/
 
+### 部署视频
+
+https://iim.ai/public/video/start.mp4
+
 ## 项目前端
 [前端传送门](https://github.com/iimeta/iim-web)
 
