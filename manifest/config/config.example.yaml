@@ -10,7 +10,7 @@ redis:
     address: 127.0.0.1:6379
     db: 1
     pass: iim666!
-    #    masterName: default  # 哨兵模式必填
+#    masterName: default  # 哨兵模式必填
     minIdle: 2
     maxIdle: 5
     maxActive: 100
@@ -106,77 +106,120 @@ email:
   password: xxx
   fromname: "智元 IM"
 
-# http代理
+# 注册自动添加好友
+register:
+  auto_add_uids: [ ]  # 注册时需要自动添加的用户ID [user_id, user_id, user_id...]
+
+# http配置
 http:
+  timeout: 60  # 单位秒
   proxy_open: false
   proxy_url: http://localhost:7890
 
-# OpenAI
+# sdk配置
 sdk:
-  openai:
+  openai:  # OpenAI
     models:
       gpt-3.5-turbo-16k:
-#        base_url: https://proxy.xxx.com/v1
+        base_url: https://api.openai.com/v1
 #        proxy_url: http://localhost:7890
         api_keys:
-          - sk-xxx
+          - sk-111
+          - sk-222
       gpt-4:
-#        base_url: https://proxy.xxx.com/v1
+        base_url: https://api.openai.com/v1
 #        proxy_url: http://localhost:7890
         api_keys:
-          - sk-xxx
+          - sk-111
+          - sk-222
 
-# Midjourney
-midjourney:
-  cdn_url: https://cdn.xxx.com
-  midjourney_proxy:
-    cdn_proxy_url: https://cdn.xxx.com
-    cdn_original_url: https://cdn.discordapp.com
-    api_secret: iim
-    api_secret_header: mj-api-secret
-    imagine_url: http://127.0.0.1:8080/mj/submit/imagine
-    simple_change_url: http://127.0.0.1:8080/mj/submit/simple-change
-    change_url: http://127.0.0.1:8080/mj/submit/change
-    describe_url: http://127.0.0.1:8080/mj/submit/describe
-    blend_url: http://127.0.0.1:8080/mj/submit/blend
-    fetch_url: http://127.0.0.1:8080/mj/task/${task_id}/fetch
+  baidu:  # 文心一言
+    access_token:
+      base_url: https://aip.baidubce.com
+      path: /oauth/2.0/token
+      proxy_url:
+    models:
+      ernie-bot-turbo:
+        base_url: https://aip.baidubce.com
+        path: /rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant
+        proxy_url:
+        apps:
+          - {id: "111", key: aaa, secret: bbb}
+          - {id: "222", key: ccc, secret: ddd}
+      ernie-bot:
+        base_url: https://aip.baidubce.com
+        path: /rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions
+        proxy_url:
+        apps:
+          - {id: "111", key: aaa, secret: bbb}
+          - {id: "222", key: ccc, secret: ddd}
+      ernie-bot-4:
+        base_url: https://aip.baidubce.com
+        path: /rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro
+        proxy_url:
+        apps:
+          - {id: "111", key: aaa, secret: bbb}
+          - {id: "222", key: ccc, secret: ddd}
 
-# 文心一言
-ernie_bot:
-  access_token_url: https://aip.baidubce.com/oauth/2.0/token
-  models:
-    ernie-bot-turbo:
-      url: https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant
-    ernie-bot:
-      url: https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions
-    ernie-bot-4:
-      url: https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro
-  apps:
-    - 111:
-        api_key: xxx
-        secret_key: xxx
+  xfyun:  # 讯飞星火
+    original_url: https://spark-api.xf-yun.com
+    models:
+      spark-v1:
+        base_url: https://spark-api.xf-yun.com
+        path: /v1.1/chat
+        proxy_url:
+        domain: generalv1  # v1传general, v2传generalv2, v3传generalv3
+        max_tokens: 4096  # v1.5取值为[1,4096], v2/v3取值为[1,8192]。默认为2048
+        apps:
+          - {id: aaa, key: ccc, secret: ddd}
+          - {id: bbb, key: eee, secret: fff}
+      spark-v2:
+        base_url: https://spark-api.xf-yun.com
+        path: /v2.1/chat
+        proxy_url:
+        domain: generalv2  # v1传general, v2传generalv2, v3传generalv3
+        max_tokens: 8192  # v1.5取值为[1,4096], v2/v3取值为[1,8192]。默认为2048
+        apps:
+          - {id: aaa, key: ccc, secret: ddd}
+          - {id: bbb, key: eee, secret: fff}
+      spark-v3:
+        base_url: https://spark-api.xf-yun.com
+        path: /v3.1/chat
+        proxy_url:
+        domain: generalv3  # v1传general, v2传generalv2, v3传generalv3
+        max_tokens: 8192  # v1.5取值为[1,4096], v2/v3取值为[1,8192]。默认为2048
+        apps:
+          - {id: aaa, key: ccc, secret: ddd}
+          - {id: bbb, key: eee, secret: fff}
 
-# 讯飞星火
-xfyun:
-  spark:
-    chat_url: https://spark-api.xf-yun.com/v2.1/chat
-    domain: generalv2 # v1传general, v2传generalv2
-    max_tokens: 8192 # v1.5取值为[1,4096], v2.0取值为[1,8192]。默认为2048
-    app_id: xxx  # 从开放平台控制台中获取
-    api_key: xxx  # 从开放平台控制台中获取
-    api_secret: xxx  # 从开放平台控制台中获取
+  aliyun:  # 通义千问
+    models:
+      qwen-v1:
+        base_url: https://dashscope.aliyuncs.com
+        path: /api/v1/services/aigc/text-generation/generation
+        proxy_url:
+        api_keys:
+          - sk-111
+          - sk-222
+      qwen-7b-chat-v1:
+        base_url: https://dashscope.aliyuncs.com
+        path: /api/v1/services/aigc/text-generation/generation
+        proxy_url:
+        api_keys:
+          - sk-111
+          - sk-222
 
-# 通义千问
-aliyun:
-  models:
-    qwen-v1:
-      url: https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation
-      api_keys:
-        - sk-xxx
-    qwen-7b-chat-v1:
-      url: https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation
-      api_keys:
-        - sk-xxx
-
-register:
-  auto_add_uids: [ ]  # 注册时需要自动添加的用户ID [user_id, user_id, user_id...]
+  midjourney:  # Midjourney
+    cdn_url: https://cdn.xxx.com
+    proxy_url:
+    midjourney_proxy:
+      cdn_proxy_url: https://cdn.xxx.com
+      cdn_original_url: https://cdn.discordapp.com
+      api_secret: xxx
+      api_secret_header: mj-api-secret
+      imagine_url: http://xxx/mj/submit/imagine
+      simple_change_url: http://xxx/mj/submit/simple-change
+      change_url: http://xxx/mj/submit/change
+      describe_url: http://xxx/mj/submit/describe
+      blend_url: http://xxx/mj/submit/blend
+      fetch_url: http://xxx/mj/task/${task_id}/fetch

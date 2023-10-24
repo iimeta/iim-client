@@ -50,6 +50,7 @@ type Config struct {
 	Jwt        *Jwt        `json:"jwt"`
 	Filesystem *Filesystem `json:"filesystem"`
 	Email      *Email      `json:"email"`
+	Http       *Http       `json:"http"`
 }
 
 type App struct {
@@ -112,6 +113,12 @@ type Email struct {
 	UserName string `json:"username"` // 登录账号
 	Password string `json:"password"` // 登录密码
 	FromName string `json:"fromname"` // 发送人名称
+}
+
+type Http struct {
+	Timeout   time.Duration `json:"timeout"`
+	ProxyOpen bool          `json:"proxy_open"`
+	ProxyUrl  string        `json:"proxy_url"`
 }
 
 // 服务运行ID
