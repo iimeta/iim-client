@@ -14,3 +14,4 @@ output/
 manifest/output/
 temp/
 temp.yaml
+log/*.log
