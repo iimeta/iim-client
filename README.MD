@@ -13,7 +13,7 @@
 4. 创建私有文件目录: mkdir -p /data/iim-client/resource/private
 5. 进入配置文件目录: cd /data/iim-client/manifest/config
 6. 下载配置文件: wget https://github.com/iimeta/iim-client/raw/docker/manifest/config/config.yaml
-7. 修改配置文件: vi config.yaml, 按 config.yaml 中配置项的注释, 修改对应参数
+7. 修改配置文件: vi config.yaml 按 config.yaml 中配置项的注释, 修改对应参数
 8. 启动服务: 
 ```shell
 docker run -d \
@@ -36,6 +36,11 @@ docker run -d \
 3. 修改配置文件: vi /data/iim-client/manifest/config/config.yaml 按 config.yaml 中配置项的注释, 修改对应参数
 4. 启动服务: chmod +777 start.sh && ./start.sh
 5. 访问: http://ip:8000/ 如: http://localhost:8000/
+
+## 备用国内镜像地址
+```shell
+docker pull registry.cn-hangzhou.aliyuncs.com/iimeta/iim-client:1.0.0
+```
 
 
 ![Star History Chart](https://api.star-history.com/svg?repos=iimeta/iim-client&type=Date)
