@@ -33,7 +33,7 @@ docker run -d \
 0. 先自行安装好Docker
 1. 下载一键部署脚本: wget https://github.com/iimeta/iim-client/raw/docker/bin/install.sh
 2. 执行安装: chmod +777 install.sh && ./install.sh
-3. 修改配置文件: vi /data/iim-client/manifest/config/config.yaml, 按 config.yaml 中配置项的注释, 修改对应参数
+3. 修改配置文件: vi /data/iim-client/manifest/config/config.yaml 按 config.yaml 中配置项的注释, 修改对应参数
 4. 启动服务: chmod +777 start.sh && ./start.sh
 5. 访问: http://ip:8000/ 如: http://localhost:8000/
 
