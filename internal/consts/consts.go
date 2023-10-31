@@ -1,10 +1,6 @@
 package consts
 
 const (
-	CHAT_MESSAGES_PREFIX_KEY = "chat_messages:%d_%d"
-)
-
-const (
 	ContactStatusNormal = 1
 	ContactStatusDelete = 0
 )
