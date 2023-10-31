@@ -27,4 +27,5 @@ import (
 	_ "github.com/iimeta/iim-client/internal/logic/talk_records"
 	_ "github.com/iimeta/iim-client/internal/logic/talk_session"
 	_ "github.com/iimeta/iim-client/internal/logic/user"
+	_ "github.com/iimeta/iim-client/internal/logic/vip"
 )

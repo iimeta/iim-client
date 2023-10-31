@@ -149,6 +149,14 @@ func HGetStr(ctx context.Context, key, field string) (string, error) {
 	return reply.String(), nil
 }
 
+func HGetInt(ctx context.Context, key, field string) (int, error) {
+	reply, err := HGet(ctx, key, field)
+	if err != nil {
+		return 0, err
+	}
+	return reply.Int(), nil
+}
+
 func SetEX(ctx context.Context, key string, value interface{}, ttlInSeconds int64) error {
 	return master.SetEX(ctx, key, value, ttlInSeconds)
 }

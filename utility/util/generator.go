@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"github.com/bwmarrin/snowflake"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/gogf/gf/v2/util/grand"
 	"math/rand"
+	"slices"
 	"strings"
 	"time"
 )
@@ -75,4 +78,30 @@ func BoolToInt(value bool) int {
 
 func NewMsgId() string {
 	return fmt.Sprintf("%s_%d", GenerateId(), gtime.Timestamp())
+}
+
+func NewSecretKey(userId, length int, prefix ...string) string {
+
+	secretKey := ""
+	n := length
+
+	if len(prefix) > 0 {
+		n -= len(prefix[0])
+		secretKey += prefix[0]
+	}
+
+	uid := gconv.String(userId)
+	l := len(uid)
+
+	n = (n - l) / l
+
+	for i := 0; i < l; i++ {
+		secretKey += strings.Join(slices.Insert(strings.Split(grand.Letters(n), ""), grand.Intn(n), uid[i:i+1]), "")
+	}
+
+	if len(secretKey) < length {
+		secretKey += grand.Letters(length - len(secretKey))
+	}
+
+	return "sk-" + secretKey
 }

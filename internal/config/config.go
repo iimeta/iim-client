@@ -51,6 +51,7 @@ type Config struct {
 	Filesystem *Filesystem `json:"filesystem"`
 	Email      *Email      `json:"email"`
 	Http       *Http       `json:"http"`
+	Vip        *Vip        `json:"vip"`
 }
 
 type App struct {
@@ -119,6 +120,16 @@ type Http struct {
 	Timeout   time.Duration `json:"timeout"`
 	ProxyOpen bool          `json:"proxy_open"`
 	ProxyUrl  string        `json:"proxy_url"`
+}
+
+type Vip struct {
+	InitDailyCron  string        `json:"init_daily_cron"`
+	RegisteredDays time.Duration `json:"registered_days"`
+	Daily          Daily         `json:"daily"`
+}
+
+type Daily struct {
+	FreeTokens int `json:"free_tokens"`
 }
 
 // 服务运行ID
