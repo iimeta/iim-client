@@ -18,6 +18,7 @@ import (
 	"github.com/iimeta/iim-client/internal/controller/note"
 	"github.com/iimeta/iim-client/internal/controller/talk"
 	"github.com/iimeta/iim-client/internal/controller/user"
+	"github.com/iimeta/iim-client/internal/controller/vip"
 	"github.com/iimeta/iim-client/utility/cache"
 	"github.com/iimeta/iim-client/utility/logger"
 	"github.com/iimeta/iim-client/utility/middleware"
@@ -129,6 +130,13 @@ var (
 					g.Middleware(MiddlewareAuth)
 					g.Bind(
 						note.NewV1(),
+					)
+				})
+
+				v1.Group("/vip", func(g *ghttp.RouterGroup) {
+					g.Middleware(MiddlewareAuth)
+					g.Bind(
+						vip.NewV1(),
 					)
 				})
 			})
