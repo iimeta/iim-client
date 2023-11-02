@@ -17,13 +17,15 @@ type User struct {
 }
 
 type Account struct {
-	Id        string `bson:"_id,omitempty"`        // ID
-	Uid       string `bson:"uid,omitempty"`        // 用户主键ID
-	UserId    int    `bson:"user_id,omitempty"`    // 用户ID
-	Account   string `bson:"account,omitempty"`    // 账号
-	Password  string `bson:"password,omitempty"`   // 密码
-	Salt      string `bson:"salt,omitempty"`       // 盐
-	Status    int    `bson:"status,omitempty"`     // 状态[1:正常;2:禁用;-1:删除]
-	CreatedAt int64  `bson:"created_at,omitempty"` // 注册时间
-	UpdatedAt int64  `bson:"updated_at,omitempty"` // 更新时间
+	Id            string `bson:"_id,omitempty"`        // ID
+	Uid           string `bson:"uid,omitempty"`        // 用户主键ID
+	UserId        int    `bson:"user_id,omitempty"`    // 用户ID
+	Account       string `bson:"account,omitempty"`    // 账号
+	Password      string `bson:"password,omitempty"`   // 密码
+	Salt          string `bson:"salt,omitempty"`       // 盐
+	LastLoginIP   string `bson:"last_login_ip"`        // 最后登录IP
+	LastLoginTime int64  `bson:"last_login_time"`      // 最后登录时间
+	Status        int    `bson:"status,omitempty"`     // 状态[1:正常;2:禁用;-1:删除]
+	CreatedAt     int64  `bson:"created_at,omitempty"` // 注册时间
+	UpdatedAt     int64  `bson:"updated_at,omitempty"` // 更新时间
 }
