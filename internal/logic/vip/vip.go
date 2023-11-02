@@ -11,6 +11,7 @@ import (
 	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/dao"
 	"github.com/iimeta/iim-client/internal/model"
+	"github.com/iimeta/iim-client/internal/model/entity"
 	"github.com/iimeta/iim-client/internal/service"
 	"github.com/iimeta/iim-client/utility/logger"
 	"github.com/iimeta/iim-client/utility/redis"
@@ -38,7 +39,7 @@ func New() service.IVip {
 func (s *sVip) InitDailyUsage(ctx context.Context) {
 
 	tomorrow := gtime.Now().Add(gtime.D)
-	date := tomorrow.Format("20060102")
+	date := tomorrow.Time.Format(util.DateDayFormat)
 
 	logger.Infof(ctx, "InitDailyUsage date: %s start", date)
 
@@ -59,8 +60,18 @@ func (s *sVip) InitDailyUsage(ctx context.Context) {
 		return
 	}
 
+	vips, err := dao.Vip.Find(ctx, bson.M{})
+	if err != nil {
+		logger.Error(ctx, err)
+		return
+	}
+
+	vipMap := util.ToMap(vips, func(v *entity.Vip) int {
+		return v.Level
+	})
+
 	for _, user := range userList {
-		_, err = redis.HSet(ctx, s.GenerateUidUsageKey(ctx, user.UserId, date), g.MapStrAny{consts.TOTAL_TOKENS_FIELD: config.Cfg.Vip.Daily.FreeTokens})
+		_, err = redis.HSet(ctx, s.GenerateUidUsageKey(ctx, user.UserId, date), g.MapStrAny{consts.TOTAL_TOKENS_FIELD: vipMap[user.VipLevel].FreeTokens})
 		if err != nil {
 			logger.Error(ctx, err)
 		}
@@ -95,7 +106,7 @@ func (s *sVip) VipInfo(ctx context.Context) (*model.VipInfo, error) {
 		return nil, err
 	}
 
-	uidUsageKey := s.GenerateUidUsageKey(ctx, user.UserId, gtime.Now().Format("20060102"))
+	uidUsageKey := s.GenerateUidUsageKey(ctx, user.UserId, gtime.Now().Time.Format(util.DateDayFormat))
 
 	usageCount, err := redis.HGetInt(ctx, uidUsageKey, consts.USAGE_COUNT_FIELD)
 	if err != nil {
@@ -127,4 +138,31 @@ func (s *sVip) VipInfo(ctx context.Context) (*model.VipInfo, error) {
 	}
 
 	return vipInfo, nil
+}
+
+func (s *sVip) Vips(ctx context.Context) ([]*model.Vip, error) {
+
+	vips, err := dao.Vip.Find(ctx, bson.M{})
+	if err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	vipList := make([]*model.Vip, 0)
+	for _, vip := range vips {
+		vipList = append(vipList, &model.Vip{
+			Level:       vip.Level,
+			Name:        vip.Name,
+			Models:      vip.Models,
+			FreeTokens:  vip.FreeTokens,
+			MinuteLimit: vip.MinuteLimit,
+			DailyLimit:  vip.DailyLimit,
+			Remark:      vip.Remark,
+			Status:      vip.Status,
+			CreatedAt:   vip.CreatedAt,
+			UpdatedAt:   vip.UpdatedAt,
+		})
+	}
+
+	return vipList, err
 }

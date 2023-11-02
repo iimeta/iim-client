@@ -26,3 +26,14 @@ type GenerateSecretKeyRes struct {
 	g.Meta    `mime:"application/json" example:"json"`
 	SecretKey string `json:"secret_key"`
 }
+
+// 会员权益接口请求参数
+type VipsReq struct {
+	g.Meta `path:"/vips" tags:"vip" method:"get" summary:"会员权益接口"`
+}
+
+// 会员权益接口响应参数
+type VipsRes struct {
+	g.Meta `mime:"application/json" example:"json"`
+	*model.VipsRes
+}

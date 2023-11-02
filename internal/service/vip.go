@@ -17,6 +17,7 @@ type (
 		GenerateUidUsageKey(ctx context.Context, uid int, date string) string
 		GenerateSecretKey(ctx context.Context) (string, error)
 		VipInfo(ctx context.Context) (*model.VipInfo, error)
+		Vips(ctx context.Context) ([]*model.Vip, error)
 	}
 )
 
