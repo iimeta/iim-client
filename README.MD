@@ -34,7 +34,7 @@ docker run -d \
   --name iim-client \
   iimeta/iim-client:1.0.0
 ```
-9. 访问: http://ip:8000/ 如: http://localhost:8000/
+9. 访问: http://ip:8000/ 如: http://127.0.0.1:8000/
 
 ## 自动Docker部署
 0. 需提前安装好Redis和MongoDB以及Docker服务
@@ -42,7 +42,7 @@ docker run -d \
 2. 执行安装: `chmod +777 install.sh && ./install.sh`
 3. 修改配置文件: `vi /data/iim-client/manifest/config/config.yaml` 按 config.yaml 中配置项的注释, 修改对应参数
 4. 启动服务: `chmod +777 start.sh && ./start.sh`
-5. 访问: http://ip:8000/ 如: http://localhost:8000/
+5. 访问: http://ip:8000/ 如: http://127.0.0.1:8000/
 
 ## 备用国内镜像地址
 ```shell
