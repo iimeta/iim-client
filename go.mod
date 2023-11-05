@@ -7,7 +7,7 @@ require (
 	github.com/gogf/gf/contrib/nosql/redis/v2 v2.5.6
 	github.com/gogf/gf/v2 v2.5.6
 	github.com/golang-jwt/jwt/v4 v4.5.0
-	github.com/gorilla/websocket v1.5.0
+	github.com/gorilla/websocket v1.5.1
 	github.com/iimeta/iim-sdk v0.0.0-20231031024652-b349c7b86661
 	github.com/iimeta/iim-server v1.0.0
 	github.com/redis/go-redis/v9 v9.3.0

@@ -68,6 +68,13 @@ var (
 				g.Bind()
 			})
 
+			s.Group("/invite/:code", func(g *ghttp.RouterGroup) {
+				g.Middleware(MiddlewareHandlerResponse)
+				g.Bind(
+					vip.NewV1(),
+				)
+			})
+
 			s.Group("/api/v1", func(v1 *ghttp.RouterGroup) {
 
 				v1.Middleware(MiddlewareHandlerResponse)

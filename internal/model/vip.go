@@ -19,6 +19,7 @@ type Vip struct {
 }
 
 type VipInfo struct {
+	VipName     string `json:"vip_name"`     // 会员等级名称
 	UserId      int    `json:"user_id"`      // 用户ID
 	Nickname    string `json:"nickname"`     // 昵称
 	Avatar      string `json:"avatar"`       // 头像
@@ -27,4 +28,16 @@ type VipInfo struct {
 	UsageCount  int    `json:"usage_count"`  // 使用次数
 	UsedTokens  int    `json:"used_tokens"`  // 已用Tokens
 	TotalTokens int    `json:"total_tokens"` // 总Tokens
+}
+
+// 邀请好友接口响应参数
+type InviteFriendsRes struct {
+	InviteUrl string          `json:"invite_url"`
+	Items     []*InviteRecord `json:"items,omitempty" bson:"items,omitempty"`
+}
+
+type InviteRecord struct {
+	Nickname  string `json:"nickname,omitempty"`   // 用户昵称
+	Email     string `json:"email,omitempty"`      // 用户邮箱
+	CreatedAt string `json:"created_at,omitempty"` // 注册时间
 }

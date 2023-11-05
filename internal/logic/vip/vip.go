@@ -7,9 +7,11 @@ import (
 	"github.com/gogf/gf/v2/os/gcron"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/iimeta/iim-client/internal/config"
 	"github.com/iimeta/iim-client/internal/consts"
 	"github.com/iimeta/iim-client/internal/dao"
+	"github.com/iimeta/iim-client/internal/errors"
 	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/model/entity"
 	"github.com/iimeta/iim-client/internal/service"
@@ -17,6 +19,7 @@ import (
 	"github.com/iimeta/iim-client/utility/redis"
 	"github.com/iimeta/iim-client/utility/util"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type sVip struct{}
@@ -71,6 +74,16 @@ func (s *sVip) InitDailyUsage(ctx context.Context) {
 	})
 
 	for _, user := range userList {
+
+		if user.VipLevel == 0 {
+			if err := dao.User.UpdateOne(ctx, bson.M{"user_id": user.UserId}, bson.M{
+				"vip_level": 1,
+			}); err != nil {
+				logger.Error(ctx, err)
+			}
+			user.VipLevel = 1
+		}
+
 		_, err = redis.HSet(ctx, s.GenerateUidUsageKey(ctx, user.UserId, date), g.MapStrAny{consts.TOTAL_TOKENS_FIELD: vipMap[user.VipLevel].FreeTokens})
 		if err != nil {
 			logger.Error(ctx, err)
@@ -126,7 +139,19 @@ func (s *sVip) VipInfo(ctx context.Context) (*model.VipInfo, error) {
 		return nil, err
 	}
 
+	vipName := ""
+	vip, err := dao.Vip.FindOne(ctx, bson.M{"level": user.VipLevel})
+	if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+
+	if vip != nil {
+		vipName = vip.Name
+	}
+
 	vipInfo := &model.VipInfo{
+		VipName:     vipName,
 		UserId:      user.UserId,
 		Nickname:    user.Nickname,
 		Avatar:      user.Avatar,
@@ -165,4 +190,31 @@ func (s *sVip) Vips(ctx context.Context) ([]*model.Vip, error) {
 	}
 
 	return vipList, err
+}
+
+func (s *sVip) InviteFriends(ctx context.Context) (string, []*model.InviteRecord, error) {
+
+	inviteUrl := "/invite/" + s.InviteCode(ctx)
+
+	return inviteUrl, nil, nil
+}
+
+func (s *sVip) InviteCode(ctx context.Context) string {
+
+	inviteCode := ""
+	for i, v := range gconv.String(service.Session().GetUid(ctx)) {
+		inviteCode += fmt.Sprintf("%c", int32(i)+48+v)
+	}
+
+	return inviteCode
+}
+
+func (s *sVip) InviteCodeToUid(ctx context.Context, inviteCode string) int {
+
+	uid := ""
+	for i, v := range inviteCode {
+		inviteCode += fmt.Sprintf("%c", v-48-int32(i))
+	}
+
+	return gconv.Int(uid)
 }

@@ -18,6 +18,9 @@ type (
 		GenerateSecretKey(ctx context.Context) (string, error)
 		VipInfo(ctx context.Context) (*model.VipInfo, error)
 		Vips(ctx context.Context) ([]*model.Vip, error)
+		InviteFriends(ctx context.Context) (string, []*model.InviteRecord, error)
+		InviteCode(ctx context.Context) string
+		InviteCodeToUid(ctx context.Context, inviteCode string) int
 	}
 )
 

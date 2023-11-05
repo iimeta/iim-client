@@ -37,3 +37,25 @@ type VipsRes struct {
 	g.Meta `mime:"application/json" example:"json"`
 	*model.VipsRes
 }
+
+// 邀请注册接口请求参数
+type InviteRegReq struct {
+	g.Meta `path:"/" tags:"vip" method:"get" summary:"邀请注册接口"`
+	Code   string `json:"code"`
+}
+
+// 邀请注册接口响应参数
+type InviteRegRes struct {
+	g.Meta `mime:"application/json" example:"json"`
+}
+
+// 邀请好友接口请求参数
+type InviteFriendsReq struct {
+	g.Meta `path:"/friends" tags:"vip" method:"get" summary:"邀请好友接口"`
+}
+
+// 邀请好友接口响应参数
+type InviteFriendsRes struct {
+	g.Meta `mime:"application/json" example:"json"`
+	*model.InviteFriendsRes
+}
