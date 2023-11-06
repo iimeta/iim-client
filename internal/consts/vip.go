@@ -5,4 +5,6 @@ const (
 	USAGE_COUNT_FIELD  = "usage_count"
 	USED_TOKENS_FIELD  = "used_tokens"
 	TOTAL_TOKENS_FIELD = "total_tokens"
+
+	INVITE_CODE_COOKIE = "invite_code"
 )

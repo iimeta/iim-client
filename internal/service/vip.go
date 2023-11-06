@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/iimeta/iim-client/internal/model"
+	"github.com/iimeta/iim-client/internal/model/do"
 )
 
 type (
@@ -19,6 +20,7 @@ type (
 		VipInfo(ctx context.Context) (*model.VipInfo, error)
 		Vips(ctx context.Context) ([]*model.Vip, error)
 		InviteFriends(ctx context.Context) (string, []*model.InviteRecord, error)
+		SaveInviteRecord(ctx context.Context, user *do.User) error
 		InviteCode(ctx context.Context) string
 		InviteCodeToUid(ctx context.Context, inviteCode string) int
 	}

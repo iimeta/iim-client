@@ -13,6 +13,7 @@ import (
 	"github.com/iimeta/iim-client/internal/dao"
 	"github.com/iimeta/iim-client/internal/errors"
 	"github.com/iimeta/iim-client/internal/model"
+	"github.com/iimeta/iim-client/internal/model/do"
 	"github.com/iimeta/iim-client/internal/model/entity"
 	"github.com/iimeta/iim-client/internal/service"
 	"github.com/iimeta/iim-client/utility/logger"
@@ -20,6 +21,7 @@ import (
 	"github.com/iimeta/iim-client/utility/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"net/http"
 )
 
 type sVip struct{}
@@ -196,7 +198,50 @@ func (s *sVip) InviteFriends(ctx context.Context) (string, []*model.InviteRecord
 
 	inviteUrl := "/invite/" + s.InviteCode(ctx)
 
-	return inviteUrl, nil, nil
+	inviteRecords, err := dao.Invite.Find(ctx, bson.M{"inviter": service.Session().GetUid(ctx)}, "-created_at")
+	if err != nil {
+		return inviteUrl, nil, err
+	}
+
+	items := make([]*model.InviteRecord, 0)
+	for _, inviteRecord := range inviteRecords {
+		items = append(items, &model.InviteRecord{
+			Nickname:  inviteRecord.Nickname,
+			Email:     inviteRecord.Email,
+			CreatedAt: util.FormatDatetime(inviteRecord.CreatedAt),
+		})
+	}
+
+	return inviteUrl, items, nil
+}
+
+func (s *sVip) SaveInviteRecord(ctx context.Context, user *do.User) error {
+
+	inviteCode := g.RequestFromCtx(ctx).Cookie.Get(consts.INVITE_CODE_COOKIE)
+	if inviteCode == nil || inviteCode.String() == "" {
+		return nil
+	}
+
+	inviter := s.InviteCodeToUid(ctx, inviteCode.String())
+
+	if _, err := dao.Invite.Insert(ctx, do.InviteRecord{
+		Nickname:  user.Nickname,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		Inviter:   inviter,
+	}); err != nil {
+		logger.Error(ctx, err)
+		return err
+	}
+
+	g.RequestFromCtx(ctx).Cookie.SetHttpCookie(&http.Cookie{
+		Domain: "*",
+		Path:   "/",
+		Name:   consts.INVITE_CODE_COOKIE,
+		MaxAge: -1,
+	})
+
+	return nil
 }
 
 func (s *sVip) InviteCode(ctx context.Context) string {
@@ -213,7 +258,7 @@ func (s *sVip) InviteCodeToUid(ctx context.Context, inviteCode string) int {
 
 	uid := ""
 	for i, v := range inviteCode {
-		inviteCode += fmt.Sprintf("%c", v-48-int32(i))
+		uid += fmt.Sprintf("%c", v-48-int32(i))
 	}
 
 	return gconv.Int(uid)

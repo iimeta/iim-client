@@ -3,7 +3,8 @@ package do
 import "github.com/gogf/gf/v2/util/gmeta"
 
 const (
-	VIP_COLLECTION = "vip"
+	VIP_COLLECTION           = "vip"
+	INVITE_RECORD_COLLECTION = "invite_record"
 )
 
 type Vip struct {
@@ -18,4 +19,13 @@ type Vip struct {
 	Status      int      `bson:"status,omitempty"`       // 状态[1:正常;2:下线;-1:删除]
 	CreatedAt   int64    `bson:"created_at,omitempty"`   // 创建时间
 	UpdatedAt   int64    `bson:"updated_at,omitempty"`   // 更新时间
+}
+
+type InviteRecord struct {
+	gmeta.Meta `collection:"invite_record" bson:"-"`
+	Id         string `bson:"_id,omitempty"`        // ID
+	Nickname   string `bson:"nickname,omitempty"`   // 用户昵称
+	Email      string `bson:"email,omitempty"`      // 用户邮箱
+	CreatedAt  int64  `bson:"created_at,omitempty"` // 注册时间
+	Inviter    int    `bson:"inviter,omitempty"`    // 用户ID
 }

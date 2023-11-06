@@ -81,6 +81,11 @@ func (s *sAuth) Register(ctx context.Context, params model.RegisterReq) error {
 
 	service.Email().Delete(ctx, consts.CHANNEL_REGISTER, params.Account)
 
+	// 保存邀请记录
+	if err = service.Vip().SaveInviteRecord(ctx, user); err != nil {
+		logger.Error(ctx, err)
+	}
+
 	////////////////////自动申请添加好友和自动通过//////////////////// todo
 	value, err := config.Get(ctx, "register.auto_add_uids")
 	if err == nil && value != nil && len(value.Ints()) > 0 {
