@@ -14,7 +14,6 @@ import (
 	"github.com/iimeta/iim-client/internal/errors"
 	"github.com/iimeta/iim-client/internal/model"
 	"github.com/iimeta/iim-client/internal/model/do"
-	"github.com/iimeta/iim-client/internal/model/entity"
 	"github.com/iimeta/iim-client/internal/service"
 	"github.com/iimeta/iim-client/utility/logger"
 	"github.com/iimeta/iim-client/utility/redis"
@@ -22,6 +21,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
+	"time"
 )
 
 type sVip struct{}
@@ -53,42 +53,87 @@ func (s *sVip) InitDailyUsage(ctx context.Context) {
 		logger.Infof(ctx, "InitDailyUsage date: %s end totalTime: %d ms", date, gtime.Now().UnixMilli()-now)
 	}()
 
-	filter := bson.M{
-		"created_at": bson.M{
-			"$lte": tomorrow.Add(-(config.Cfg.Vip.RegisteredDays * gtime.D)).EndOfDay().Unix(),
-		},
-	}
-
-	userList, err := dao.User.Find(ctx, filter)
+	vips, err := dao.Vip.Find(ctx, bson.M{}, "level")
 	if err != nil {
 		logger.Error(ctx, err)
 		return
 	}
 
-	vips, err := dao.Vip.Find(ctx, bson.M{})
-	if err != nil {
-		logger.Error(ctx, err)
-		return
-	}
+	for _, vip := range vips {
 
-	vipMap := util.ToMap(vips, func(v *entity.Vip) int {
-		return v.Level
-	})
-
-	for _, user := range userList {
-
-		if user.VipLevel == 0 {
-			if err := dao.User.UpdateOne(ctx, bson.M{"user_id": user.UserId}, bson.M{
-				"vip_level": 1,
-			}); err != nil {
-				logger.Error(ctx, err)
-			}
-			user.VipLevel = 1
+		filter := bson.M{
+			"vip_level": bson.M{
+				"$lte": vip.Level,
+			},
 		}
 
-		_, err = redis.HSet(ctx, s.GenerateUidUsageKey(ctx, user.UserId, date), g.MapStrAny{consts.TOTAL_TOKENS_FIELD: vipMap[user.VipLevel].FreeTokens})
+		if vip.Rule.RegDays > 0 {
+			filter["created_at"] = bson.M{
+				"$lte": tomorrow.Add(-(time.Duration(vip.Rule.RegDays) * gtime.D)).EndOfDay().Unix(),
+			}
+		}
+
+		userList, err := dao.User.Find(ctx, filter)
 		if err != nil {
 			logger.Error(ctx, err)
+			return
+		}
+
+		for _, user := range userList {
+
+			if user.VipLevel < vip.Level {
+
+				filter := bson.M{
+					"inviter": user.UserId,
+				}
+
+				if vip.Rule.InviteRegDays > 0 {
+					filter["created_at"] = bson.M{
+						"$lte": tomorrow.Add(-(time.Duration(vip.Rule.InviteRegDays) * gtime.D)).EndOfDay().Unix(),
+					}
+				}
+
+				count, err := dao.Invite.CountDocuments(ctx, filter)
+				if err != nil {
+					logger.Error(ctx, err)
+					continue
+				}
+
+				if int(count) >= vip.Rule.InviteNum {
+					if err := dao.User.UpdateOne(ctx, bson.M{"user_id": user.UserId}, bson.M{
+						"vip_level": vip.Level,
+					}); err != nil {
+						logger.Error(ctx, err)
+					}
+					user.VipLevel = vip.Level
+				}
+			}
+
+			if user.VipLevel >= vip.Level {
+
+				if vip.Rule.OnlineTime > 0 {
+
+					firstTime, err := redis.HGetInt(ctx, fmt.Sprintf(consts.USER_TIME_LOGIN_KEY, util.DateNumber(), user.UserId), consts.FIRST_TIME_FIELD)
+					if err != nil {
+						logger.Error(ctx, err)
+						continue
+					}
+
+					lastTime, err := redis.HGetInt(ctx, fmt.Sprintf(consts.USER_TIME_LOGIN_KEY, util.DateNumber(), user.UserId), consts.LAST_TIME_FIELD)
+					if err != nil {
+						logger.Error(ctx, err)
+						continue
+					}
+
+					if lastTime-firstTime < int((time.Duration(vip.Rule.OnlineTime) * time.Minute).Seconds()) {
+						continue
+					}
+				}
+
+				if _, err = redis.HSet(ctx, s.GenerateUidUsageKey(ctx, user.UserId, date), g.MapStrAny{consts.TOTAL_TOKENS_FIELD: vip.FreeTokens}); err != nil {
+					logger.Error(ctx, err)
+				}
+			}
 		}
 	}
 }
@@ -169,7 +214,7 @@ func (s *sVip) VipInfo(ctx context.Context) (*model.VipInfo, error) {
 
 func (s *sVip) Vips(ctx context.Context) ([]*model.Vip, error) {
 
-	vips, err := dao.Vip.Find(ctx, bson.M{})
+	vips, err := dao.Vip.Find(ctx, bson.M{}, "level")
 	if err != nil {
 		logger.Error(ctx, err)
 		return nil, err

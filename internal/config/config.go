@@ -123,8 +123,7 @@ type Http struct {
 }
 
 type Vip struct {
-	InitDailyCron  string        `json:"init_daily_cron"`
-	RegisteredDays time.Duration `json:"registered_days"`
+	InitDailyCron string `json:"init_daily_cron"`
 }
 
 // 服务运行ID

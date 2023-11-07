@@ -59,6 +59,9 @@ var (
 			s.AddStaticPath("/settings/binding", "./resource/iim-web")
 			s.AddStaticPath("/settings/apply", "./resource/iim-web")
 			s.AddStaticPath("/note", "./resource/iim-web")
+			s.AddStaticPath("/vip/info", "./resource/iim-web")
+			s.AddStaticPath("/vip/vip", "./resource/iim-web")
+			s.AddStaticPath("/vip/invite", "./resource/iim-web")
 
 			s.AddStaticPath("/public", "./resource/public")
 
