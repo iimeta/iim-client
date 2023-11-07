@@ -8,7 +8,7 @@ type Vip struct {
 	FreeTokens  int      `bson:"free_tokens,omitempty"`  // 免费额度
 	MinuteLimit int      `bson:"minute_limit,omitempty"` // 分钟限额
 	DailyLimit  int      `bson:"daily_limit,omitempty"`  // 每日限额
-	Rule        Rule     `bson:"rule"`                   // 规则
+	Rule        Rule     `bson:"rule,omitempty"`         // 规则
 	Remark      string   `bson:"remark,omitempty"`       // 备注
 	Status      int      `bson:"status,omitempty"`       // 状态[1:正常;2:下线;-1:删除]
 	CreatedAt   int64    `bson:"created_at,omitempty"`   // 创建时间
@@ -24,8 +24,8 @@ type InviteRecord struct {
 }
 
 type Rule struct {
-	OnlineTime    int `bson:"online_time"`     // 在线时间
-	RegDays       int `bson:"reg_days"`        // 注册天数
-	InviteNum     int `bson:"invite_num"`      // 邀请人数
-	InviteRegDays int `bson:"invite_reg_days"` // 邀请注册天数
+	OnlineTime    int `bson:"online_time,omitempty"`     // 在线时间
+	RegDays       int `bson:"reg_days,omitempty"`        // 注册天数
+	InviteNum     int `bson:"invite_num,omitempty"`      // 邀请人数
+	InviteRegDays int `bson:"invite_reg_days,omitempty"` // 邀请注册天数
 }

@@ -18,7 +18,7 @@ type Vip struct {
 	FreeTokens  int         `bson:"free_tokens,omitempty"`  // 免费额度
 	MinuteLimit int         `bson:"minute_limit,omitempty"` // 分钟限额
 	DailyLimit  int         `bson:"daily_limit,omitempty"`  // 每日限额
-	Rule        entity.Rule `bson:"rule"`                   // 规则
+	Rule        entity.Rule `bson:"rule,omitempty"`         // 规则
 	Remark      string      `bson:"remark,omitempty"`       // 备注
 	Status      int         `bson:"status,omitempty"`       // 状态[1:正常;2:下线;-1:删除]
 	CreatedAt   int64       `bson:"created_at,omitempty"`   // 创建时间
