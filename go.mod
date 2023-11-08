@@ -8,12 +8,12 @@ require (
 	github.com/gogf/gf/v2 v2.5.6
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/gorilla/websocket v1.5.1
-	github.com/iimeta/iim-sdk v0.0.0-20231107140109-e50c3355e58c
+	github.com/iimeta/iim-sdk v0.0.0-20231108142958-a8e78b04731b
 	github.com/iimeta/iim-server v0.0.0-20231106162952-bd7b569239bc
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.45
 	github.com/tjfoc/gmsm v1.4.1
-	go.mongodb.org/mongo-driver v1.12.1
+	go.mongodb.org/mongo-driver v1.13.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
 
@@ -47,7 +47,7 @@ require (
 	github.com/orcaman/concurrent-map/v2 v2.0.1 // indirect
 	github.com/pkoukk/tiktoken-go v0.1.6 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
-	github.com/sashabaranov/go-openai v1.16.1 // indirect
+	github.com/sashabaranov/go-openai v1.17.3 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/tidwall/gjson v1.17.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect

@@ -4,12 +4,12 @@ server:
   swaggerPath: "/swagger"
   clientMaxBodySize: 100m
 
-# Redis 配置
+# Redis配置
 redis:
   default:
     address: 127.0.0.1:6379
     db: 1
-    pass: iim666!
+    pass: iim666
 #    masterName: default  # 哨兵模式必填
     minIdle: 2
     maxIdle: 5
@@ -21,7 +21,7 @@ redis:
 #  slave:
 #    address: 127.0.0.1:6379
 #    db: 1
-#    pass: iim666!
+#    pass: iim666
 #    minIdle: 2
 #    maxIdle: 5
 #    maxActive: 100
@@ -30,8 +30,9 @@ redis:
 #    readTimeout: 60
 #    writeTimeout: 60
 
+# 数据库配置
 mongodb:
-  uri: mongodb://admin:iim666!@127.0.0.1:27017/?authSource=admin
+  uri: mongodb://admin:iim666@127.0.0.1:27017/?authSource=admin
   database: iim
 
 # 日志配置
@@ -56,8 +57,8 @@ logger:
 app:
   env: dev  # dev, prod
   debug: true
-  juhe_key: xxx
-  juhe_url:
+  juhe_key: xxx  # 使用登录助手需配置, 前往 https://www.juhe.cn 申请key
+  juhe_url:  # 可选, 默认 https://apis.juhe.cn/ip/ipNew
   admin_email:
     - xxx@xxx.com
 
@@ -117,6 +118,7 @@ http:
   proxy_url: http://localhost:7890
 
 # sdk配置
+# 所有模型base_url和proxy_url均为可选参数, 默认参数为此模型官方接口地址
 sdk:
   openai:  # OpenAI
     models:
@@ -127,6 +129,18 @@ sdk:
           - sk-111
           - sk-222
       gpt-4:
+        base_url: https://api.openai.com/v1
+#        proxy_url: http://localhost:7890
+        api_keys:
+          - sk-111
+          - sk-222
+      dall-e-2:
+        base_url: https://api.openai.com/v1
+#        proxy_url: http://localhost:7890
+        api_keys:
+          - sk-111
+          - sk-222
+      dall-e-3:
         base_url: https://api.openai.com/v1
 #        proxy_url: http://localhost:7890
         api_keys:
