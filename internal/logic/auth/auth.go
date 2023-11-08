@@ -21,6 +21,7 @@ import (
 	"github.com/iimeta/iim-client/utility/middleware"
 	"github.com/iimeta/iim-client/utility/redis"
 	"github.com/iimeta/iim-client/utility/util"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"strconv"
 	"time"
@@ -160,9 +161,9 @@ func (s *sAuth) Login(ctx context.Context, params model.LoginReq) (res *model.Lo
 		logger.Error(ctx, err)
 	}
 
+	ip := g.RequestFromCtx(ctx).GetClientIp()
 	if loginRobot != nil {
 
-		ip := g.RequestFromCtx(ctx).GetClientIp()
 		address, err := util.FindAddress(ctx, ip)
 		if err != nil {
 			logger.Error(ctx, err)
@@ -200,6 +201,14 @@ func (s *sAuth) Login(ctx context.Context, params model.LoginReq) (res *model.Lo
 		}); err != nil {
 			logger.Error(ctx, err)
 		}
+	}
+
+	// 记录登录ip和时间
+	if err = dao.Account.UpdateById(ctx, accountInfo.Id, bson.M{
+		"last_login_ip":   ip,
+		"last_login_time": gtime.Timestamp(),
+	}); err != nil {
+		logger.Error(ctx, err)
 	}
 
 	return &model.LoginRes{
