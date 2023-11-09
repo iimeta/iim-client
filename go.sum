@@ -74,8 +74,8 @@ github.com/gorilla/websocket v1.5.1 h1:gmztn0JnHVt9JZquRuzLw3g4wouNVzKL15iLr/zn/
 github.com/gorilla/websocket v1.5.1/go.mod h1:x3kM2JMyaluk02fnUJpQuwD2dCS5NDG2ZHL0uE0tcaY=
 github.com/grokify/html-strip-tags-go v0.0.1 h1:0fThFwLbW7P/kOiTBs03FsJSV9RM2M/Q/MOnCQxKMo0=
 github.com/grokify/html-strip-tags-go v0.0.1/go.mod h1:2Su6romC5/1VXOQMaWL2yb618ARB8iVo6/DR99A6d78=
-github.com/iimeta/iim-sdk v0.0.0-20231108142958-a8e78b04731b h1:HyuVzpzxtt/9u2mEPn+VlroFsuR6OPJPXV3IqH0k85g=
-github.com/iimeta/iim-sdk v0.0.0-20231108142958-a8e78b04731b/go.mod h1:hDiJqH1WaqZcMeHHRYmxE+kQaTstVFv2cgn2cgvR4WI=
+github.com/iimeta/iim-sdk v0.0.0-20231109043224-bde9afa13334 h1:hhBb1FAcJS75WyqjlAB1/2nZdyNDbMcvp9C2/qsiTEU=
+github.com/iimeta/iim-sdk v0.0.0-20231109043224-bde9afa13334/go.mod h1:hDiJqH1WaqZcMeHHRYmxE+kQaTstVFv2cgn2cgvR4WI=
 github.com/iimeta/iim-server v0.0.0-20231106162952-bd7b569239bc h1:w9rFD322aSnrhKAADg8GRVCyVjEyJ+aSBpcApluqOMk=
 github.com/iimeta/iim-server v0.0.0-20231106162952-bd7b569239bc/go.mod h1:Mkj9m1gN8jpXfifEZgLNBj5XXRdT10pdDwgyY1bs5BI=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=

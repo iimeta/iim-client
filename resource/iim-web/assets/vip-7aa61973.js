@@ -1,1 +1,0 @@
-import{g as e}from"./index-e58a626c.js";const i=()=>e("/api/v1/vip/info"),t=()=>e("/api/v1/vip/generate_secret_key"),n=()=>e("/api/v1/vip/vips"),s=()=>e("/api/v1/vip/friends");export{i as S,t as a,n as b,s as c};
