@@ -5,7 +5,7 @@
 # 智元 IM
 
 [![Release](https://img.shields.io/github/v/release/iimeta/iim-client?color=blue)](https://github.com/iimeta/iim-client/releases)
-[![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)](https://github.com/iimeta/iim-client/main/LICENSE)
+[![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)](https://github.com/iimeta/iim-client/blob/main/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/iimeta/iim-client)](https://goreportcard.com/report/github.com/iimeta/iim-client)
 
 </div>
@@ -44,6 +44,9 @@ https://iim.ai/public/video/start.mp4
 
 ## 项目前端
 ### [传送门](https://github.com/iimeta/iim-web)
+
+## API服务
+### [传送门](https://github.com/iimeta/iim-api)
 
 ## 作者
 <img src="https://raw.githubusercontent.com/iimeta/iim-client/main/resource/images/Author.png" width="320" alt="作者"/>

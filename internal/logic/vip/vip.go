@@ -62,8 +62,10 @@ func (s *sVip) InitDailyUsage(ctx context.Context) {
 	for _, vip := range vips {
 
 		filter := bson.M{
-			"vip_level": bson.M{
-				"$lte": vip.Level,
+			"$or": bson.A{
+				bson.M{"vip_level": bson.M{"$lte": vip.Level}},
+				bson.M{"vip_level": bson.M{"$exists": false}},
+				bson.M{"vip_level": bson.M{"$ne": ""}},
 			},
 		}
 
