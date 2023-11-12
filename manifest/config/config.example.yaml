@@ -237,3 +237,6 @@ sdk:
       describe_url: http://xxx/mj/submit/describe
       blend_url: http://xxx/mj/submit/blend
       fetch_url: http://xxx/mj/task/${task_id}/fetch
+
+vip:
+  init_daily_cron: 0 57 23 * * ?

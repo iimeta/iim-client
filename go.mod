@@ -8,8 +8,8 @@ require (
 	github.com/gogf/gf/v2 v2.5.6
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/gorilla/websocket v1.5.1
-	github.com/iimeta/iim-sdk v0.0.0-20231111044349-e929a352d832
-	github.com/iimeta/iim-server v0.0.0-20231106162952-bd7b569239bc
+	github.com/iimeta/iim-sdk v1.1.0
+	github.com/iimeta/iim-server v1.1.0
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.45
 	github.com/tjfoc/gmsm v1.4.1
