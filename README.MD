@@ -52,7 +52,7 @@ https://iim.ai/public/video/start.mp4
 <img src="https://raw.githubusercontent.com/iimeta/iim-client/main/resource/images/Author.png" width="320" alt="作者"/>
 
 ## 交流群
-<img src="https://iim.ai/public/images/WeChatGroup.jpg" width="320" alt="交流群"/>
+<img src="https://iim.ai/public/images/WeChatGroup.jpg?t=20231112" width="320" alt="交流群"/>
 
 
 ![Star History Chart](https://api.star-history.com/svg?repos=iimeta/iim-client&type=Date)
