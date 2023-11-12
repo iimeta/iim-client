@@ -9,4 +9,4 @@ docker run -d \
   -v /data/iim-client/resource/public:/app/resource/public \
   -v /data/iim-client/resource/private:/app/resource/private \
   --name iim-client \
-  iimeta/iim-client:1.0.0
+  iimeta/iim-client:1.1.0

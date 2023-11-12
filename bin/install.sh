@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker pull iimeta/iim-client:1.0.0
+docker pull iimeta/iim-client:1.1.0
 
 mkdir -p /data/iim-client/manifest/config
 mkdir -p /data/iim-client/resource/public
