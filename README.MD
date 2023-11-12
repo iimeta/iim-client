@@ -6,7 +6,7 @@
 
 [![Release](https://img.shields.io/github/v/release/iimeta/iim-client?color=blue)](https://github.com/iimeta/iim-client/releases)
 [![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)](https://github.com/iimeta/iim-client/main/LICENSE)
-[![Go Report Card](https://goreportcard.com/badge/github.com/iimeta/iim-client)](https://goreportcard.com/report/github.com/iimeta/iim-client)
+[![Docker Pull](https://img.shields.io/docker/pulls/iimeta/iim-client?color=brightgreen)](https://hub.docker.com/r/iimeta/iim-client)
 
 </div>
 
@@ -14,7 +14,7 @@
 
 ## 手动Docker部署
 0. 需提前安装好Redis和MongoDB以及Docker服务
-1. 拉取镜像: `docker pull iimeta/iim-client:1.0.0`
+1. 拉取镜像: `docker pull iimeta/iim-client:1.1.0`
 2. 创建配置文件目录: `mkdir -p /data/iim-client/manifest/config`
 3. 创建公开文件目录: `mkdir -p /data/iim-client/resource/public`
 4. 创建私有文件目录: `mkdir -p /data/iim-client/resource/private`
@@ -32,7 +32,7 @@ docker run -d \
   -v /data/iim-client/resource/public:/app/resource/public \
   -v /data/iim-client/resource/private:/app/resource/private \
   --name iim-client \
-  iimeta/iim-client:1.0.0
+  iimeta/iim-client:1.1.0
 ```
 9. 访问: http://ip:8000/ 如: http://127.0.0.1:8000/
 
@@ -46,7 +46,7 @@ docker run -d \
 
 ## 备用国内镜像地址
 ```shell
-docker pull registry.cn-hangzhou.aliyuncs.com/iimeta/iim-client:1.0.0
+docker pull registry.cn-hangzhou.aliyuncs.com/iimeta/iim-client:1.1.0
 ```
 ```shell
 docker run -d \
@@ -58,7 +58,7 @@ docker run -d \
   -v /data/iim-client/resource/public:/app/resource/public \
   -v /data/iim-client/resource/private:/app/resource/private \
   --name iim-client \
-  registry.cn-hangzhou.aliyuncs.com/iimeta/iim-client:1.0.0
+  registry.cn-hangzhou.aliyuncs.com/iimeta/iim-client:1.1.0
 ```
 
 
