@@ -1,21 +1,11 @@
-<svg id="组_1" data-name="组 1" xmlns="http://www.w3.org/2000/svg" width="66" height="66" viewBox="0 0 66 66">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: #e31115;
-      }
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="256.000000pt" height="256.000000pt" viewBox="0 0 256.000000 256.000000"
+ preserveAspectRatio="xMidYMid meet">
 
-      .cls-1, .cls-2 {
-        fill-rule: evenodd;
-      }
-
-      .cls-2 {
-        fill: #fff;
-      }
-    </style>
-  </defs>
-  <path id="矩形_1" data-name="矩形 1" class="cls-1" d="M6.008,21a4.008,4.008,0,0,1,4.008,4.008v0.025a4.008,4.008,0,0,1-8.015,0V25.008A4.008,4.008,0,0,1,6.008,21Z"/>
-  <path id="矩形_2" data-name="矩形 2" class="cls-2" d="M13.382,21h6.733V53H13.382V21Z"/>
-  <path id="形状_1" data-name="形状 1" class="cls-2" d="M5.687,32.1L2,53h8.016Z"/>
-  <path id="形状_2" data-name="形状 2" class="cls-2" d="M23.962,53l5.13-32h10.74l4.649,17.674L49.13,21H59.71L65,53H58.267L54.1,28.1,47.527,53H41.435L34.863,28.1,30.695,53H23.962Z"/>
+<g transform="translate(0.000000,256.000000) scale(0.100000,-0.100000)"
+fill="#000000" stroke="none">
+</g>
 </svg>
