@@ -1,8 +1,8 @@
 <div align=center>
 
-<img src="https://iim.ai/public/images/logo.png" width="256"/>
+<img src="https://iim.ai/public/images/logo.png?t=2023112623" width="128"/>
 
-# 智元 IM
+# 智元 IIM
 
 [![Release](https://img.shields.io/github/v/release/iimeta/iim-client?color=blue)](https://github.com/iimeta/iim-client/releases)
 [![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)](https://github.com/iimeta/iim-client/main/LICENSE)
@@ -10,7 +10,7 @@
 
 </div>
 
-`智元 IM` 是一个网页版即时聊天系统, 同时拥有AI聊天对话功能, 本项目基于[Lumen IM](https://github.com/gzydong/go-chat)使用[GoFrame](https://github.com/gogf/gf)框架开发
+`智元 IIM` 是一款开源的网页版即时聊天系统, 同时拥有AI聊天对话功能, 本项目基于[Lumen IM](https://github.com/gzydong/go-chat)使用[GoFrame](https://github.com/gogf/gf)框架开发
 
 ## 手动Docker部署
 0. 需提前安装好Redis和MongoDB以及Docker服务
