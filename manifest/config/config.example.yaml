@@ -105,7 +105,7 @@ email:
   port: 465
   username: xxx@xxx.com
   password: xxx
-  fromname: "智元 IM"
+  fromname: "智元 IIM"
 
 # 注册自动添加好友
 register:
