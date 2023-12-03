@@ -10,6 +10,7 @@ type Vip struct {
 	DailyLimit  int      `bson:"daily_limit,omitempty"`  // 每日限额
 	Rule        Rule     `bson:"rule,omitempty"`         // 规则
 	Remark      string   `bson:"remark,omitempty"`       // 备注
+	Color       string   `bson:"color,omitempty"`        // 颜色
 	Status      int      `bson:"status,omitempty"`       // 状态[1:正常;2:下线;-1:删除]
 	CreatedAt   int64    `bson:"created_at,omitempty"`   // 创建时间
 	UpdatedAt   int64    `bson:"updated_at,omitempty"`   // 更新时间

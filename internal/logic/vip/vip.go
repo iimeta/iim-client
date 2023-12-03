@@ -232,6 +232,7 @@ func (s *sVip) Vips(ctx context.Context) ([]*model.Vip, error) {
 			MinuteLimit: vip.MinuteLimit,
 			DailyLimit:  vip.DailyLimit,
 			Remark:      vip.Remark,
+			Color:       vip.Color,
 			Status:      vip.Status,
 			CreatedAt:   vip.CreatedAt,
 			UpdatedAt:   vip.UpdatedAt,

@@ -13,6 +13,7 @@ type Vip struct {
 	MinuteLimit int      `json:"minute_limit,omitempty"` // 分钟限额
 	DailyLimit  int      `json:"daily_limit,omitempty"`  // 每日限额
 	Remark      string   `json:"remark,omitempty"`       // 备注
+	Color       string   `json:"color,omitempty"`        // 颜色
 	Status      int      `json:"status,omitempty"`       // 状态[1:正常;2:下线;-1:删除]
 	CreatedAt   int64    `json:"created_at,omitempty"`   // 创建时间
 	UpdatedAt   int64    `json:"updated_at,omitempty"`   // 更新时间
