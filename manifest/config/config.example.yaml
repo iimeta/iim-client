@@ -4,7 +4,7 @@ server:
   swaggerPath: "/swagger"
   clientMaxBodySize: 100m
 
-# Redis配置
+# Redis 配置
 redis:
   default:
     address: 127.0.0.1:6379
@@ -40,7 +40,7 @@ logger:
   path: "./log/"              # 日志文件路径。默认为空，表示关闭，仅输出到终端
   file: "{Ymd_H}.log"         # 日志文件格式。默认为"{Y-m-d}.log"
   prefix: ""                  # 日志内容输出前缀。默认为空
-  level: "debug"              # 日志输出级别, debug, info, errors, all
+  level: "debug"              # 日志输出级别, debug, info, error, all
   ctxKeys: [ "uid" ]          # 自定义Context上下文变量名称，自动打印Context的变量到日志中。默认为空
   header: true                # 是否打印日志的头信息。默认true
   stdout: true                # 日志是否同时输出到终端。默认true

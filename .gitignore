@@ -14,11 +14,8 @@ output/
 manifest/output/
 temp/
 temp.yaml
-bin/iim*
-bin/client*
 log/
 logs/
-bin/*.zip
 bin/
 **/config/config.yaml
 resource/public/media/
