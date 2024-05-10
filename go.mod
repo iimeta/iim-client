@@ -1,19 +1,24 @@
 module github.com/iimeta/iim-client
 
-go 1.21
+go 1.22
+
+replace (
+	github.com/iimeta/iim-sdk => ../iim-sdk
+	github.com/iimeta/iim-server => ../iim-server
+)
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0
-	github.com/gogf/gf/contrib/nosql/redis/v2 v2.5.7
-	github.com/gogf/gf/v2 v2.5.7
+	github.com/gogf/gf/contrib/nosql/redis/v2 v2.7.0
+	github.com/gogf/gf/v2 v2.7.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/gorilla/websocket v1.5.1
 	github.com/iimeta/iim-sdk v1.1.0
 	github.com/iimeta/iim-server v1.1.0
-	github.com/redis/go-redis/v9 v9.3.0
-	github.com/tencentyun/cos-go-sdk-v5 v0.7.45
+	github.com/redis/go-redis/v9 v9.5.1
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.47
 	github.com/tjfoc/gmsm v1.4.1
-	go.mongodb.org/mongo-driver v1.13.1
+	go.mongodb.org/mongo-driver v1.15.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
 
@@ -47,9 +52,9 @@ require (
 	github.com/orcaman/concurrent-map/v2 v2.0.1 // indirect
 	github.com/pkoukk/tiktoken-go v0.1.6 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
-	github.com/sashabaranov/go-openai v1.17.5 // indirect
+	github.com/sashabaranov/go-openai v1.23.1 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
-	github.com/tidwall/gjson v1.17.0 // indirect
+	github.com/tidwall/gjson v1.17.1 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
@@ -61,11 +66,11 @@ require (
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
-	golang.org/x/crypto v0.14.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/crypto v0.23.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

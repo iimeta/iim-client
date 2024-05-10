@@ -29,15 +29,13 @@ func init() {
 
 	redisConfig := gcfg.Instance().MustGet(ctx, "redis").MapStrVar()
 
-	Default := redisConfig[gredis.DefaultGroupName]
-	if Default != nil {
-		if err := gredis.SetConfigByMap(Default.Map()); err != nil {
+	if def := redisConfig[gredis.DefaultGroupName]; def != nil {
+		if err := gredis.SetConfigByMap(def.Map()); err != nil {
 			panic(err)
 		}
 	}
 
-	masterConfig := redisConfig["master"]
-	if masterConfig != nil {
+	if masterConfig := redisConfig["master"]; masterConfig != nil {
 		if err := gredis.SetConfigByMap(masterConfig.Map(), "master"); err != nil {
 			panic(err)
 		}
@@ -48,8 +46,7 @@ func init() {
 		}
 	}
 
-	slaveConfig := redisConfig["slave"]
-	if slaveConfig != nil {
+	if slaveConfig := redisConfig["slave"]; slaveConfig != nil {
 		if err := gredis.SetConfigByMap(slaveConfig.Map(), "slave"); err != nil {
 			panic(err)
 		}
@@ -63,35 +60,38 @@ func init() {
 	config, _ := gredis.GetConfig()
 
 	opts := &redis.UniversalOptions{
-		Addrs:           gstr.SplitAndTrim(config.Address, ","),
-		Username:        config.User,
-		Password:        config.Pass,
-		DB:              config.Db,
-		MaxRetries:      -1,
-		PoolSize:        config.MaxActive,
-		MinIdleConns:    config.MinIdle,
-		MaxIdleConns:    config.MaxIdle,
-		ConnMaxLifetime: config.MaxConnLifetime,
-		ConnMaxIdleTime: config.IdleTimeout,
-		PoolTimeout:     config.WaitTimeout,
-		DialTimeout:     config.DialTimeout,
-		ReadTimeout:     config.ReadTimeout,
-		WriteTimeout:    config.WriteTimeout,
-		MasterName:      config.MasterName,
-		TLSConfig:       config.TLSConfig,
+		Addrs:            gstr.SplitAndTrim(config.Address, ","),
+		Username:         config.User,
+		Password:         config.Pass,
+		SentinelUsername: config.User,
+		SentinelPassword: config.Pass,
+		DB:               config.Db,
+		MaxRetries:       -1,
+		PoolSize:         config.MaxActive,
+		MinIdleConns:     config.MinIdle,
+		MaxIdleConns:     config.MaxIdle,
+		ConnMaxLifetime:  config.MaxConnLifetime,
+		ConnMaxIdleTime:  config.IdleTimeout,
+		PoolTimeout:      config.WaitTimeout,
+		DialTimeout:      config.DialTimeout,
+		ReadTimeout:      config.ReadTimeout,
+		WriteTimeout:     config.WriteTimeout,
+		MasterName:       config.MasterName,
+		TLSConfig:        config.TLSConfig,
 	}
 
 	if opts.MasterName != "" {
 		redisSentinel := opts.Failover()
 		redisSentinel.ReplicaOnly = config.SlaveOnly
 		UniversalClient = redis.NewFailoverClient(redisSentinel)
+		Client = redis.NewFailoverClient(redisSentinel)
 	} else if len(opts.Addrs) > 1 {
 		UniversalClient = redis.NewClusterClient(opts.Cluster())
+		Client = redis.NewClient(opts.Simple())
 	} else {
 		UniversalClient = redis.NewClient(opts.Simple())
+		Client = redis.NewClient(opts.Simple())
 	}
-
-	Client = redis.NewClient(opts.Simple())
 
 	master = g.Redis()
 	if slave = gredis.Instance("slave"); slave == nil {
